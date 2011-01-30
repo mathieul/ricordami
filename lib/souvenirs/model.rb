@@ -3,7 +3,8 @@ module Souvenirs
     extend ActiveSupport::Concern
 
     included do
-      extend ActiveModel::Naming
+      extend  ActiveModel::Naming
+      include ActiveModel::Conversion
     end
   end
 end

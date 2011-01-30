@@ -1,3 +1,6 @@
+require "digest/sha1"
+
 module Souvenirs
-  # Your code goes here...
 end
+
+require "souvenirs/exceptions"

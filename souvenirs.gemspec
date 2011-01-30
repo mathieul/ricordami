@@ -20,5 +20,7 @@ Gem::Specification.new do |s|
   s.require_paths = ["lib"]
 
   s.add_dependency "redis"
+  s.add_dependency "activesupport"
+  s.add_dependency "activemodel"
   s.add_development_dependency "rspec"
 end

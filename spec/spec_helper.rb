@@ -7,7 +7,10 @@ require "bundler"
 Bundler.setup :default, :test
 ENV['RACK_ENV'] ||= "test"
 
-require spec_dir + "../lib/souvenirs"
+require "support/constants"
 
 RSpec.configure do |config|
+  config.include Support::Constants
 end
+
+require spec_dir + "../lib/souvenirs"

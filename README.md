@@ -9,8 +9,8 @@ A simple way to persist Ruby models into the Redis data structure server.
     class Account
       include Souvenirs::Model
 
-      field :name,      :readonly => true
-      field :comments,  :default => "no comments"
+      attribute :name,      :readonly => true
+      attribute :comments,  :default => "no comments"
 
       index :name
 
@@ -23,8 +23,8 @@ A simple way to persist Ruby models into the Redis data structure server.
     class Operation
       include Souvenirs::Model
 
-      field :type
-      field :value
+      attribute :type
+      attribute :value
 
       validates_presence_of   :account
 

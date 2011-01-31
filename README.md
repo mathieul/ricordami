@@ -1,11 +1,13 @@
-# Redis-Document: persist ruby objects to Redis #
+# Souvenirs: easily persist ruby models to Redis #
 
-A simple way to persist Ruby objects into the Redis data structure server.
+A simple way to persist Ruby models into the Redis data structure server.
 
 ## Example ##
 
+    Souvenirs::Model.config
+
     class Account
-      include Redis::Document
+      include Souvenirs::Model
 
       field :name,      :readonly => true
       field :comments,  :default => "no comments"
@@ -19,7 +21,7 @@ A simple way to persist Ruby objects into the Redis data structure server.
     end
 
     class Operation
-      include Redis::Document
+      include Souvenirs::Model
 
       field :type
       field :value

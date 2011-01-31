@@ -7,4 +7,6 @@ module Souvenirs
       include ActiveModel::Conversion
     end
   end
+
+  include Configuration
 end

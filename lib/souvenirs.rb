@@ -8,4 +8,5 @@ module Souvenirs
 end
 
 require "souvenirs/exceptions"
+require "souvenirs/configuration"
 require "souvenirs/model"

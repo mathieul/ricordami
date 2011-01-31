@@ -1,5 +1,5 @@
 module Souvenirs
-  module Attributes
+  module Connection
     extend ActiveSupport::Concern
 
     included do

@@ -26,6 +26,11 @@ describe Souvenirs::Configuration, " using #configure" do
     Souvenirs.configuration.redis_db.should == 1
   end
 
+  it "can configure redis to use as thread-safe with #redis_thread_safe" do
+    Souvenirs.configure { |config| config.redis_thread_safe = true }
+    Souvenirs.configuration.redis_db.should be_true
+  end
+
   it "can configure all attributes at once using #from_hash" do
     Souvenirs.configure do |config|
       config.from_hash(:redis_host => "serge",
@@ -35,5 +40,6 @@ describe Souvenirs::Configuration, " using #configure" do
     Souvenirs.configuration.redis_host.should == "serge"
     Souvenirs.configuration.redis_port.should == 6380
     Souvenirs.configuration.redis_db.should == 2
+    Souvenirs.configuration.redis_thread_safe.should be_false
   end
 end

@@ -13,7 +13,7 @@ A simple way to persist Ruby models into the Redis data structure server.
     class Account
       include Souvenirs::Model
 
-      attribute :name, :readonly => true
+      attribute :name, :read_only => true
       attribute :comments, :default => "no comments"
 
       index :name

@@ -5,8 +5,10 @@ module Souvenirs
     included do
       extend  ActiveModel::Naming
       include ActiveModel::Conversion
+      include Attributes
     end
   end
 
   include Configuration
+  include Connection
 end

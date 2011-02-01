@@ -8,6 +8,7 @@ Bundler.setup :default, :test
 ENV['RACK_ENV'] ||= "test"
 
 require "support/constants"
+require "awesome_print"
 
 RSpec.configure do |config|
   config.include Support::Constants

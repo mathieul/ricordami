@@ -6,9 +6,19 @@ module Souvenirs
     end
 
     module ClassMethods
-    end
+      def driver
+        @driver ||= create_driver
+      end
 
-    module InstanceMethods
+      private
+
+      def create_driver
+        c = self.configuration
+        Redis.new(:host         => c.redis_host,
+                  :port         => c.redis_port,
+                  :db           => c.redis_db,
+                  :thread_safe  => c.redis_thread_safe)
+      end
     end
   end
 end

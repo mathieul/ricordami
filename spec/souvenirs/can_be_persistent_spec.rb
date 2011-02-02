@@ -29,6 +29,7 @@ describe Souvenirs::CanBePersistent do
     tenant = Tenant.get("Francois")
     tenant.id.should == "Francois"
     tenant.language.should == "French"
+    tenant.should be_persisted
   end
 
   it "#get returns nil if the model can't be loaded" do
@@ -38,10 +39,12 @@ describe Souvenirs::CanBePersistent do
   it "#get! behaves just like #get when the model is found" do
     Tenant.attribute :language
     Tenant.new(:id => "Francois", :language => "French").save
-    Tenant.get!("Francois").attributes.should == {
+    tenant = Tenant.get!("Francois")
+    tenant.attributes.should == {
       "id" => "Francois",
       "language" => "French"
     }
+    tenant.should be_persisted
   end
 
   it "#get! raises an error if the model is not found" do

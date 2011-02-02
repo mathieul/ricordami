@@ -12,6 +12,7 @@ require "awesome_print"
 
 RSpec.configure do |config|
   config.include Support::Constants
+  config.before(:each) { Souvenirs.driver.flushdb }
 end
 
 require spec_dir + "../lib/souvenirs"

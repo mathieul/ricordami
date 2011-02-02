@@ -9,6 +9,7 @@ module Souvenirs
     end
 
     def default_value
+      return @options[:default].call if @options[:default].respond_to?(:call)
       @options[:default]
     end
 

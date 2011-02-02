@@ -18,7 +18,7 @@ describe Souvenirs::Attribute do
     attribute.name.should == "string"
   end
 
-  it "can have an option :default for a default value" do
+  it "has an option :default for a default value" do
     attribute = subject.new(:georges, :default => "jungle")
     attribute.default_value.should == "jungle"
   end
@@ -27,7 +27,15 @@ describe Souvenirs::Attribute do
     subject.new(:no_defaults).default_value.should be_nil
   end
 
-  it "can have an option :read_only when the attribute value can only be set once" do
+  it "allows to use a block as a default value for dynamic values" do
+    i = 0
+    attribute = subject.new(:sequence, :default => Proc.new { i += 1 })
+    attribute.default_value.should == 1
+    attribute.default_value.should == 2
+    attribute.default_value.should == 3
+  end
+
+  it "has an option :read_only when the attribute value can only be set once" do
     attribute = subject.new(:georges, :read_only => true)
     attribute.should be_read_only
   end

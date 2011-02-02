@@ -5,6 +5,8 @@ module Souvenirs
 
     included do
       attribute_method_suffix('', '=')
+      attribute :id, :read_only => true,
+                     :default   => Proc.new { SimpleUUID::UUID.new.to_guid }
     end
 
     module ClassMethods
@@ -17,6 +19,10 @@ module Souvenirs
         self.attributes[instance.name.to_sym] = instance
         instance
       end
+
+      def attributes_key_name_for(id)
+        "#{self.to_s.underscore}:#{id}:attributes"
+      end
     end
 
     module InstanceMethods
@@ -26,7 +32,6 @@ module Souvenirs
         @attributes = {}.with_indifferent_access
         set_default_attribute_values
         overwrite_attribute_values_with(attrs) unless attrs.empty?
-        @attributes[:id] = SimpleUUID::UUID.new.to_guid unless @attributes[:id].present?
       end
 
       private
@@ -55,6 +60,11 @@ module Souvenirs
         attrs.slice(*valid_keys).each do |name, value|
           @attributes[name] = value
         end
+      end
+
+      def attributes_key_name
+        #@attributes_key_name ||= "#{self.class.to_s.underscore}:#{id}:attributes"
+        @attributes_key_name ||= self.class.attributes_key_name_for(id)
       end
     end
   end

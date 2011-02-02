@@ -18,15 +18,6 @@ describe Souvenirs::HasAttributes do
   end
 
   describe "an instance" do
-    it "has an 'id' attribute set to a UUID if not overriden when initialized" do
-      user = User.new
-      user.id.should be_present
-      user.id.should match(/[0-9a-f\-]/)
-    end
-
-    it "overides the value of its 'id' attribute when a value is passed" do
-    end
-
     it "can be initialized with a hash of attribute values" do
       User.attribute :name
       User.attribute :age
@@ -79,6 +70,29 @@ describe Souvenirs::HasAttributes do
       lambda {
         user.ssn = "0987654321"
       }.should raise_error(Souvenirs::ReadOnlyAttribute)
+    end
+
+    it "has an 'id' attribute set to a UUID if not overriden when initialized" do
+      user = User.new
+      user.id.should be_present
+      user.id.should match(/[0-9a-f\-]/)
+    end
+
+    it "overides the value of its 'id' attribute when a value is passed" do
+      user = User.new(:id => "foo")
+      user.id.should == "foo"
+    end
+
+    it "defines 'id' as a read_only attribute" do
+      user = User.new
+      lambda {
+        user.id = "try me"
+      }.should raise_error(Souvenirs::ReadOnlyAttribute)
+    end
+
+    it "returns the name of the attributes key with #attributes_key_name" do
+      user = User.new(:id => "ze_id")
+      user.instance_eval { attributes_key_name }.should == "user:ze_id:attributes"
     end
   end
 end

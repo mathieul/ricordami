@@ -18,6 +18,15 @@ describe Souvenirs::HasAttributes do
   end
 
   describe "an instance" do
+    it "has an 'id' attribute set to a UUID if not overriden when initialized" do
+      user = User.new
+      user.id.should be_present
+      user.id.should match(/[0-9a-f\-]/)
+    end
+
+    it "overides the value of its 'id' attribute when a value is passed" do
+    end
+
     it "can be initialized with a hash of attribute values" do
       User.attribute :name
       User.attribute :age

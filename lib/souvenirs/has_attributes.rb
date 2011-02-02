@@ -26,6 +26,7 @@ module Souvenirs
         @attributes = {}.with_indifferent_access
         set_default_attribute_values
         overwrite_attribute_values_with(attrs) unless attrs.empty?
+        @attributes[:id] = SimpleUUID::UUID.new.to_guid unless @attributes[:id].present?
       end
 
       private

@@ -1,6 +1,6 @@
 require "spec_helper"
 
-describe Souvenirs::Attributes do
+describe Souvenirs::HasAttributes do
   uses_constants("Boat", "User")
 
   describe "the class" do

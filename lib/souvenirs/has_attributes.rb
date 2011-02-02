@@ -1,5 +1,5 @@
 module Souvenirs
-  module Attributes
+  module HasAttributes
     extend ActiveSupport::Concern
 
     included do

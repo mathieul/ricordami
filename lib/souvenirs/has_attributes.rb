@@ -35,6 +35,11 @@ module Souvenirs
       end
 
       def attribute=(name, value)
+        definition = self.class.attributes[name.to_sym]
+        current_value = @attributes[name]
+        if definition.read_only? && current_value.present?
+          raise ReadOnlyAttribute.new("can't change #{name}")
+        end
         @attributes[name] = value
       end
 

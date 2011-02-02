@@ -3,4 +3,5 @@ module Souvenirs
   NotFound                = Class.new(Error)
   ModelInvalid            = Class.new(Error)
   AttributeNotSupported   = Class.new(Error)
+  ReadOnlyAttribute       = Class.new(Error)
 end

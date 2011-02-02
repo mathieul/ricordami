@@ -49,3 +49,11 @@ A simple way to persist Ruby models into the Redis data structure server.
   * Contributor list - List the humans behind the project
   * Credits, Inspiration, Alternatives - Tell me if this is a fork of or otherwise inspired by another project. I won’t think you’re a douche when I find out later.
 
+# RENAMING #
+
+Possible names:
+
+  * Memoria     (memory)
+  * Ricordi     (memories)
+  * Ricordami   (remember me)
+

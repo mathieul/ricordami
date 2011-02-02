@@ -15,30 +15,25 @@ describe Souvenirs::HasAttributes do
       Boat.attributes[:color].default_value.should == "black"
       Boat.attributes[:color].should be_read_only
     end
-
-    it "returns attributes with default values with #defaulted_attributes" do
-      lyrics = Song.attribute :lyrics
-      year = Song.attribute :year, :default => "2011"
-      singer = Song.attribute :singer, :default => "Serge Gainsbourg"
-      Song.defaulted_attributes.should =~ [year, singer]
-    end
   end
 
   describe "an instance" do
-    before(:all) do
+    it "can be initialized with a hash of attribute values" do
       User.attribute :name
       User.attribute :age, :default => "18"
       User.attribute :ssn, :read_only => true
-      puts "User.attributes => #{User.attributes.inspect}"
+      user = User.new(:name => "jean", :age => "20", :ssn => "1234567890")
+      user.name.should == "jean"
+      user.age.should == "20"
+      user.ssn.should == "1234567890"
     end
 
-    it "can be initialized with a hash of attribute values" do
-      user = User.new(:name => "jean", :age => "20", :ssn => "1234567890")
-      puts "user.class = #{user.class}"
-      puts "user.class.attributes => #{user.class.attributes.inspect}"
-      #user.name.should == "jean"
-      #user.age.should == "20"
-      #user.ssn.should == "1234567890"
+    it "can set attributes using writers" do
+      User.attribute :email
+      user = User.new
+      user.email.should be_nil
+      user.email = "blah@toto.com"
+      user.email.should == "blah@toto.com"
     end
   end
 end

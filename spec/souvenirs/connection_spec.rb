@@ -17,7 +17,6 @@ describe Souvenirs::Connection do
     end
 
     it "has a connection to Redis" do
-      puts "Mixer.driver => #{Mixer.driver.inspect}"
       Mixer.driver.should be_a(Redis)
       Mixer.driver.get("not_exist")
       Mixer.driver.client.connection.should be_connected

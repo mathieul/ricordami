@@ -5,6 +5,7 @@ module Souvenirs
     included do
       extend  ActiveModel::Naming
       include ActiveModel::Conversion
+      include ActiveModel::AttributeMethods
       include HasAttributes
       include CanBePersistent
     end

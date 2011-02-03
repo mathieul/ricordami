@@ -8,10 +8,12 @@ Bundler.setup :default, :test
 ENV['RACK_ENV'] ||= "test"
 
 require "support/constants"
+require "support/db_manager"
 require "awesome_print"
 
 RSpec.configure do |config|
   config.include Support::Constants
+  config.include Support::DbManager
   config.before(:each) { Souvenirs.driver.flushdb }
 end
 

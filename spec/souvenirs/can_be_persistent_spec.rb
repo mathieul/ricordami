@@ -34,8 +34,9 @@ describe Souvenirs::CanBePersistent do
       }
       it_should_behave_like "a persister"
       it "returns false if saving failed" do
-        Souvenirs.driver.should_receive(:hmset).and_raise(Errno::ECONNREFUSED)
+        switch_db_to_error
         Tenant.new.save.should be_false
+        switch_db_to_ok
       end
     end
 
@@ -47,9 +48,46 @@ describe Souvenirs::CanBePersistent do
         }
       }
       it_should_behave_like "a persister"
-      it "raises if saving failed" do
-        Souvenirs.driver.should_receive(:hmset).and_raise(Errno::ECONNREFUSED)
+      it "raises an error if saving failed" do
+        switch_db_to_error
         lambda { Tenant.new.save! }.should raise_error(Souvenirs::WriteToDbFailed)
+        switch_db_to_ok
+      end
+    end
+
+    describe "#create" do
+      let(:persister_action) {
+        Proc.new {
+          tenant = Tenant.create(:id => "jojo", :balance => "-$99.98")
+          tenant.should be_a(Tenant)
+          tenant.should be_persisted
+        }
+      }
+      it_should_behave_like "a persister"
+      it "returns an instance not persisted if creating failed" do
+        switch_db_to_error
+        tenant = Tenant.create(:id => "jojo", :balance => "-$99.98")
+        tenant.should be_a(Tenant)
+        tenant.should_not be_persisted
+        switch_db_to_ok
+      end
+    end
+
+    describe "#create!" do
+      let(:persister_action) {
+        Proc.new {
+          tenant = Tenant.create!(:id => "jojo", :balance => "-$99.98")
+          tenant.should be_a(Tenant)
+          tenant.should be_persisted
+        }
+      }
+      it_should_behave_like "a persister"
+      it "raises an error if creating failed" do
+        switch_db_to_error
+        lambda {
+          Tenant.create!(:id => "jojo", :balance => "-$99.98")
+        }.should raise_error(Souvenirs::WriteToDbFailed)
+        switch_db_to_ok
       end
     end
   end

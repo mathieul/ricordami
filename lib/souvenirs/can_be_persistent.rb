@@ -20,6 +20,18 @@ module Souvenirs
         raise NotFound.new("id = #{id}") if found.nil?
         found
       end
+
+      def create(*args)
+        new(*args).tap do |instance|
+          instance.save
+        end
+      end
+
+      def create!(*args)
+        new(*args).tap do |instance|
+          instance.save!
+        end
+      end
     end
 
     module InstanceMethods
@@ -41,6 +53,7 @@ module Souvenirs
 
       def save!
         raise WriteToDbFailed unless save
+        true
       end
     end
   end

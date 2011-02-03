@@ -4,4 +4,5 @@ module Souvenirs
   ModelInvalid            = Class.new(Error)
   AttributeNotSupported   = Class.new(Error)
   ReadOnlyAttribute       = Class.new(Error)
+  WriteToDbFailed         = Class.new(Error)
 end

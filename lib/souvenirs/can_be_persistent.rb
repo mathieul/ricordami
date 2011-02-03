@@ -35,6 +35,12 @@ module Souvenirs
       def save
         Souvenirs.driver.hmset(attributes_key_name, *attributes.to_a.flatten)
         @persisted = true
+      rescue Exception => ex
+        false
+      end
+
+      def save!
+        raise WriteToDbFailed unless save
       end
     end
   end

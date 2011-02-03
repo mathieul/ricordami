@@ -16,4 +16,8 @@ describe Souvenirs::Error do
   it "has an error to notify an attempty to change a read-only attribute" do
     Souvenirs::ReadOnlyAttribute.new.should be_a_kind_of(Souvenirs::Error)
   end
+
+  it "has an error to notify when it couldn't save something to Redis" do
+    Souvenirs::WriteToDbFailed.new.should be_a_kind_of(Souvenirs::Error)
+  end
 end

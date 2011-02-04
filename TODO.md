@@ -2,10 +2,6 @@
 
 ## Developments ##
 
-  * add the following to CanBePersistent:
-    * \#create and #create!
-    * \#update\_attributes
-    * \#reload
   * new Index class
   * new QueryWithIndexes module:
     * get all models

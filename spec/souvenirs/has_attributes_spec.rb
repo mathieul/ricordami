@@ -94,5 +94,38 @@ describe Souvenirs::HasAttributes do
       user = User.new(:id => "ze_id")
       user.instance_eval { attributes_key_name }.should == "user:ze_id:attributes"
     end
+
+    it "updates the attribute values in memory with #update_mem_attributes!" do
+      User.attribute :age
+      User.attribute :sex
+      user = User.new(:age => "12", :sex => "male")
+      user.update_mem_attributes!(:age => "18", :sex => "female")
+      user.age.should == "18"
+      user.sex.should == "female"
+    end
+
+    it "can't change read-only attributes with #update_mem_attributes!" do
+      User.attribute :name
+      User.attribute :ssn, :read_only => true
+      user = User.new(:name => "James Bond", :ssn => "007")
+      lambda {
+        user.update_mem_attributes!(:ssn => "1234567890")
+      }.should raise_error(Souvenirs::ReadOnlyAttribute)
+    end
+
+    it "updates the attribute values in memory with #load_mem_attributes" do
+      User.attribute :age
+      user = User.new(:age => "12")
+      user.load_mem_attributes(:age => "18")
+      user.age.should == "18"
+    end
+
+    it "changes read-only attributes with #load_mem_attributes" do
+      User.attribute :ssn, :read_only => true
+      user = User.new(:ssn => "007")
+      lambda {
+        user.load_mem_attributes(:ssn => "1234567890")
+      }.should_not raise_error
+    end
   end
 end

@@ -30,8 +30,27 @@ module Souvenirs
 
       def initialize(attrs = {})
         @attributes = {}.with_indifferent_access
+        load_mem_attributes(attrs) unless attrs.empty?
         set_default_attribute_values
-        overwrite_attribute_values_with(attrs) unless attrs.empty?
+      end
+
+      # Replace attribute values with the hash attrs
+      # Note: attrs keys can be strings or symbols
+      def update_mem_attributes!(attrs)
+        valid_keys = self.class.attributes.keys
+        attrs.symbolize_keys.slice(*valid_keys).each do |name, value|
+          assert_can_update!(name)
+          @attributes[name] = value
+        end
+        true
+      end
+
+      def load_mem_attributes(attrs)
+        valid_keys = self.class.attributes.keys
+        attrs.symbolize_keys.slice(*valid_keys).each do |name, value|
+          @attributes[name] = value
+        end
+        true
       end
 
       private
@@ -41,29 +60,24 @@ module Souvenirs
       end
 
       def attribute=(name, value)
+        assert_can_update!(name)
+        @attributes[name] = value
+      end
+
+      def assert_can_update!(name)
         definition = self.class.attributes[name.to_sym]
-        current_value = @attributes[name]
-        if definition.read_only? && current_value.present?
+        if definition.read_only? && @attributes[name].present?
           raise ReadOnlyAttribute.new("can't change #{name}")
         end
-        @attributes[name] = value
       end
 
       def set_default_attribute_values
         self.class.attributes.each do |name, attribute|
-          @attributes[name] = attribute.default_value
-        end
-      end
-
-      def overwrite_attribute_values_with(attrs)
-        valid_keys = self.class.attributes.keys
-        attrs.slice(*valid_keys).each do |name, value|
-          @attributes[name] = value
+          @attributes[name] = attribute.default_value unless @attributes.has_key?(name)
         end
       end
 
       def attributes_key_name
-        #@attributes_key_name ||= "#{self.class.to_s.underscore}:#{id}:attributes"
         @attributes_key_name ||= self.class.attributes_key_name_for(id)
       end
     end

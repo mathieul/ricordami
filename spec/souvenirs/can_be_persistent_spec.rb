@@ -3,6 +3,14 @@ require "spec_helper"
 describe Souvenirs::CanBePersistent do
   uses_constants("Tenant")
 
+  it "requires the module Souvenirs::HasAttributes" do
+    lambda {
+      WillFail = Class.new do
+        include Souvenirs::CanBePersistent
+      end
+    }.should raise_error(RuntimeError)
+  end
+
   it "is not persisted after it's just been initialized" do
     tenant = Tenant.new
     tenant.should_not be_persisted
@@ -121,6 +129,46 @@ describe Souvenirs::CanBePersistent do
       lambda {
         Tenant.get!("doesn't exist")
       }.should raise_error(Souvenirs::NotFound)
+    end
+  end
+
+  describe "#reload and #update_attributes" do
+    it "reloads the attribute values from the DB with #reload" do
+      Tenant.attribute :name
+      tenant = Tenant.create(:name => "gainsbourg")
+      tenant.name = "updated"
+      tenant.name.should == "updated"
+      tenant.reload
+      tenant.name.should == "gainsbourg"
+    end
+
+    it "updates passed attribute values and saves the model with #update_attributes" do
+      [:first, :last].each { |a| Tenant.attribute a }
+      tenant = Tenant.create(:first => "serge", :last => "gainsbourg")
+      tenant.update_attributes(:first => "SERGE").should be_true
+      tenant.reload
+      tenant.first.should == "SERGE"
+      tenant.last.should == "gainsbourg"
+    end
+
+    it "returns false if #update_attributes can't save the changes" do
+      tenant = Tenant.create(:id => "gainsbare")  # id is read-only
+      tenant.update_attributes(:id => "gainsbourg").should be_false
+      tenant.id.should == "gainsbare"
+    end
+
+    it "updates passed attribute values and saves the model with #update_attributes!" do
+      Tenant.attribute :first
+      tenant = Tenant.create(:first => "serge")
+      tenant.update_attributes!(:first => "lucien").should be_true
+      tenant.first.should == "lucien"
+    end
+
+    it "raise an error if #update_attributes! can't save the changes" do
+      tenant = Tenant.create(:id => "gainsbare")  # id is read-only
+      lambda {
+        tenant.update_attributes!(:id => "gainsbourg")
+      }.should raise_error(Souvenirs::ReadOnlyAttribute)
     end
   end
 end

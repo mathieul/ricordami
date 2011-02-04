@@ -1,16 +1,20 @@
+require "souvenirs/has_attributes"
+
 module Souvenirs
   module CanBePersistent
     extend ActiveSupport::Concern
 
     included do
+      unless ancestors.include?(HasAttributes)
+        raise RuntimeError.new("missing mandatory module Souvenirs::HasAttributes")
+      end
     end
 
     module ClassMethods
       def get(id)
-        key_name = attributes_key_name_for(id)
-        attributes = Souvenirs.driver.hgetall(key_name)
+        attributes = load_attributes_for(id)
         return nil if attributes.empty?
-        new(attributes.symbolize_keys).tap do |instance|
+        new(attributes).tap do |instance|
           instance.instance_eval { @persisted = true }
         end
       end
@@ -32,6 +36,13 @@ module Souvenirs
           instance.save!
         end
       end
+
+      private
+
+      def load_attributes_for(id)
+        key_name = attributes_key_name_for(id)
+        Souvenirs.driver.hgetall(key_name)
+      end
     end
 
     module InstanceMethods
@@ -44,6 +55,11 @@ module Souvenirs
         @persisted
       end
 
+      def save!
+        raise WriteToDbFailed unless save
+        true
+      end
+
       def save
         Souvenirs.driver.hmset(attributes_key_name, *attributes.to_a.flatten)
         @persisted = true
@@ -51,9 +67,22 @@ module Souvenirs
         false
       end
 
-      def save!
-        raise WriteToDbFailed unless save
+      def reload
+        attrs = self.class.send(:load_attributes_for, id)
+        load_mem_attributes(attrs) unless attrs.empty?
+        self
+      end
+
+      def update_attributes!(attrs)
+        update_mem_attributes!(attrs) unless attrs.empty?
+        save!
         true
+      end
+
+      def update_attributes(attrs)
+        update_attributes!(attrs)
+      rescue Exception => ex
+        false
       end
     end
   end

@@ -33,6 +33,7 @@ module Souvenirs
       def initialize(*args)
         super(*args)
         @persisted = false unless instance_variable_defined?(:@persisted)
+        @save_queue = []
       end
 
       def persisted?
@@ -45,7 +46,12 @@ module Souvenirs
       end
 
       def save
-        Souvenirs.driver.hmset(attributes_key_name, *attributes.to_a.flatten)
+        Souvenirs.driver.tap do |driver|
+          driver.multi
+          driver.hmset(attributes_key_name, *attributes.to_a.flatten)
+          @save_queue.each { |block| block.call(self) }
+          driver.exec
+        end
         @persisted = true
       rescue Exception => ex
         false
@@ -67,6 +73,12 @@ module Souvenirs
         update_attributes!(attrs)
       rescue Exception => ex
         false
+      end
+
+      def queue_saving_operations(&block)
+        raise ArgumentError.new("missing block") unless block_given?
+        raise ArgumentError.new("expecting block with 1 argument") unless block.arity == 1
+        @save_queue << block
       end
     end
   end

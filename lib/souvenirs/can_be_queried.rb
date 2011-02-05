@@ -34,12 +34,11 @@ module Souvenirs
     end
 
     module InstanceMethods
-      def save
-        should_add_to_all_ids = true unless persisted?
-        success = super
-        return false unless success
-        self.class.indices[:all_ids].add(id) if should_add_to_all_ids
-        true
+      def initialize(*args)
+        super(*args)
+        queue_saving_operations do |obj|
+          self.class.indices[:all_ids].add(id) unless obj.persisted?
+        end
       end
     end
   end

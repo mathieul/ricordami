@@ -44,6 +44,16 @@ describe Souvenirs::CanBeQueried do
   end
 
   describe "#all, #first, #last, #rand" do
+    it "saves the ids of new instances when saved" do
+      Tenant.attribute :name
+      instance = Tenant.new(:id => "hi")
+      instance.save
+      Tenant.indices[:all_ids].all.should == ["hi"]
+      instance.name = "john"
+      instance.save
+      Tenant.indices[:all_ids].all.should == ["hi"]
+    end
+
     it "returns all the instances with #all" do
       %w(allo la terre).each { |n| Tenant.create(:id => n) }
       Tenant.all.map(&:id).should =~ ["allo", "la", "terre"]

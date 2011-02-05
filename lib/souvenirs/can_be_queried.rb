@@ -1,5 +1,5 @@
-require "souvenirs/index"
 require "souvenirs/can_be_persisted"
+require "souvenirs/has_indices"
 
 module Souvenirs
   module CanBeQueried
@@ -9,6 +9,7 @@ module Souvenirs
       unless ancestors.include?(CanBePersisted)
         raise RuntimeError.new("missing mandatory module Souvenirs::CanBePersisted")
       end
+      index :all_ids, :type => :list
     end
 
     module ClassMethods
@@ -24,6 +25,10 @@ module Souvenirs
         get(id).tap do |found|
           raise NotFound.new("id = #{id}") if found.nil?
         end
+      end
+
+      def all
+        ids = indices[:all_ids].all
       end
     end
 

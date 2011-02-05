@@ -42,4 +42,11 @@ describe Souvenirs::CanBeQueried do
       }.should raise_error(Souvenirs::NotFound)
     end
   end
+
+  describe "#all, #first, #last, #rand" do
+    it "returns all the instances with #all" do
+      %w(allo la terre).each { |n| Tenant.create(:id => n) }
+      Tenant.all.map(&:id).should =~ ["allo", "la", "terre"]
+    end
+  end
 end

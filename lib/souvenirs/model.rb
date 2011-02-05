@@ -7,7 +7,8 @@ module Souvenirs
       include ActiveModel::Conversion
       include ActiveModel::AttributeMethods
       include HasAttributes
-      include CanBePersistent
+      include CanBePersisted
+      include CanBeQueried
     end
   end
 

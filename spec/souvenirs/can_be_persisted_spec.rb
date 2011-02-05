@@ -1,12 +1,12 @@
 require "spec_helper"
 
-describe Souvenirs::CanBePersistent do
+describe Souvenirs::CanBePersisted do
   uses_constants("Tenant")
 
   it "requires the module Souvenirs::HasAttributes" do
     lambda {
       WillFail = Class.new do
-        include Souvenirs::CanBePersistent
+        include Souvenirs::CanBePersisted
       end
     }.should raise_error(RuntimeError)
   end

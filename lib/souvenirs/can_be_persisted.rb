@@ -1,7 +1,7 @@
 require "souvenirs/has_attributes"
 
 module Souvenirs
-  module CanBePersistent
+  module CanBePersisted
     extend ActiveSupport::Concern
 
     included do
@@ -11,20 +11,6 @@ module Souvenirs
     end
 
     module ClassMethods
-      def get(id)
-        attributes = load_attributes_for(id)
-        return nil if attributes.empty?
-        new(attributes).tap do |instance|
-          instance.instance_eval { @persisted = true }
-        end
-      end
-
-      def get!(id)
-        found = get(id)
-        raise NotFound.new("id = #{id}") if found.nil?
-        found
-      end
-
       def create(*args)
         new(*args).tap do |instance|
           instance.save
@@ -36,8 +22,6 @@ module Souvenirs
           instance.save!
         end
       end
-
-      private
 
       def load_attributes_for(id)
         key_name = attributes_key_name_for(id)

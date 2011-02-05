@@ -22,5 +22,13 @@ describe Souvenirs::HasIndices do
     it "raises an error if an index is not declared unique" do
       lambda { Car.index }.should raise_error(Souvenirs::InvalidIndexDefinition)
     end
+
+    it "saves the values of the unique attributes into the indices" do
+      Car.attribute :name
+      Car.index :unique => :name
+      car = Car.new(:name => "Prius")
+      car.save
+      Car.indices[:all_names].all.should == ["Prius"]
+    end
   end
 end

@@ -21,11 +21,11 @@ describe Souvenirs::UniqueValidator do
   end
 
   it "#validate_each adds an error if the value is already used" do
-    @record.save!
-    puts "Call.all => #{Call.all.inspect}"
     @validator.setup(Call)
-    @validator.validate_each(@record, :name, @record.name)
+    @record.save!
+
     sophie = Call.new(:name => "sophie")
+    @validator.validate_each(sophie, :name, sophie.name)
     sophie.should have(1).error
     sophie.errors[:name].should == ["is already used"]
   end

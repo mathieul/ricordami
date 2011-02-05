@@ -22,6 +22,12 @@ module Souvenirs
         raise InvalidIndexDefinition.new(self.class) if fields.blank?
         instance = UniqueIndex.new(self, fields, options)
         self.indices[instance.name.to_sym] = instance
+        queue_saving_operations do |obj|
+          unless obj.persisted?
+            value = instance.package_fields(obj)
+            indices[instance.name.to_sym].add(value)
+          end
+        end
         instance
       end
     end

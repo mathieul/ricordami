@@ -10,6 +10,9 @@ module Souvenirs
         raise RuntimeError.new("missing mandatory module Souvenirs::CanBePersisted")
       end
       index :unique => :id
+      #queue_saving_operations do |obj|
+        #indices[:all_ids].add(obj.id) unless obj.persisted?
+      #end
     end
 
     module ClassMethods
@@ -34,12 +37,6 @@ module Souvenirs
     end
 
     module InstanceMethods
-      def initialize(*args)
-        super(*args)
-        queue_saving_operations do |obj|
-          self.class.indices[:all_ids].add(id) unless obj.persisted?
-        end
-      end
     end
   end
 end

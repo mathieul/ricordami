@@ -29,5 +29,9 @@ module Souvenirs
     def include?(value)
       Souvenirs.driver.sismember(internal_name, value)
     end
+
+    def package_fields(obj)
+      fields.map { |field| obj.send(field) }.join(":-:")
+    end
   end
 end

@@ -3,11 +3,9 @@ require "spec_helper"
 describe Souvenirs::UniqueIndex do
   subject { Souvenirs::UniqueIndex }
 
-  before(:all) do
-    DataSource = Class.new
-  end
-
   before(:each) do
+    create_constant("DataSource")
+    DataSource.attribute :name
     @index = subject.new(DataSource, :id)
   end
 
@@ -41,5 +39,12 @@ describe Souvenirs::UniqueIndex do
     %w(allo la terre).each { |v| @index.add(v) }
     @index.should include("terre")
     @index.should_not include("earth")
+  end
+
+  it "serializes fields into a string with #package_fields" do
+    index = DataSource.index :unique => [:id, :name]
+    ds = DataSource.new(:id => "zeid", :name => "zename")
+    result = index.package_fields(ds)
+    result.should == "zeid:-:zename"
   end
 end

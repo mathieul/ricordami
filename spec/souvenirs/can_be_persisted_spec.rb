@@ -175,27 +175,27 @@ describe Souvenirs::CanBePersisted do
   describe "grouping DB operations with #queue_saving_operations" do
     it "raises an error if no block is passed" do
       lambda {
-        Tenant.new.queue_saving_operations
+        Tenant.queue_saving_operations
       }.should raise_error(ArgumentError)
     end
 
     it "raises an error if the block passed doesn't take 1 argument" do
       lambda {
-        Tenant.new.queue_saving_operations { |one, two| [one, two] }
+        Tenant.queue_saving_operations { |one, two| [one, two] }
       }.should raise_error(ArgumentError)
     end
 
     it "allows to queue DB operations that will run when instance is saved" do
-      Tenant.attribute :name
-      tenant = Tenant.new
       logs = []
-      tenant.queue_saving_operations do |obj|
+      Tenant.attribute :name
+      Tenant.queue_saving_operations do |obj|
         logs << if obj.persisted?
           "ALREADY persisted"
         else
           "NOT persisted"
         end
       end
+      tenant = Tenant.new
       tenant.save
       tenant.update_attributes(:name => "blah")
       logs.should == ["NOT persisted", "ALREADY persisted"]

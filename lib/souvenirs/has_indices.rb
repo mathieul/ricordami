@@ -1,3 +1,4 @@
+require "souvenirs/has_attributes"
 require "souvenirs/index"
 
 module Souvenirs
@@ -5,6 +6,9 @@ module Souvenirs
     extend ActiveSupport::Concern
 
     included do
+      unless ancestors.include?(HasAttributes)
+        raise RuntimeError.new("missing mandatory module Souvenirs::HasAttributes")
+      end
     end
 
     module ClassMethods
@@ -13,6 +17,9 @@ module Souvenirs
       end
 
       def index(name, options = {})
+        instance = Index.new(name, options)
+        self.indices[instance.name.to_sym] = instance
+        instance
       end
     end
 

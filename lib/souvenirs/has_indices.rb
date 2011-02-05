@@ -17,8 +17,8 @@ module Souvenirs
       end
 
       def index(name, options = {})
-        instance = Index.new(name, options)
-        self.indices[instance.name.to_sym] = instance
+        instance = Index.new(self, name, options)
+        self.indices[name.to_sym] = instance
         instance
       end
     end

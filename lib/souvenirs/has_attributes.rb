@@ -16,7 +16,7 @@ module Souvenirs
 
       def attribute(name, options = {})
         instance = Attribute.new(name, options)
-        self.attributes[instance.name.to_sym] = instance
+        self.attributes[name.to_sym] = instance
         instance
       end
 

@@ -29,10 +29,18 @@ module Souvenirs
 
       def all
         ids = indices[:all_ids].all
+        ids.map { |id| get(id) }
       end
     end
 
     module InstanceMethods
+      def save
+        should_add_to_all_ids = true unless persisted?
+        success = super
+        return false unless success
+        self.class.indices[:all_ids].add(id) if should_add_to_all_ids
+        true
+      end
     end
   end
 end

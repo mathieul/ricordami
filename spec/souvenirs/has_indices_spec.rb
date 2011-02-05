@@ -1,7 +1,7 @@
 require "spec_helper"
 
 describe Souvenirs::HasIndices do
-  it "requires the module Souvenirs::HasHasIndices" do
+  it "requires the module Souvenirs::HasIndices" do
     lambda {
       WillFail = Class.new do
         include Souvenirs::HasIndices

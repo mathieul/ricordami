@@ -82,15 +82,18 @@ describe Souvenirs::CanBeValidated do
     end
 
     it "is valid if no other instance uses the same attribute value" do
-      User.create(:username => "toto").should be_valid
+      user = User.new(:username => "Serge Gainsbourg")
+      user.should be_valid
     end
 
     it "is not valid if another instance uses the same attribute value" do
-      User.create(:username => "toto").should be_valid
-      user = User.new(:username => "toto")
-      user.should_not be_valid
-      user.should have(1).error
-      user.errors[:username].should == ["is already used"]
+      serge = User.new(:username => "Gainsbourg")
+      serge.should be_valid
+
+      usurpateur = User.new(:username => "Gainsbourg")
+      usurpateur.should_not be_valid
+      usurpateur.should have(1).error
+      usurpateur.errors[:username].should == ["is already used"]
     end
   end
 end

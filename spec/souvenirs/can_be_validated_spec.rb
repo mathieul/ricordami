@@ -88,7 +88,7 @@ describe Souvenirs::CanBeValidated do
 
     it "is not valid if another instance uses the same attribute value" do
       serge = User.new(:username => "Gainsbourg")
-      serge.should be_valid
+      serge.save.should be_true
 
       usurpateur = User.new(:username => "Gainsbourg")
       usurpateur.should_not be_valid

@@ -40,12 +40,12 @@ module Souvenirs
         @persisted
       end
 
-      def save!
-        raise WriteToDbFailed unless save
+      def save!(opts = {})
+        raise WriteToDbFailed unless save(opts)
         true
       end
 
-      def save
+      def save(opts = {})
         Souvenirs.driver.tap do |driver|
           driver.multi
           driver.hmset(attributes_key_name, *attributes.to_a.flatten)

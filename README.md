@@ -16,7 +16,7 @@ A simple way to persist Ruby models into the Redis data structure server.
       attribute :name, :read_only => true
       attribute :comments, :default => "no comments"
 
-      index :name
+      index :unique => :name
 
       validates_presence_of :name
       validates_uniqueness_of :name

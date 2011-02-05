@@ -1,3 +1,5 @@
+require "souvenirs/attribute"
+
 module Souvenirs
   module HasAttributes
     extend ActiveSupport::Concern

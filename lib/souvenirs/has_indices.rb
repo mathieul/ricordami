@@ -1,5 +1,5 @@
 require "souvenirs/has_attributes"
-require "souvenirs/index"
+require "souvenirs/unique_index"
 
 module Souvenirs
   module HasIndices
@@ -16,9 +16,12 @@ module Souvenirs
         @indices ||= {}
       end
 
-      def index(name, options = {})
-        instance = Index.new(self, name, options)
-        self.indices[name.to_sym] = instance
+      def index(options = {})
+        options.assert_valid_keys(:unique)
+        fields = options.delete(:unique)
+        raise InvalidIndexDefinition.new(self.class) if fields.blank?
+        instance = UniqueIndex.new(self, fields, options)
+        self.indices[instance.name.to_sym] = instance
         instance
       end
     end

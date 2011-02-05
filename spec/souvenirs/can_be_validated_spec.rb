@@ -43,4 +43,54 @@ describe Souvenirs::CanBeValidated do
     end
   end
 
+  describe "#save" do
+    uses_constants("Post")
+
+    before(:each) do
+      Post.class_eval do
+        attribute :title
+        validates_presence_of :title
+      end
+    end
+
+    it "can't #save if it is not valid" do
+      post = Post.new
+      post.save.should be_false
+    end
+
+    it "it raises an error when #save! if it is not valid" do
+      post = Post.new
+      lambda { post.save! }.should raise_error(Souvenirs::ModelInvalid)
+    end
+
+    it "can save if it is not valid but passed :validate => false" do
+      Post.new.save(:validate => false).should be_true
+      lambda {
+        Post.new.save!(:validate => false)
+      }.should_not raise_error
+    end
+  end
+
+  describe "validate attribute uniqueness" do
+    uses_constants("User")
+
+    before(:each) do
+      User.class_eval do
+        attribute :username
+        validates_uniqueness_of :username
+      end
+    end
+
+    it "is valid if no other instance uses the same attribute value" do
+      User.create(:username => "toto").should be_valid
+    end
+
+    it "is not valid if another instance uses the same attribute value" do
+      User.create(:username => "toto").should be_valid
+      user = User.new(:username => "toto")
+      user.should_not be_valid
+      user.should have(1).error
+      user.errors[:username].should == ["is already used"]
+    end
+  end
 end

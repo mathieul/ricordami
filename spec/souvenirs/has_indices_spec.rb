@@ -12,11 +12,15 @@ describe Souvenirs::HasIndices do
   describe "the class" do
     uses_constants("Car")
 
-    it "can declare indices with #index" do
+    it "can declare a unique index with #index" do
       Car.attribute :model
-      index = Car.index :model
-      Car.indices[:model].should be_a(Souvenirs::Index)
-      Car.indices[:model].should == index
+      index = Car.index :unique => :model
+      Car.indices[:all_models].should be_a(Souvenirs::UniqueIndex)
+      Car.indices[:all_models].should == index
+    end
+
+    it "raises an error if an index is not declared unique" do
+      lambda { Car.index }.should raise_error(Souvenirs::InvalidIndexDefinition)
     end
   end
 end

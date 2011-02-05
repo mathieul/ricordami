@@ -5,4 +5,5 @@ module Souvenirs
   AttributeNotSupported   = Class.new(Error)
   ReadOnlyAttribute       = Class.new(Error)
   WriteToDbFailed         = Class.new(Error)
+  InvalidIndexDefinition  = Class.new(Error)
 end

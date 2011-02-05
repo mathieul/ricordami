@@ -9,7 +9,7 @@ module Souvenirs
       unless ancestors.include?(CanBePersisted)
         raise RuntimeError.new("missing mandatory module Souvenirs::CanBePersisted")
       end
-      index :all_ids
+      index :unique => :id
     end
 
     module ClassMethods

@@ -1,12 +1,13 @@
 module Souvenirs
-  class Index
-    attr_reader :owner_type, :name
+  class UniqueIndex
+    attr_reader :owner_type, :fields, :name
 
-    def initialize(owner_type, name, options = {})
+    def initialize(owner_type, fields, options = {})
       #options.assert_valid_keys
       @options = options
-      @name = name.to_s
       @owner_type = owner_type.to_s.underscore
+      @fields = [fields].flatten.map(&:to_sym)
+      @name = (%w(all) + @fields).join("_") + "s"
     end
 
     def internal_name
@@ -23,6 +24,10 @@ module Souvenirs
 
     def all
       Souvenirs.driver.smembers(internal_name)
+    end
+
+    def include?(value)
+      Souvenirs.driver.sismember(internal_name, value)
     end
   end
 end

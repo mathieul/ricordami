@@ -2,13 +2,11 @@
 
 ## Developments ##
 
-  * new Index class
+  * add validation
   * new QueryWithIndexes module:
-    * get all models
     * paginate models
     * find by column value (first or all)
     * paginate by column value(s)
-  * add validation
   * add support for dirty models
   * add support for native types (list, hash, set, sorted set)
   * add support for other types: marshalled objects (Time, Money, etc...)

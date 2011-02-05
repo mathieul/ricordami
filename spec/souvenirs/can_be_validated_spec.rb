@@ -76,7 +76,7 @@ describe Souvenirs::CanBeValidated do
 
     before(:each) do
       User.class_eval do
-        attribute :username
+        attribute :username, :read_only => true
         validates_uniqueness_of :username
       end
     end
@@ -89,11 +89,14 @@ describe Souvenirs::CanBeValidated do
     it "is not valid if another instance uses the same attribute value" do
       serge = User.new(:username => "Gainsbourg")
       serge.save.should be_true
+      serge.should be_valid
 
       usurpateur = User.new(:username => "Gainsbourg")
       usurpateur.should_not be_valid
       usurpateur.should have(1).error
       usurpateur.errors[:username].should == ["is already used"]
     end
+
+    it "allows to validate the uniqueness of an attribute that can be changed"
   end
 end

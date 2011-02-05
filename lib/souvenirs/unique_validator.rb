@@ -4,7 +4,10 @@ module Souvenirs
       index_name = "all_#{attribute}s".to_sym
       index = record.class.indices[index_name]
       if index.include?(value)
-        record.errors.add(attribute, "is already used")
+        attr_def = record.class.attributes[attribute]
+        unless record.persisted? && attr_def.read_only?
+          record.errors.add(attribute, "is already used")
+        end
       end
     end
 

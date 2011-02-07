@@ -18,17 +18,12 @@ module Souvenirs
     module ClassMethods
       def get(id)
         attributes = load_attributes_for(id)
-        return nil if attributes.empty?
+        raise NotFound.new("id = #{id}") if attributes.empty?
         new(attributes).tap do |instance|
           instance.instance_eval { @persisted = true }
         end
       end
-
-      def get!(id)
-        get(id).tap do |found|
-          raise NotFound.new("id = #{id}") if found.nil?
-        end
-      end
+      alias :[] :get
 
       def all
         ids = indices[:all_ids].all

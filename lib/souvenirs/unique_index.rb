@@ -30,8 +30,17 @@ module Souvenirs
       Souvenirs.driver.sismember(internal_name, value)
     end
 
-    def package_fields(obj)
-      fields.map { |field| obj.send(field) }.join(":-:")
+    def package_fields(obj, opts = {})
+      changed = fields.map { |field| obj.send("#{field}_changed?") }
+      return nil unless changed.any?
+      values = fields.map do |field|
+        if opts[:previous_value]
+          obj.send("#{field}_was")
+        else
+          obj.send(field)
+        end
+      end
+      values.join(":-:")
     end
   end
 end

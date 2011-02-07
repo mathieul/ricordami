@@ -41,10 +41,19 @@ describe Souvenirs::UniqueIndex do
     @index.should_not include("earth")
   end
 
-  it "serializes fields into a string with #package_fields" do
+  it "serializes object fields into a string with #package_fields" do
     index = DataSource.index :unique => [:id, :name]
-    ds = DataSource.new(:id => "zeid", :name => "zename")
-    result = index.package_fields(ds)
-    result.should == "zeid:-:zename"
+    ds = DataSource.create(:id => "zeid", :name => "oldname")
+    ds.name = "newname"
+    index.package_fields(ds).should == "zeid:-:newname"
+    index.package_fields(ds, :previous_value => true).should == "zeid:-:oldname"
+  end
+
+  it "returns nil if there is no value to serialize with #package_fields" do
+    DataSource.attribute :first
+    DataSource.attribute :second
+    index = DataSource.index :unique => [:first, :second]
+    ds = DataSource.create(:first => "un", :second => "deux")
+    index.package_fields(ds, :previous_value => true).should be_nil
   end
 end

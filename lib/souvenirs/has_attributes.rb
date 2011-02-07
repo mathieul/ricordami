@@ -4,6 +4,7 @@ module Souvenirs
   module HasAttributes
     extend ActiveSupport::Concern
     include ActiveModel::AttributeMethods
+    include ActiveModel::Dirty
 
     included do
       attribute_method_suffix('', '=')
@@ -42,7 +43,7 @@ module Souvenirs
         valid_keys = self.class.attributes.keys
         attrs.symbolize_keys.slice(*valid_keys).each do |name, value|
           assert_can_update!(name)
-          @attributes[name] = value
+          write_attribute(name, value)
         end
         true
       end
@@ -50,12 +51,22 @@ module Souvenirs
       def load_mem_attributes(attrs)
         valid_keys = self.class.attributes.keys
         attrs.symbolize_keys.slice(*valid_keys).each do |name, value|
-          @attributes[name] = value
+          write_attribute(name, value)
         end
         true
       end
 
       private
+
+      def write_attribute(name, value)
+        return value if @attributes[name] == value
+        if @persisted_attributes && @persisted_attributes[name] == value
+          @changed_attributes.delete(name.to_s)
+        else
+          attribute_will_change!(name.to_s)
+        end
+        @attributes[name] = value
+      end
 
       def attribute(name)
         @attributes[name]
@@ -63,7 +74,7 @@ module Souvenirs
 
       def attribute=(name, value)
         assert_can_update!(name)
-        @attributes[name] = value
+        write_attribute(name, value)
       end
 
       def assert_can_update!(name)
@@ -81,6 +92,12 @@ module Souvenirs
 
       def attributes_key_name
         @attributes_key_name ||= self.class.attributes_key_name_for(id)
+      end
+
+      def attributes_synced_with_db!
+        @persisted_attributes = @attributes.clone
+        @previously_changed = changes
+        @changed_attributes.clear if @changed_attributes
       end
     end
   end

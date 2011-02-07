@@ -1,9 +1,9 @@
 require "spec_helper"
 
 describe Souvenirs::HasAttributes do
-  uses_constants("Boat", "Song", "User")
-
   describe "the class" do
+    uses_constants("Boat")
+
     it "can declare attributes using #attribute" do
       Boat.attribute :sail
       Boat.attributes[:sail].should be_a(Souvenirs::Attribute)
@@ -18,6 +18,8 @@ describe Souvenirs::HasAttributes do
   end
 
   describe "an instance" do
+    uses_constants("User")
+
     it "can be initialized with a hash of attribute values" do
       User.attribute :name
       User.attribute :age
@@ -126,6 +128,80 @@ describe Souvenirs::HasAttributes do
       lambda {
         user.load_mem_attributes(:ssn => "1234567890")
       }.should_not raise_error
+    end
+  end
+
+  describe "keeps track of dirty attributes" do
+    uses_constants("Plane")
+    before(:each) do
+      Plane.attribute :brand
+      Plane.attribute :model
+    end
+
+    describe "a new record" do
+      before(:each) { @plane = Plane.new }
+      let(:plane) { @plane }
+
+      it "was not changed if it doesn't have attributes" do
+        plane.should_not be_changed
+        plane.changed.should be_empty
+        plane.changes.should be_empty
+      end
+
+      it "was changed when initialized with attributes" do
+        plane = Plane.new(:brand => "Airbus", :model => "320")
+        plane.should be_changed
+        plane.changed.should =~ ["brand", "model"]
+        plane.changes.should == {"brand" => [nil, "Airbus"], "model" => [nil, "320"]}
+      end
+
+      it "knows when an attribute value changes" do
+        plane.brand = "Boeing"
+        plane.should be_changed
+        plane.changed.should == ["brand"]
+        plane.changes["brand"].should == [nil, "Boeing"]
+      end
+
+      it "knows when an attribute value actually didn't change" do
+        plane.brand = nil
+        plane.should_not be_changed
+      end
+
+      it "was not changed after it was saved" do
+        plane.model = "380"
+        plane.save
+        plane.should_not be_changed
+      end
+
+      it "knows when it was changed before being saved" do
+        plane.model = "380"
+        plane.save
+        plane.previous_changes.should == {"model" => [nil, "380"]}
+      end
+    end
+
+    describe "a persisted record" do
+      before(:each) { Plane.create(:id => "A320", :brand => "Airbus", :model => "320") }
+      let(:plane) { Plane["A320"] }
+
+      it "was not changed when it's just loaded from the DB" do
+        plane.should_not be_changed
+      end
+
+      it "knows when an attribute value actually didn't change" do
+        plane.brand = "Airbus"
+        plane.should_not be_changed
+        plane.brand = "Boeing"
+        plane.brand = "Airbus"
+        plane.should_not be_changed
+      end
+
+      it "knows which attributes changed when running #update_attributes" do
+        plane.brand = "Boeing"
+        plane.update_attributes(:brand => "Airbus", :model => "380")
+        plane.should_not be_changed
+        plane.previous_changes.should == {"model" => ["320", "380"]}
+      end
     end
   end
 end

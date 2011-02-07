@@ -10,9 +10,6 @@ module Souvenirs
         raise RuntimeError.new("missing mandatory module Souvenirs::CanBePersisted")
       end
       index :unique => :id
-      #queue_saving_operations do |obj|
-        #indices[:all_ids].add(obj.id) unless obj.persisted?
-      #end
     end
 
     module ClassMethods
@@ -20,7 +17,10 @@ module Souvenirs
         attributes = load_attributes_for(id)
         raise NotFound.new("id = #{id}") if attributes.empty?
         new(attributes).tap do |instance|
-          instance.instance_eval { @persisted = true }
+          instance.instance_eval do
+            @persisted = true
+            attributes_synced_with_db!
+          end
         end
       end
       alias :[] :get

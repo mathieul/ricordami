@@ -9,7 +9,6 @@ module Souvenirs
       include HasAttributes
       include HasIndices
       include CanBePersisted
-      include Dirty
       include CanBeQueried
       include CanBeValidated
     end

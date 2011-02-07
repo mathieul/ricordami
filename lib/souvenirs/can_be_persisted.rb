@@ -47,6 +47,10 @@ module Souvenirs
         @persisted
       end
 
+      def new_record?
+        !@persisted
+      end
+
       def save!(opts = {})
         raise WriteToDbFailed unless save(opts)
         true
@@ -60,6 +64,7 @@ module Souvenirs
           driver.exec
         end
         @persisted = true
+        attributes_synced_with_db!
       rescue Exception => ex
         false
       end
@@ -67,6 +72,7 @@ module Souvenirs
       def reload
         attrs = self.class.send(:load_attributes_for, id)
         load_mem_attributes(attrs) unless attrs.empty?
+        attributes_synced_with_db!
         self
       end
 

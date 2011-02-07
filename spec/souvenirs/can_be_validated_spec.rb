@@ -77,6 +77,7 @@ describe Souvenirs::CanBeValidated do
     before(:each) do
       User.class_eval do
         attribute :username, :read_only => true
+        attribute :wife
         validates_uniqueness_of :username
       end
     end
@@ -97,6 +98,17 @@ describe Souvenirs::CanBeValidated do
       usurpateur.errors[:username].should == ["is already used"]
     end
 
-    it "allows to validate the uniqueness of an attribute that can be changed"
+    it "allows to validate the uniqueness of an attribute that can be changed" do
+      User.validates_uniqueness_of(:wife)
+      User.create!(:id => "serge", :username => "Gainsbourg", :wife => "Rita")
+      serge = User["serge"]
+      serge.should be_valid
+      serge.save
+
+      fred = User.new(:username => "Chichin", :wife => "Rita")
+      fred.should_not be_valid
+      fred.should have(1).error
+      fred.errors[:wife].should == ["is already used"]
+    end
   end
 end

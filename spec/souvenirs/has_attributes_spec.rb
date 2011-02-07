@@ -143,7 +143,6 @@ describe Souvenirs::HasAttributes do
       let(:plane) { @plane }
 
       it "was not changed if it doesn't have attributes" do
-        puts "plane.id = #{plane.id.inspect}"
         plane.should_not be_changed
         plane.changed.should be_empty
         plane.changes.should be_empty

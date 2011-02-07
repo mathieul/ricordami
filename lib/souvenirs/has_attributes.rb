@@ -37,6 +37,14 @@ module Souvenirs
         set_default_attribute_values
       end
 
+      # ActiveModel::AttributeMethods doesn't seem
+      # to generate a reader for id that uses
+      # #attributes["id"] in Ruby 1.8.7, so hard-coding
+      # it now
+      def id
+        @attributes["id"]
+      end
+
       # Replace attribute values with the hash attrs
       # Note: attrs keys can be strings or symbols
       def update_mem_attributes!(attrs)
@@ -122,3 +130,10 @@ module Souvenirs
     end
   end
 end
+
+=begin
+class Zlaj
+  include Souvenirs::Model
+  attribute :name
+end
+=end

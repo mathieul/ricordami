@@ -29,7 +29,7 @@ module Souvenirs
 
     def method_missing(meth, *args, &blk)
       return @options[meth] if ATTRIBUTE_NAMES.include?(meth)
-      if args.length == 1 && match = /^(.*)=$/.match(meth)
+      if args.length == 1 && match = /^(.*)=$/.match(meth.to_s)
         name = match[1].to_sym
         return @options[name] = args.first if ATTRIBUTE_NAMES.include?(name)
       end

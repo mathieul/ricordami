@@ -188,6 +188,12 @@ describe Souvenirs::HasAttributes do
         plane.should_not be_changed
       end
 
+      it "was not changed after reloading it with #reload" do
+        plane.brand = "Toys'R US"
+        plane.reload
+        plane.should_not be_changed
+      end
+
       it "knows when an attribute value actually didn't change" do
         plane.brand = "Airbus"
         plane.should_not be_changed

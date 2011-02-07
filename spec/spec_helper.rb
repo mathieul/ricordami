@@ -7,6 +7,7 @@ require "bundler"
 Bundler.setup :default, :test
 ENV['RACK_ENV'] ||= "test"
 
+require "rspec"
 require "support/constants"
 require "support/db_manager"
 require "awesome_print"

@@ -57,6 +57,7 @@ module Souvenirs
       end
 
       def save(opts = {})
+        set_initial_attribute_values if new_record?
         Souvenirs.driver.tap do |driver|
           driver.multi
           driver.hmset(attributes_key_name, *attributes.to_a.flatten)

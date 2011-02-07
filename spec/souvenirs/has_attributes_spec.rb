@@ -74,19 +74,19 @@ describe Souvenirs::HasAttributes do
       }.should raise_error(Souvenirs::ReadOnlyAttribute)
     end
 
-    it "has an 'id' attribute set to a UUID if not overriden when initialized" do
-      user = User.new
+    it "has an 'id' attribute set to a UUID if not overriden when saved" do
+      user = User.create
       user.id.should be_present
       user.id.should match(/[0-9a-f\-]/)
     end
 
     it "overides the value of its 'id' attribute when a value is passed" do
-      user = User.new(:id => "foo")
+      user = User.create(:id => "foo")
       user.id.should == "foo"
     end
 
     it "defines 'id' as a read_only attribute" do
-      user = User.new
+      user = User.create
       lambda {
         user.id = "try me"
       }.should raise_error(Souvenirs::ReadOnlyAttribute)
@@ -143,6 +143,7 @@ describe Souvenirs::HasAttributes do
       let(:plane) { @plane }
 
       it "was not changed if it doesn't have attributes" do
+        puts "plane.id = #{plane.id.inspect}"
         plane.should_not be_changed
         plane.changed.should be_empty
         plane.changes.should be_empty
@@ -176,7 +177,7 @@ describe Souvenirs::HasAttributes do
       it "knows when it was changed before being saved" do
         plane.model = "380"
         plane.save
-        plane.previous_changes.should == {"model" => [nil, "380"]}
+        plane.previous_changes["model"].should == [nil, "380"]
       end
     end
 

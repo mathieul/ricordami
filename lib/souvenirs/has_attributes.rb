@@ -9,7 +9,7 @@ module Souvenirs
     included do
       attribute_method_suffix('', '=')
       attribute :id, :read_only => true,
-                     :default   => Proc.new { SimpleUUID::UUID.new.to_guid }
+                     :initial   => Attribute.get_uuid_generator
     end
 
     module ClassMethods
@@ -86,7 +86,27 @@ module Souvenirs
 
       def set_default_attribute_values
         self.class.attributes.each do |name, attribute|
-          @attributes[name] = attribute.default_value unless @attributes.has_key?(name)
+          unless @attributes.has_key?(name)
+            @attributes[name] = if attribute.default_value?
+              attribute_will_change!(name.to_s)
+              attribute.default_value
+            else
+              nil
+            end
+          end
+        end
+      end
+
+      def set_initial_attribute_values
+        self.class.attributes.each do |name, attribute|
+          unless @attributes[name].present?
+            @attributes[name] = if attribute.initial_value?
+              attribute_will_change!(name.to_s)
+              attribute.initial_value
+            else
+              nil
+            end
+          end
         end
       end
 

@@ -11,9 +11,12 @@ describe Souvenirs::HasIndices do
 
   describe "the class" do
     uses_constants("Car")
+    before(:each) do
+      Car.attribute :model
+      Car.attribute :name
+    end
 
     it "can declare a unique index with #index" do
-      Car.attribute :model
       index = Car.index :unique => :model
       Car.indices[:all_models].should be_a(Souvenirs::UniqueIndex)
       Car.indices[:all_models].should == index
@@ -24,15 +27,23 @@ describe Souvenirs::HasIndices do
     end
 
     it "saves the values of the unique attributes into the indices" do
-      Car.attribute :name
       Car.index :unique => :name
       car = Car.new(:name => "Prius")
       car.save
       Car.indices[:all_names].all.should == ["Prius"]
     end
 
+    it "replaces old values with new ones into the indices" do
+      Car.index :unique => :name
+      car = Car.new(:name => "Prius")
+      car.save
+      Car.indices[:all_names].all.should == ["Prius"]
+      car.name = "Rav4"
+      car.save
+      Car.indices[:all_names].all.should == ["Rav4"]
+    end
+
     it "deletes the values of the unique attributes from the indices" do
-      Car.attribute :name
       Car.index :unique => :name
       car = Car.create(:name => "Prius")
       car.delete.should be_true

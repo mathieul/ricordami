@@ -116,8 +116,6 @@ module Souvenirs
         @deleted = true
         freeze
         true
-      rescue Exception => ex
-        false
       end
     end
   end

@@ -11,6 +11,6 @@ task :default => :rspec
 desc  "Run all specs with rcov"
 RSpec::Core::RakeTask.new(:rcov) do |t|
   t.rcov = true
-  t.rcov_opts = %w{--exclude spec\/}
+  t.rcov_opts = %w{--exclude osx\/objc,gems\/,spec\/}
 end
 

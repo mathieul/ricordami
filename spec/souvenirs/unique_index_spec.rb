@@ -56,4 +56,11 @@ describe Souvenirs::UniqueIndex do
     ds = DataSource.create(:first => "un", :second => "deux")
     index.package_fields(ds, :previous_value => true).should be_nil
   end
+
+  it "serializes persisted value of object fields into a string with #package_fields" do
+    DataSource.attribute :name
+    index = DataSource.index :unique => [:name]
+    ds = DataSource.create(:name => "blah")
+    index.package_fields(ds, :for_deletion => true).should == "blah"
+  end
 end

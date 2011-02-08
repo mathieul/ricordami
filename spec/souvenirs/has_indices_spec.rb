@@ -30,5 +30,13 @@ describe Souvenirs::HasIndices do
       car.save
       Car.indices[:all_names].all.should == ["Prius"]
     end
+
+    it "deletes the values of the unique attributes from the indices" do
+      Car.attribute :name
+      Car.index :unique => :name
+      car = Car.create(:name => "Prius")
+      car.delete.should be_true
+      Car.indices[:all_names].all.should be_empty
+    end
   end
 end

@@ -17,22 +17,33 @@ module Souvenirs
       end
 
       def index(options = {})
+        # for now we can only create unique indices
         options.assert_valid_keys(:unique)
         fields = options.delete(:unique)
         raise InvalidIndexDefinition.new(self.class) if fields.blank?
-        unique_index = UniqueIndex.new(self, fields, options)
-        self.indices[unique_index.name.to_sym] = unique_index
-        index_name = unique_index.name.to_sym
+        create_unique_index(fields, options)
+      end
+
+      private
+
+      def create_unique_index(fields, options)
+        index = UniqueIndex.new(self, fields, options)
+        self.indices[index.name.to_sym] = index
+        index_name = index.name.to_sym
         queue_saving_operations do |obj|
-          old_value = unique_index.package_fields(obj, :previous_value => true)
-          new_value = unique_index.package_fields(obj)
+          old_value = index.package_fields(obj, :previous_value => true)
+          new_value = index.package_fields(obj)
           next if old_value == new_value
           if obj.persisted? && old_value.present?
-            indices[index_name].del(old_value)
+            indices[index_name].rem(old_value)
           end
           indices[index_name].add(new_value)
         end
-        unique_index
+        queue_deleting_operations do |obj|
+          value = index.package_fields(obj, :for_deletion => true)
+          indices[index_name].rem(value) if value.present?
+        end
+        index
       end
     end
 

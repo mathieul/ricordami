@@ -81,6 +81,7 @@ module Souvenirs
       end
 
       def attribute=(name, value)
+        raise ModelHasBeenDeleted.new("can't update attribute #{name}") if deleted?
         assert_can_update!(name)
         write_attribute(name, value)
       end

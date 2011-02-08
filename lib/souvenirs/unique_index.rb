@@ -1,4 +1,6 @@
 module Souvenirs
+  VALUES_SEPARATOR = ":-:"
+
   class UniqueIndex
     attr_reader :owner_type, :fields, :name
 
@@ -31,6 +33,20 @@ module Souvenirs
     end
 
     def package_fields(obj, opts = {})
+      opts[:for_deletion] ? \
+        serialize_persisted(obj, opts) : serialize_changed(obj, opts)
+    end
+
+    private
+
+    def serialize_persisted(obj, opts)
+      values = fields.map do |field|
+        obj.send("#{field}_was")
+      end
+      values.compact.empty? ? nil : values.join(VALUES_SEPARATOR)
+    end
+
+    def serialize_changed(obj, opts)
       changed = fields.map { |field| obj.send("#{field}_changed?") }
       return nil unless changed.any?
       values = fields.map do |field|
@@ -40,7 +56,7 @@ module Souvenirs
           obj.send(field)
         end
       end
-      values.join(":-:")
+      values.join(VALUES_SEPARATOR)
     end
   end
 end

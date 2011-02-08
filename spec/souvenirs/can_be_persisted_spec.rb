@@ -171,4 +171,69 @@ describe Souvenirs::CanBePersisted do
       logs.should == ["NOT persisted", "ALREADY persisted"]
     end
   end
+
+  describe "grouping DB operations with #queue_deleting_operations" do
+    it "raises an error if no block is passed" do
+      lambda {
+        Tenant.queue_deleting_operations
+      }.should raise_error(ArgumentError)
+    end
+
+    it "raises an error if the block passed doesn't take 1 argument" do
+      lambda {
+        Tenant.queue_deleting_operations { |one, two| [one, two] }
+      }.should raise_error(ArgumentError)
+    end
+
+    it "allows to queue DB operations that will run when instance is saved" do
+      logs = []
+      Tenant.attribute :name
+      Tenant.queue_deleting_operations { |obj| logs << "Tenant deleted #1" }
+      Tenant.queue_deleting_operations { |obj| logs << "Tenant deleted #2" }
+      tenant = Tenant.create
+      tenant.delete
+      logs.should == ["Tenant deleted #2", "Tenant deleted #1"]
+    end
+  end
+
+  describe "#delete" do
+    before(:each) { Tenant.attribute :name }
+    let(:tenant) { Tenant.create(:id => "myid") }
+
+    it "deletes the attributes from the DB" do
+      tenant.delete.should be_true
+      from_db = Souvenirs.driver.hgetall("tenant:myid:attributes")
+      from_db.should be_empty
+    end
+
+    it "knows when a model has been deleted" do
+      tenant.should_not be_deleted
+      tenant.delete
+      tenant.should be_deleted
+    end
+
+    it "freezes the model after deleting it" do
+      tenant.delete
+      tenant.should be_frozen
+    end
+
+    it "can't save a model that was deleted" do
+      tenant.delete
+      lambda { tenant.save }.should raise_error(Souvenirs::ModelHasBeenDeleted)
+      lambda { tenant.save! }.should raise_error(Souvenirs::ModelHasBeenDeleted)
+    end
+
+    it "can't update the attributes of a model that was deleted" do
+      tenant.delete
+      lambda {
+        tenant.update_attributes(:name => "titi")
+      }.should raise_error(Souvenirs::ModelHasBeenDeleted)
+      lambda {
+        tenant.update_attributes!(:name => "titi")
+      }.should raise_error(Souvenirs::ModelHasBeenDeleted)
+    end
+
+    it "can't delete a model that was deleted" do
+    end
+  end
 end

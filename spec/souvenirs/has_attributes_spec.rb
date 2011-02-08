@@ -129,6 +129,13 @@ describe Souvenirs::HasAttributes do
         user.load_mem_attributes(:ssn => "1234567890")
       }.should_not raise_error
     end
+
+    it "can't change the attributes of a model that was deleted" do
+      User.attribute :age
+      user = User.create(:age => "42")
+      user.delete
+      lambda { user.age = "12" }.should raise_error(Souvenirs::ModelHasBeenDeleted)
+    end
   end
 
   describe "keeps track of dirty attributes" do

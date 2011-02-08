@@ -6,4 +6,5 @@ module Souvenirs
   ReadOnlyAttribute       = Class.new(Error)
   WriteToDbFailed         = Class.new(Error)
   InvalidIndexDefinition  = Class.new(Error)
+  ModelHasBeenDeleted     = Class.new(Error)
 end

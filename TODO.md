@@ -2,7 +2,6 @@
 
 ## Developments ##
 
-  * allow to destroy and delete models
   * CanBeQueried module:
     * find by column value (first or all)
     * paginate models

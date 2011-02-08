@@ -16,6 +16,11 @@ module Souvenirs
     end
 
     module InstanceMethods
+      def valid?
+        raise ModelHasBeenDeleted.new("can't validate a deleted model") if deleted?
+        super
+      end
+
       def save(opts = {})
         return false unless opts[:validate] == false || valid?
         super(opts)

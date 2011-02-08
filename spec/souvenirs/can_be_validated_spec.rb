@@ -41,6 +41,12 @@ describe Souvenirs::CanBeValidated do
       call.should have(1).errors
       call.errors[:ani].should == ["can't be the same as dnis"]
     end
+
+    it "can't validate a model that was deleted" do
+      call = Call.create(:ani => "123", :dnis => "456")
+      call.delete
+      lambda { call.valid? }.should raise_error(Souvenirs::ModelHasBeenDeleted)
+    end
   end
 
   describe "#save" do

@@ -24,4 +24,8 @@ describe Souvenirs::Error do
   it "has an error to notify when an index declaration is invalid" do
     Souvenirs::InvalidIndexDefinition.new.should be_a_kind_of(Souvenirs::Error)
   end
+
+  it "has an error to notify when a model is deleted" do
+    Souvenirs::ModelHasBeenDeleted.new.should be_a_kind_of(Souvenirs::Error)
+  end
 end

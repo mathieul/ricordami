@@ -1,8 +1,13 @@
 #!/usr/bin/env ruby
 
+require "rubygems"
+require "bundler"
+Bundler.setup :default, :development
+
 require "thor"
 require "thor/actions"
 require "csv"
+require "redis"
 
 class DataLoader < Thor
   include Thor::Actions
@@ -23,6 +28,42 @@ class DataLoader < Thor
       end
     end
     puts "File #{file_name} generated with #{options[:number]} people."
+  end
+
+  desc "load_people FILE_NAME", "Load a people file into Redis"
+  method_option :db, :aliases => "-d", :default => 1, :type => :numeric, :desc => "database number"
+
+  def load_people(file_name)
+    r = Redis.new
+    r.select(options[:db])
+    r.flushdb
+    key_ids = "global:people:ids"
+    key_firsts = "global:people:firsts"
+    key_lasts = "global:people:lasts"
+    key_emails = "global:people:emails"
+    key_att = "people:"
+    key_seq = "global:seq_id"
+    i = 0
+    CSV.foreach(file_name, :headers => :first_row) do |row|
+      id = r.incr(key_seq)
+      r.multi
+      r.hmset("#{key_att}#{id}", *row.to_a.flatten)
+      r.sadd(key_ids, id)
+      #r.lpush(key_firsts, row["first_name"])
+      #r.lpush(key_lasts, row["last_name"])
+      #r.lpush(key_emails, row["email"])
+      r.lpush(key_firsts, id)
+      r.lpush(key_lasts, id)
+      r.lpush(key_emails, id)
+      r.exec
+      i += 1
+      if i == 100
+        putc "."
+        i = 0
+      end
+    end
+    puts
+    puts "Db loaded."
   end
 
   private

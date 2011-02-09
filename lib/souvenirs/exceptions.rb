@@ -7,4 +7,5 @@ module Souvenirs
   WriteToDbFailed         = Class.new(Error)
   InvalidIndexDefinition  = Class.new(Error)
   ModelHasBeenDeleted     = Class.new(Error)
+  TypeNotSupported        = Class.new(Error)
 end

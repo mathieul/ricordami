@@ -73,14 +73,4 @@ describe Souvenirs::Attribute do
       without = subject.new(:foo).initial_value?.should be_false
     end
   end
-
-  describe "class" do
-    it "returns a proc generating UUIDs with #uuid_generator" do
-      generator = Souvenirs::Attribute.get_uuid_generator
-      uuid1, uuid2 = [generator.call, generator.call]
-      uuid1.should_not == uuid2
-      uuid1.should match(/[0-9a-f\-]/)
-      uuid2.should match(/[0-9a-f\-]/)
-    end
-  end
 end

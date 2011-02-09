@@ -28,7 +28,12 @@ describe Souvenirs::Configuration, " using #configure" do
 
   it "can configure redis to use as thread-safe with #redis_thread_safe" do
     Souvenirs.configure { |config| config.redis_thread_safe = true }
-    Souvenirs.configuration.redis_db.should be_true
+    Souvenirs.configuration.redis_thread_safe.should be_true
+  end
+
+  it "can configure redis to use as thread-safe with #id_type" do
+    Souvenirs.configure { |config| config.id_type = :seq }
+    Souvenirs.configuration.id_type.should == :seq
   end
 
   it "can configure all attributes at once using #from_hash" do

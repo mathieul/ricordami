@@ -1,3 +1,5 @@
+require "souvenirs/factory"
+
 module Souvenirs
   module Configuration
     extend ActiveSupport::Concern
@@ -15,7 +17,7 @@ module Souvenirs
   end
 
   class Config
-    ATTRIBUTE_NAMES = [:redis_host, :redis_port, :redis_db, :redis_thread_safe]
+    ATTRIBUTE_NAMES = [:redis_host, :redis_port, :redis_db, :redis_thread_safe, :id_type]
 
     def initialize
       @options = {}

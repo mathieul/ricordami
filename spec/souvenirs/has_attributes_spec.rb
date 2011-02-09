@@ -74,10 +74,10 @@ describe Souvenirs::HasAttributes do
       }.should raise_error(Souvenirs::ReadOnlyAttribute)
     end
 
-    it "has an 'id' attribute set to a UUID if not overriden when saved" do
+    it "has an 'id' attribute set by default to a sequence if not overriden when saved" do
       user = User.create
       user.id.should be_present
-      user.id.should match(/[0-9a-f\-]/)
+      user.id.should == 1
     end
 
     it "overides the value of its 'id' attribute when a value is passed" do

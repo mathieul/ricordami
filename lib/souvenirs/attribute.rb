@@ -2,10 +2,6 @@ module Souvenirs
   class Attribute
     attr_reader :name
 
-    def self.get_uuid_generator
-      Proc.new { SimpleUUID::UUID.new.to_guid }
-    end
-
     def initialize(name, options = {})
       options.assert_valid_keys(:default, :read_only, :initial)
       @options = options

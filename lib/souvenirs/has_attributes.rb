@@ -8,8 +8,9 @@ module Souvenirs
 
     included do
       attribute_method_suffix('', '=')
+      generator = Factory.id_generator(Souvenirs.configuration.id_type || :sequence)
       attribute :id, :read_only => true,
-                     :initial   => Attribute.get_uuid_generator
+                     :initial   => generator
     end
 
     module ClassMethods

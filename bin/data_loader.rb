@@ -21,10 +21,10 @@ class DataLoader < Thor
   def generate_people(file_name)
     d = load_data
     CSV.open(file_name, "w") do |csv|
-      csv << %w(first_name last_name email)
+      csv << %w(first_name last_name email age)
       options[:number].times do
         f, l = get_first_name(d), get_last_name(d)
-        csv << [f, l, get_email(d, f, l)]
+        csv << [f, l, get_email(d, f, l), get_age]
       end
     end
     puts "File #{file_name} generated with #{options[:number]} people."
@@ -38,9 +38,6 @@ class DataLoader < Thor
     r.select(options[:db])
     r.flushdb
     key_ids = "global:people:ids"
-    key_firsts = "global:people:firsts"
-    key_lasts = "global:people:lasts"
-    key_emails = "global:people:emails"
     key_att = "people:"
     key_seq = "global:seq_id"
     i = 0
@@ -49,12 +46,6 @@ class DataLoader < Thor
       r.multi
       r.hmset("#{key_att}#{id}", *row.to_a.flatten)
       r.sadd(key_ids, id)
-      #r.lpush(key_firsts, row["first_name"])
-      #r.lpush(key_lasts, row["last_name"])
-      #r.lpush(key_emails, row["email"])
-      r.lpush(key_firsts, id)
-      r.lpush(key_lasts, id)
-      r.lpush(key_emails, id)
       r.exec
       i += 1
       if i == 100
@@ -98,6 +89,10 @@ class DataLoader < Thor
     dot = rand(2) == 0 ? "" : "."
     two = l.split.join("-").downcase
     "#{one}#{dot}#{two}@#{d[:domains].sample}"
+  end
+
+  def get_age
+    18 + rand(50)
   end
 end
 

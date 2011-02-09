@@ -10,7 +10,7 @@ describe Souvenirs::Connection do
       end
       RSpec::Mocks::setup(self)
       @config = mock(:config)
-      [:redis_host, :redis_port, :redis_db, :redis_thread_safe].each do |name|
+      [:redis_host, :redis_port, :redis_db, :thread_safe].each do |name|
         @config.stub!(name)
       end
       Mixer.stub!(:configuration).and_return(@config)

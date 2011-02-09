@@ -26,14 +26,14 @@ describe Souvenirs::Configuration, " using #configure" do
     Souvenirs.configuration.redis_db.should == 1
   end
 
-  it "can configure redis to use as thread-safe with #redis_thread_safe" do
-    Souvenirs.configure { |config| config.redis_thread_safe = true }
-    Souvenirs.configuration.redis_thread_safe.should be_true
+  it "can configure redis to use as thread-safe with #thread_safe" do
+    Souvenirs.configure { |config| config.thread_safe = true }
+    Souvenirs.configuration.thread_safe.should be_true
   end
 
   it "can configure redis to use as thread-safe with #id_type" do
-    Souvenirs.configure { |config| config.id_type = :seq }
-    Souvenirs.configuration.id_type.should == :seq
+    Souvenirs.configure { |config| config.id_type = :sequence }
+    Souvenirs.configuration.id_type.should == :sequence
   end
 
   it "can configure all attributes at once using #from_hash" do
@@ -45,6 +45,6 @@ describe Souvenirs::Configuration, " using #configure" do
     Souvenirs.configuration.redis_host.should == "serge"
     Souvenirs.configuration.redis_port.should == 6380
     Souvenirs.configuration.redis_db.should == 2
-    Souvenirs.configuration.redis_thread_safe.should be_false
+    Souvenirs.configuration.thread_safe.should be_false
   end
 end

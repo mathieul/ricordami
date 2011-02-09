@@ -16,18 +16,18 @@ describe Souvenirs::UniqueIndex do
   end
 
   it "returns its internal index name with #internal_name" do
-    @index.internal_name.should == "_index:data_source:all_ids"
+    @index.internal_name.should == "data_source:uidx:all_ids"
   end
 
   it "adds a string to the index with #add" do
     @index.add("allo")
-    Souvenirs.driver.smembers("_index:data_source:all_ids").should == ["allo"]
+    Souvenirs.driver.smembers("data_source:uidx:all_ids").should == ["allo"]
   end
 
   it "removes a string from the index with #rem" do
     @index.add("allo")
     @index.rem("allo")
-    Souvenirs.driver.smembers("_index:data_source:all_ids").should == []
+    Souvenirs.driver.smembers("data_source:uidx:all_ids").should == []
   end
 
   it "returns all the strings from the index with #all" do

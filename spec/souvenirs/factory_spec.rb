@@ -25,4 +25,21 @@ describe Souvenirs::Factory do
       end
     end
   end
+
+  describe "#key_name" do
+    it "returns a key name for a sequence with :sequence" do
+      name = subject.key_name(:sequence, :name => "id_generator")
+      name.should == "global:seq:id_generator"
+    end
+
+    it "returns a key name for model attributes with :attributes" do
+      name = subject.key_name(:attributes, :model => "boat", :id => "42")
+      name.should == "boat:attributes:42"
+    end
+
+    it "returns a key name for a unique index with :unique_index" do
+      name = subject.key_name(:unique_index, :model => "call", :name => "ani")
+      name.should == "call:uidx:ani"
+    end
+  end
 end

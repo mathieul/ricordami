@@ -25,7 +25,9 @@ module Souvenirs
       end
 
       def attributes_key_name_for(id)
-        "#{self.to_s.underscore}:#{id}:attributes"
+        Factory.key_name(:attributes,
+                         :model => self.to_s.underscore,
+                         :id => id)
       end
     end
 
@@ -132,10 +134,3 @@ module Souvenirs
     end
   end
 end
-
-=begin
-class Zlaj
-  include Souvenirs::Model
-  attribute :name
-end
-=end

@@ -13,7 +13,9 @@ module Souvenirs
     end
 
     def internal_name
-      @internal_name ||= "_index:#{@owner_type}:#{@name}"
+      @internal_name ||= Factory.key_name(:unique_index,
+                                          :model => @owner_type,
+                                          :name => @name)
     end
 
     def add(value)

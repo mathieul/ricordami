@@ -75,12 +75,6 @@ feature "Stand-alone model" do
     Singer.get_by_username("ben").id.should == "3"
 
     Singer.count.should == 3
-    #Singer.all.map(&:username).should =~ %w(lucien bashung ben)
-    #by_username = Singer.all.map { |u| [u.username, u.id] }
-    #by_username = Hash[*by_username.flatten]
-
-    #id = by_username["lucien"]
-    #Singer[id].email.should == "serge@gainsbourg.com"
     Singer["1"].email.should == "serge@gainsbourg.com"
 
     Singer.get_by_username("bashung").first_name.should == "Alain"
@@ -88,7 +82,28 @@ feature "Stand-alone model" do
     Singer.find(:deceased => true).map(&:username).should =~ ["lucien", "bashung"]
   end
 
-  scenario "dirty state of models"
+  scenario "dirty state of models" do
+    Singer.create!(:username => "bashung", :email => "alain@bashung.com",
+                   :first_name => "Alain", :last_name => "Bashung")
+    alain = Singer.get_by_username("bashung")
+    alain.changed?.should be_false
+
+    alain.first_name = "Bob"
+    alain.changed?.should be_true
+    alain.first_name_changed?.should be_true
+    alain.first_name_was.should == "Alain"
+    alain.first_name_change.should == ["Alain", "Bob"]
+    alain.changed.should == ["first_name"]
+    alain.changes.should == {"first_name" => ["Alain", "Bob"]}
+
+    alain.save
+    alain.changed?.should be_false
+    alain.first_name_changed?.should be_false
+    alain.first_name = "Bob"
+    alain.changed?.should be_false
+    alain.first_name_changed?.should be_false
+    alain.previous_changes.should == {"first_name" => ["Alain", "Bob"]}
+  end
 
   scenario "paginate list of models"
 end

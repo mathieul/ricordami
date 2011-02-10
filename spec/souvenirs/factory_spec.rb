@@ -41,5 +41,10 @@ describe Souvenirs::Factory do
       name = subject.key_name(:unique_index, :model => "call", :name => "ani")
       name.should == "call:uidx:ani"
     end
+
+    it "returns a key name for a hash reference with :hash_ref" do
+      name = subject.key_name(:hash_ref, :model => "call", :fields=> ["ani", "dnis"])
+      name.should == "call:hash:ani_dnis_to_id"
+    end
   end
 end

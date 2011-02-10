@@ -5,37 +5,51 @@ module Souvenirs
     attr_reader :owner_type, :fields, :name
 
     def initialize(owner_type, fields, options = {})
-      #options.assert_valid_keys
-      @options = options
       @owner_type = owner_type.to_s.underscore
       @fields = [fields].flatten.map(&:to_sym)
+      @need_get_by = options[:get_by] && @fields != [:id]
       @name = (%w(all) + @fields).join("_") + "s"
     end
 
-    def internal_name
-      @internal_name ||= Factory.key_name(:unique_index,
+    def uidx_key_name
+      @uidx_key_name ||= Factory.key_name(:unique_index,
                                           :model => @owner_type,
                                           :name => @name)
     end
 
+    def ref_key_name
+      @ref_key_name ||= Factory.key_name(:hash_ref,
+                                         :model => @owner_type,
+                                         :fields => @fields)
+    end
+
     def add(id, value)
-      Souvenirs.driver.sadd(internal_name, value)
+      value = value.join(VALUES_SEPARATOR) if value.is_a?(Array)
+      Souvenirs.driver.sadd(uidx_key_name, value)
+      Souvenirs.driver.hset(ref_key_name, value, id) if @need_get_by
     end
 
     def rem(id, value)
-      Souvenirs.driver.srem(internal_name, value)
+      value = value.join(VALUES_SEPARATOR) if value.is_a?(Array)
+      Souvenirs.driver.hdel(ref_key_name, id) if @need_get_by
+      Souvenirs.driver.srem(uidx_key_name, value)
+    end
+
+    def id_for_values(*values)
+      values = values.flatten
+      Souvenirs.driver.hget(ref_key_name, values.join(VALUES_SEPARATOR))
     end
 
     def all
-      Souvenirs.driver.smembers(internal_name)
+      Souvenirs.driver.smembers(uidx_key_name)
     end
 
     def count
-      Souvenirs.driver.scard(internal_name)
+      Souvenirs.driver.scard(uidx_key_name)
     end
 
     def include?(value)
-      Souvenirs.driver.sismember(internal_name, value)
+      Souvenirs.driver.sismember(uidx_key_name, value)
     end
 
     def package_fields(obj, opts = {})

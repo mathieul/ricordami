@@ -11,7 +11,7 @@ feature "Stand-alone model" do
       attribute :last_name
       attribute :deceased, :default => false
 
-      index :unique => :username
+      index :unique => :username, :get_by => true
       index :find => :deceased
 
       validates_presence_of   :username, :email, :deceased
@@ -78,7 +78,7 @@ feature "Stand-alone model" do
     id = by_username["lucien"]
     Singer[id].email.should == "serge@gainsbourg.com"
 
-    Singer.get(:username => "bashung").first_name.should == "Alain"
+    Singer.get_by_username("bashung").first_name.should == "Alain"
 
     Singer.find(:deceased => true).map(&:username).should =~ ["lucien", "bashung"]
   end

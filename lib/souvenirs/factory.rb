@@ -16,6 +16,9 @@ module Souvenirs
         "#{opts[:model]}:attributes:#{opts[:id]}"
       when :unique_index
         "#{opts[:model]}:uidx:#{opts[:name]}"
+      when :hash_ref
+        fields = opts[:fields].join("_") + "_to_id"
+        "#{opts[:model]}:hash:#{fields}"
       end
     end
 

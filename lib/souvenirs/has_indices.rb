@@ -22,6 +22,7 @@ module Souvenirs
         fields = options.delete(:unique)
         raise InvalidIndexDefinition.new(self.class) if fields.blank?
         create_unique_index(fields, options)
+        create_unique_get_method(fields)
       end
 
       private
@@ -44,6 +45,10 @@ module Souvenirs
           indices[index_name].rem(value) if value.present?
         end
         index
+      end
+
+      def create_unique_get_method(fields)
+        #raise "TODO"
       end
     end
 

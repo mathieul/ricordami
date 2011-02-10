@@ -36,7 +36,7 @@ describe Souvenirs::CanBeQueried do
     end
   end
 
-  describe "#all, #first, #last, #rand" do
+  describe "#all & #count" do
     it "saves the ids of new instances when saved" do
       Tenant.attribute :name
       instance = Tenant.new(:id => "hi")
@@ -50,6 +50,14 @@ describe Souvenirs::CanBeQueried do
     it "returns all the instances with #all" do
       %w(allo la terre).each { |n| Tenant.create(:id => n) }
       Tenant.all.map(&:id).should =~ ["allo", "la", "terre"]
+    end
+
+    it "returns the number of instances with #count" do
+      Tenant.count.should == 0
+      Tenant.create(:id => "blah")
+      Tenant.count.should == 1
+      %w(allo la terre).each { |n| Tenant.create(:id => n) }
+      Tenant.count.should == 4
     end
   end
 end

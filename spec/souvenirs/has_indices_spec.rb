@@ -49,5 +49,11 @@ describe Souvenirs::HasIndices do
       car.delete.should be_true
       Car.indices[:all_names].all.should be_empty
     end
+
+    it "adds a get_by_xxx method for each unique index xxx declared" do
+      Car.index :unique => :name
+      %w(il etait un petit navire).each { |n| Car.create!(n) }
+      Car.get_by_name("petit").name.should == "petit"
+    end
   end
 end

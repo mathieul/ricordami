@@ -29,6 +29,10 @@ module Souvenirs
         ids = indices[:all_ids].all
         ids.map { |id| get(id) }
       end
+
+      def count
+        indices[:all_ids].count
+      end
     end
 
     module InstanceMethods

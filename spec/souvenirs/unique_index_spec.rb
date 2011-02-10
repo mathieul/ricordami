@@ -20,14 +20,27 @@ describe Souvenirs::UniqueIndex do
   end
 
   it "adds a string to the index with #add" do
-    @index.add("allo")
+    @index.add("ze-id", "allo")
     Souvenirs.driver.smembers("data_source:uidx:all_ids").should == ["allo"]
+  end
+
+  it "also indices the hash index with #add if fields is not :id" do
+    DataSource.attribute :domain
+    other = subject.new(DataSource, [:name, :domain])
+    other.add("ze-id", ["jobs", "apple.com"])
+    Souvenirs.driver.smembers("data_source:uidx:all_name_domains").should == ["jobs:-:apple.com"]
+    Souvenirs.driver.hget("data_source:hash:name_domain_to_id", "jobs:-:apple.com").should == "ze-id"
   end
 
   it "removes a string from the index with #rem" do
     @index.add("allo")
     @index.rem("allo")
     Souvenirs.driver.smembers("data_source:uidx:all_ids").should == []
+  end
+
+  it "returns the number of entries with #count" do
+    5.times { |i| @index.add(i.to_s) }
+    @index.count.should == 5
   end
 
   it "returns all the strings from the index with #all" do

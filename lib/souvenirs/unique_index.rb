@@ -18,16 +18,20 @@ module Souvenirs
                                           :name => @name)
     end
 
-    def add(value)
+    def add(id, value)
       Souvenirs.driver.sadd(internal_name, value)
     end
 
-    def rem(value)
+    def rem(id, value)
       Souvenirs.driver.srem(internal_name, value)
     end
 
     def all
       Souvenirs.driver.smembers(internal_name)
+    end
+
+    def count
+      Souvenirs.driver.scard(internal_name)
     end
 
     def include?(value)

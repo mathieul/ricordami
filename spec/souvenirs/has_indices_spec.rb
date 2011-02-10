@@ -16,6 +16,10 @@ describe Souvenirs::HasIndices do
       Car.attribute :name
     end
 
+    it "raises an error if an index is not declared unique" do
+      lambda { Car.index }.should raise_error(Souvenirs::InvalidIndexDefinition)
+    end
+
     describe "declaring a unique index" do
       it "can declare a unique index with #index" do
         index = Car.index :unique => :model
@@ -23,8 +27,11 @@ describe Souvenirs::HasIndices do
         Car.indices[:all_models].should == index
       end
 
-      it "raises an error if an index is not declared unique" do
-        lambda { Car.index }.should raise_error(Souvenirs::InvalidIndexDefinition)
+      it "discards the subsequent declarations if the same index is created more than once" do
+        Car.index :unique => :model, :get_by => true
+        Car.indices[:all_models].need_get_by.should be_true
+        Car.index :unique => :model, :get_by => false
+        Car.indices[:all_models].need_get_by.should be_true
       end
 
       it "saves the values of the unique attributes into the indices" do

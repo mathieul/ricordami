@@ -2,7 +2,7 @@ module Souvenirs
   VALUES_SEPARATOR = ":-:"
 
   class UniqueIndex
-    attr_reader :owner_type, :fields, :name
+    attr_reader :owner_type, :fields, :name, :need_get_by
 
     def initialize(owner_type, fields, options = {})
       @owner_type = owner_type.to_s.underscore
@@ -30,14 +30,14 @@ module Souvenirs
     end
 
     def rem(id, value)
-      value = value.join(VALUES_SEPARATOR) if value.is_a?(Array)
       Souvenirs.driver.hdel(ref_key_name, id) if @need_get_by
+      value = value.join(VALUES_SEPARATOR) if value.is_a?(Array)
       Souvenirs.driver.srem(uidx_key_name, value)
     end
 
     def id_for_values(*values)
-      values = values.flatten
-      Souvenirs.driver.hget(ref_key_name, values.join(VALUES_SEPARATOR))
+      values = values.flatten.join(VALUES_SEPARATOR)
+      Souvenirs.driver.hget(ref_key_name, values)
     end
 
     def all

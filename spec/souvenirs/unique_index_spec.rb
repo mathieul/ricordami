@@ -50,9 +50,12 @@ describe Souvenirs::UniqueIndex do
 
   it "returns the id from values with #id_for_values if :get_by is true" do
     DataSource.attribute :domain
-    other = subject.new(DataSource, [:name, :domain], :get_by => true)
-    other.add("ze-id", ["jobs", "apple.com"])
-    other.id_for_values("jobs", "apple.com").should == "ze-id"
+    two_fields = subject.new(DataSource, [:name, :domain], :get_by => true)
+    two_fields.add("ze-id", ["jobs", "apple.com"])
+    two_fields.id_for_values("jobs", "apple.com").should == "ze-id"
+    one_field = subject.new(DataSource, :name, :get_by => true)
+    one_field.add("ze-id", "jobs")
+    one_field.id_for_values("jobs").should == "ze-id"
   end
 
   it "removes a string from the index with #rem" do

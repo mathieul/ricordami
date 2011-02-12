@@ -8,22 +8,15 @@ module Souvenirs
       @name = name.to_s
     end
 
-    def default_value
-      return @options[:default].call if @options[:default].respond_to?(:call)
-      @options[:default]
-    end
+    [:default, :initial].each do |name|
+      define_method(:"#{name}_value") do
+        return @options[name].call if @options[name].respond_to?(:call)
+        @options[name]
+      end
 
-    def default_value?
-      @options.has_key?(:default)
-    end
-
-    def initial_value
-      return @options[:initial].call if @options[:initial].respond_to?(:call)
-      @options[:initial]
-    end
-
-    def initial_value?
-      @options.has_key?(:initial)
+      define_method(:"#{name}_value?") do
+        @options.has_key?(name)
+      end
     end
 
     def read_only?

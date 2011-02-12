@@ -10,7 +10,6 @@ require "active_model/naming"
 require "active_model/conversion"
 require "active_model/attribute_methods"
 require "redis"
-require "simple_uuid"
 
 module Souvenirs
   extend self

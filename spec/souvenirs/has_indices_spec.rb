@@ -52,7 +52,7 @@ describe Souvenirs::HasIndices do
 
       it "adds a get_by_xxx method for each unique index xxx declared if :get_by is true" do
         Car.index :unique => :name, :get_by => true
-        %w(il etait un petit navire).each { |n| Car.create!(:name => n) }
+        %w(il etait un petit navire).each { |n| Car.create(:name => n) }
         Car.get_by_name("petit").name.should == "petit"
       end
 

@@ -66,16 +66,8 @@ describe Souvenirs::CanBeValidated do
       post.save.should be_false
     end
 
-    it "it raises an error when #save! if it is not valid" do
-      post = Post.new
-      lambda { post.save! }.should raise_error(Souvenirs::ModelInvalid)
-    end
-
     it "can save if it is not valid but passed :validate => false" do
       Post.new.save(:validate => false).should be_true
-      lambda {
-        Post.new.save!(:validate => false)
-      }.should_not raise_error
     end
   end
 
@@ -109,7 +101,7 @@ describe Souvenirs::CanBeValidated do
 
     it "allows to validate the uniqueness of an attribute that can be changed" do
       User.validates_uniqueness_of(:wife)
-      User.create!(:id => "serge", :username => "Gainsbourg", :wife => "Rita")
+      User.create(:id => "serge", :username => "Gainsbourg", :wife => "Rita")
       serge = User["serge"]
       serge.should be_valid
       serge.save

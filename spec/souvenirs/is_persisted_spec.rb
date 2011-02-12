@@ -16,12 +16,12 @@ describe Souvenirs::IsPersisted do
     tenant.should_not be_a_new_record
   end
 
-  describe "#save, #save!, #create & #create!" do
+  describe "#save & #create" do
     shared_examples_for "a persister" do
       it "persists a new model" do
         Tenant.attribute :balance
         persister_action.call
-        attributes = Souvenirs.driver.hgetall("tenant:attributes:jojo")
+        attributes = Souvenirs.driver.hgetall("Tenant:attributes:jojo")
         attributes["id"].should == "jojo"
         attributes["balance"].should == "-$99.98"
       end
@@ -42,21 +42,6 @@ describe Souvenirs::IsPersisted do
       end
     end
 
-    describe "#save!" do
-      let(:persister_action) {
-        Proc.new {
-          tenant = Tenant.new(:id => "jojo", :balance => "-$99.98")
-          tenant.save!.should be_true
-        }
-      }
-      it_should_behave_like "a persister"
-      it "raises an error if saving failed" do
-        switch_db_to_error
-        lambda { Tenant.new.save! }.should raise_error(Souvenirs::WriteToDbFailed)
-        switch_db_to_ok
-      end
-    end
-
     describe "#create" do
       let(:persister_action) {
         Proc.new {
@@ -71,24 +56,6 @@ describe Souvenirs::IsPersisted do
         tenant = Tenant.create(:id => "jojo", :balance => "-$99.98")
         tenant.should be_a(Tenant)
         tenant.should_not be_persisted
-        switch_db_to_ok
-      end
-    end
-
-    describe "#create!" do
-      let(:persister_action) {
-        Proc.new {
-          tenant = Tenant.create!(:id => "jojo", :balance => "-$99.98")
-          tenant.should be_a(Tenant)
-          tenant.should be_persisted
-        }
-      }
-      it_should_behave_like "a persister"
-      it "raises an error if creating failed" do
-        switch_db_to_error
-        lambda {
-          Tenant.create!(:id => "jojo", :balance => "-$99.98")
-        }.should raise_error(Souvenirs::WriteToDbFailed)
         switch_db_to_ok
       end
     end
@@ -113,23 +80,10 @@ describe Souvenirs::IsPersisted do
       tenant.last.should == "gainsbourg"
     end
 
-    it "returns false if #update_attributes can't save the changes" do
-      tenant = Tenant.create(:id => "gainsbare")  # id is read-only
-      tenant.update_attributes(:id => "gainsbourg").should be_false
-      tenant.id.should == "gainsbare"
-    end
-
-    it "updates passed attribute values and saves the model with #update_attributes!" do
-      Tenant.attribute :first
-      tenant = Tenant.create(:first => "serge")
-      tenant.update_attributes!(:first => "lucien").should be_true
-      tenant.first.should == "lucien"
-    end
-
-    it "raise an error if #update_attributes! can't save the changes" do
+    it "raise an error if #update_attributes can't save the changes" do
       tenant = Tenant.create(:id => "gainsbare")  # id is read-only
       lambda {
-        tenant.update_attributes!(:id => "gainsbourg")
+        tenant.update_attributes(:id => "gainsbourg")
       }.should raise_error(Souvenirs::ReadOnlyAttribute)
     end
   end
@@ -194,7 +148,7 @@ describe Souvenirs::IsPersisted do
 
     it "deletes the attributes from the DB" do
       tenant.delete.should be_true
-      from_db = Souvenirs.driver.hgetall("tenant:attributes:myid")
+      from_db = Souvenirs.driver.hgetall("Tenant:attributes:myid")
       from_db.should be_empty
     end
 
@@ -212,16 +166,12 @@ describe Souvenirs::IsPersisted do
     it "can't save a model that was deleted" do
       tenant.delete
       lambda { tenant.save }.should raise_error(Souvenirs::ModelHasBeenDeleted)
-      lambda { tenant.save! }.should raise_error(Souvenirs::ModelHasBeenDeleted)
     end
 
     it "can't update the attributes of a model that was deleted" do
       tenant.delete
       lambda {
         tenant.update_attributes(:name => "titi")
-      }.should raise_error(Souvenirs::ModelHasBeenDeleted)
-      lambda {
-        tenant.update_attributes!(:name => "titi")
       }.should raise_error(Souvenirs::ModelHasBeenDeleted)
     end
 

@@ -24,7 +24,7 @@ describe Souvenirs::UniqueValidator do
 
   it "#validate_each adds an error if the value is already used" do
     validator.setup(Call)
-    record.save!
+    record.save
 
     sophie = Call.new(:name => "sophie")
     validator.validate_each(sophie, :name, record.name)
@@ -35,7 +35,7 @@ describe Souvenirs::UniqueValidator do
   it "accepts an option :message to change the error message" do
     validator = Souvenirs::UniqueValidator.new(:attributes => [:name], :message => "come on, man!")
     validator.setup(Call)
-    record.save!
+    record.save
     sophie = Call.new(:name => "sophie")
     validator.validate_each(sophie, :name, record.name)
     sophie.errors[:name].should == ["come on, man!"]

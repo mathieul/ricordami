@@ -5,7 +5,7 @@ module Souvenirs
     attr_reader :owner_type, :fields, :name, :need_get_by
 
     def initialize(owner_type, fields, options = {})
-      @owner_type = owner_type.to_s.underscore
+      @owner_type = owner_type
       @fields = [fields].flatten.map(&:to_sym)
       @need_get_by = options[:get_by] && @fields != [:id]
       @name = (%w(all) + @fields).join("_") + "s"

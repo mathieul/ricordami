@@ -17,7 +17,7 @@ module Souvenirs
   end
 
   class Config
-    ATTRIBUTE_NAMES = [:redis_host, :redis_port, :redis_db, :thread_safe, :id_type]
+    ATTRIBUTE_NAMES = [:redis_host, :redis_port, :redis_db, :thread_safe]
 
     def initialize
       @options = {}

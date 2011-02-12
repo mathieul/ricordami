@@ -8,9 +8,8 @@ module Souvenirs
 
     included do
       attribute_method_suffix('', '=')
-      generator = Factory.id_generator(Souvenirs.configuration.id_type || :sequence)
       attribute :id, :read_only => true,
-                     :initial   => generator
+                     :initial   => Factory.id_generator(:sequence)
     end
 
     module ClassMethods
@@ -26,7 +25,7 @@ module Souvenirs
 
       def attributes_key_name_for(id)
         Factory.key_name(:attributes,
-                         :model => self.to_s.underscore,
+                         :model => self.to_s,
                          :id => id)
       end
     end

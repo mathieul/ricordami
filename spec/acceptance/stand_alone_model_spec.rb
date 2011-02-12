@@ -27,7 +27,6 @@ feature "Stand-alone model" do
       c.redis_port  = 6379
       c.redis_db    = 1
       c.thread_safe = false
-      c.id_type     = :sequence
     end
   end
 
@@ -52,7 +51,7 @@ feature "Stand-alone model" do
     lucien.should_not be_valid
     lucien.errors.full_messages.should == ["Username is already used"]
     lucien.username = "lucien2"
-    lambda { lucien.save! }.should_not raise_error
+    lucien.save.should be_true
     lucien.should be_persisted
 
     Singer.count.should == 2
@@ -64,15 +63,15 @@ feature "Stand-alone model" do
   end
 
   scenario "retrieve models" do
-    Singer.create!(:username => "lucien", :email => "serge@gainsbourg.com",
+    Singer.create(:username => "lucien", :email => "serge@gainsbourg.com",
                    :first_name => "Serge", :last_name => "Gainsbourg")
     Singer.get_by_username("lucien").id.should == "1"
 
-    Singer.create!(:username => "bashung", :email => "alain@bashung.com",
+    Singer.create(:username => "bashung", :email => "alain@bashung.com",
                    :first_name => "Alain", :last_name => "Bashung")
     Singer.get_by_username("bashung").id.should == "2"
 
-    Singer.create!(:username => "ben", :email => "benjamin@biolay.com",
+    Singer.create(:username => "ben", :email => "benjamin@biolay.com",
                    :first_name => "Benjamin", :last_name => "Biolay")
     Singer.get_by_username("ben").id.should == "3"
 
@@ -83,11 +82,11 @@ feature "Stand-alone model" do
   end
 
   scenario "finding models using basic queries" do
-    Singer.create!(:username => "ben", :email => "benjamin@biolay.com",
+    Singer.create(:username => "ben", :email => "benjamin@biolay.com",
                    :first_name => "Benjamin", :last_name => "Biolay", :deceased => "false")
-    Singer.create!(:username => "lucien", :email => "serge@gainsbourg.com",
+    Singer.create(:username => "lucien", :email => "serge@gainsbourg.com",
                    :first_name => "Serge", :last_name => "Gainsbourg", :deceased => "true")
-    Singer.create!(:username => "bashung", :email => "alain@bashung.com",
+    Singer.create(:username => "bashung", :email => "alain@bashung.com",
                    :first_name => "Alain", :last_name => "Bashung", :deceased => "true")
 
     found = Singer.and(:deceased => "true").all
@@ -99,7 +98,7 @@ feature "Stand-alone model" do
   end
 
   scenario "dirty state of models" do
-    Singer.create!(:username => "bashung", :email => "alain@bashung.com",
+    Singer.create(:username => "bashung", :email => "alain@bashung.com",
                    :first_name => "Alain", :last_name => "Bashung")
     alain = Singer.get_by_username("bashung")
     alain.changed?.should be_false

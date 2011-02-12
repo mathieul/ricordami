@@ -94,7 +94,7 @@ describe Souvenirs::HasAttributes do
 
     it "returns the name of the attributes key with #attributes_key_name" do
       user = User.new(:id => "ze_id")
-      user.instance_eval { attributes_key_name }.should == "user:attributes:ze_id"
+      user.instance_eval { attributes_key_name }.should == "User:attributes:ze_id"
     end
 
     it "updates the attribute values in memory with #update_mem_attributes!" do

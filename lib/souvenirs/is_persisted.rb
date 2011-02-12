@@ -13,12 +13,6 @@ module Souvenirs
         end
       end
 
-      def create!(*args)
-        new(*args).tap do |instance|
-          instance.save!
-        end
-      end
-
       def load_attributes_for(id)
         key_name = attributes_key_name_for(id)
         Souvenirs.driver.hgetall(key_name)
@@ -56,11 +50,6 @@ module Souvenirs
         @deleted
       end
 
-      def save!(opts = {})
-        raise WriteToDbFailed unless save(opts)
-        true
-      end
-
       def save(opts = {})
         raise ModelHasBeenDeleted.new("can't save a deleted model") if deleted?
         set_initial_attribute_values if new_record?
@@ -84,18 +73,10 @@ module Souvenirs
         self
       end
 
-      def update_attributes!(attrs)
+      def update_attributes(attrs)
         raise ModelHasBeenDeleted.new("can't update the attributes of a deleted model") if deleted?
         update_mem_attributes!(attrs) unless attrs.empty?
-        save!
-        true
-      end
-
-      def update_attributes(attrs)
-        update_attributes!(attrs)
-      rescue Exception => ex
-        raise ex if ex.is_a?(ModelHasBeenDeleted)
-        false
+        save
       end
 
       def delete

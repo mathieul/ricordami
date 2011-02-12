@@ -22,11 +22,6 @@ module Souvenirs
         return false unless opts[:validate] == false || valid?
         super(opts)
       end
-
-      def save!(opts = {})
-        raise ModelInvalid unless opts[:validate] == false || valid?
-        super(opts)
-      end
     end
   end
 end

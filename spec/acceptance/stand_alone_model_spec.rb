@@ -82,6 +82,15 @@ feature "Stand-alone model" do
     Singer.find(:deceased => true).map(&:username).should =~ ["lucien", "bashung"]
   end
 
+  scenario "finding models using basic queries" do
+    pending
+    # Model.all or Model.first or Model.last
+    # .where(:deceased => "true")
+    # .and(:deceased => "true", :language => "French")
+    # .any(:first_name => "Alain", :last_name => "French")
+    # .not(:username => "ben")
+  end
+
   scenario "dirty state of models" do
     Singer.create!(:username => "bashung", :email => "alain@bashung.com",
                    :first_name => "Alain", :last_name => "Bashung")

@@ -18,6 +18,8 @@ module Souvenirs
       when :hash_ref
         fields = opts[:fields].join("_") + "_to_id"
         "#{opts[:model]}:hsh:#{fields}"
+      when :index
+        "#{opts[:model]}:idx:#{opts[:field]}:#{opts[:value]}"
       end
     end
   end

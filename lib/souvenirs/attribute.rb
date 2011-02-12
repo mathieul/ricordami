@@ -3,7 +3,7 @@ module Souvenirs
     attr_reader :name
 
     def initialize(name, options = {})
-      options.assert_valid_keys(:default, :read_only, :initial)
+      options.assert_valid_keys(:default, :read_only, :initial, :indexed)
       @options = options
       @name = name.to_s
     end
@@ -21,6 +21,10 @@ module Souvenirs
 
     def read_only?
       !!@options[:read_only]
+    end
+
+    def indexed?
+      !!@options[:indexed]
     end
   end
 end

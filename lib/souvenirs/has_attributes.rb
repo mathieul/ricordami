@@ -9,7 +9,7 @@ module Souvenirs
     included do
       attribute_method_suffix('', '=')
       attribute :id, :read_only => true,
-                     :initial   => Factory.id_generator(:sequence)
+                     :initial   => Factory.id_generator(self)
     end
 
     module ClassMethods

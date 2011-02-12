@@ -33,5 +33,10 @@ describe Souvenirs::Factory do
       name = subject.key_name(:hash_ref, :model => "Call", :fields=> ["ani", "dnis"])
       name.should == "Call:hsh:ani_dnis_to_id"
     end
+
+    it "returns a key name for the value of a field of a model with :index" do
+      name = subject.key_name(:index, :model => "Leg", :field => :direction, :value => "inout")
+      name.should == "Leg:idx:direction:inout"
+    end
   end
 end

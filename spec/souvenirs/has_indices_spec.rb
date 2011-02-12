@@ -12,6 +12,14 @@ describe Souvenirs::HasIndices do
       lambda { Car.index }.should raise_error(Souvenirs::InvalidIndexDefinition)
     end
 
+    describe "declaring a simple index" do
+      it "can declare a simple index with #index" do
+        index = Car.index :simple => :model
+        Car.indices[:model].should be_a(Souvenirs::SimpleIndex)
+        Car.indices[:model].should == index
+      end
+    end
+
     describe "declaring a unique index" do
       it "can declare a unique index with #index" do
         index = Car.index :unique => :model

@@ -51,6 +51,15 @@ describe Souvenirs::Attribute do
       subject.new(:not_read_only).should_not be_read_only
     end
 
+    it "has an option :indexed when the attribute should be indexed for queries" do
+      attribute = subject.new(:georges, :indexed => true)
+      attribute.should be_indexed
+    end
+
+    it "its value can be used for queries when :indexed is not set" do
+      subject.new(:not_indexed).should_not be_indexed
+    end
+
     it "has an option :initial for an initial value set when saved the first time" do
       attribute = subject.new(:id, :initial => "123")
       attribute.initial_value.should == "123"

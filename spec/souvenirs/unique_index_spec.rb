@@ -12,7 +12,7 @@ describe Souvenirs::UniqueIndex do
   it "is initialized with an owner type, a name and the fields to be unique" do
     @index.owner_type.should == DataSource
     @index.fields.should == [:id]
-    @index.name.should == "all_ids"
+    @index.name.should == :all_ids
   end
 
   it "returns its internal index name with #uidx_key_name" do

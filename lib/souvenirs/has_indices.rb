@@ -1,5 +1,6 @@
 require "souvenirs/has_attributes"
 require "souvenirs/unique_index"
+require "souvenirs/simple_index"
 
 module Souvenirs
   module HasIndices
@@ -12,34 +13,49 @@ module Souvenirs
 
       def index(options = {})
         # for now we can only create unique indices
-        options.assert_valid_keys(:unique, :get_by)
+        options.assert_valid_keys(:unique, :get_by, :simple)
         fields = options.delete(:unique)
-        raise InvalidIndexDefinition.new(self.class) if fields.blank?
+        return unique_index(fields, options) if fields.present?
+        field = options.delete(:simple)
+        return simple_index(field) if field.present?
+        raise InvalidIndexDefinition.new(self.class)
+      end
+
+      def unique_index(fields, options = {})
         create_unique_index(fields, options).tap do |index|
           next if index.nil?
           create_unique_get_method(index) if options[:get_by]
         end
       end
 
+      def simple_index(field)
+        index = SimpleIndex.new(self, field)
+        return nil unless add_index(index)
+        index
+      end
+
       private
+
+      def add_index(index)
+        return false if self.indices.has_key?(index.name)
+        self.indices[index.name] = index
+      end
 
       def create_unique_index(fields, options)
         index = UniqueIndex.new(self, fields, options)
-        index_name = index.name.to_sym
-        return nil if self.indices.has_key?(index_name)
-        self.indices[index_name] = index
+        return nil unless add_index(index)
         queue_saving_operations do |obj|
           old_value = index.package_fields(obj, :previous_value => true)
           new_value = index.package_fields(obj)
           next if old_value == new_value
           if obj.persisted? && old_value.present?
-            indices[index_name].rem(obj.id, old_value)
+            indices[index.name].rem(obj.id, old_value)
           end
-          indices[index_name].add(obj.id, new_value)
+          indices[index.name].add(obj.id, new_value)
         end
         queue_deleting_operations do |obj|
           value = index.package_fields(obj, :for_deletion => true)
-          indices[index_name].rem(obj.id, value) if value.present?
+          indices[index.name].rem(obj.id, value) if value.present?
         end
         index
       end

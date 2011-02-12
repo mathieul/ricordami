@@ -1,10 +1,14 @@
 require "spec_helper"
+require "souvenirs/can_be_validated"
 
 describe Souvenirs::UniqueValidator do
   uses_constants("Call")
 
   before(:each) do
-    Call.attribute :name
+    class Call
+      include Souvenirs::CanBeValidated
+      attribute :name
+    end
   end
   let(:record) { Call.new(:name => "sophie") }
   let(:validator) { Souvenirs::UniqueValidator.new(:attributes => [:name]) }

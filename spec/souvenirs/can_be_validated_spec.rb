@@ -1,4 +1,5 @@
 require "spec_helper"
+require "souvenirs/can_be_validated"
 
 describe Souvenirs::CanBeValidated do
 
@@ -7,6 +8,7 @@ describe Souvenirs::CanBeValidated do
 
     before(:each) do
       Call.class_eval do
+        include Souvenirs::CanBeValidated
         attribute :ani
         attribute :dnis
         validates_presence_of :ani
@@ -54,6 +56,7 @@ describe Souvenirs::CanBeValidated do
 
     before(:each) do
       Post.class_eval do
+        include Souvenirs::CanBeValidated
         attribute :title
         validates_presence_of :title
       end
@@ -82,6 +85,7 @@ describe Souvenirs::CanBeValidated do
 
     before(:each) do
       User.class_eval do
+        include Souvenirs::CanBeValidated
         attribute :username, :read_only => true
         attribute :wife
         validates_uniqueness_of :username

@@ -1,14 +1,6 @@
 require "spec_helper"
 
 describe Souvenirs::HasIndices do
-  it "requires the module Souvenirs::HasIndices" do
-    lambda {
-      WillFail = Class.new do
-        include Souvenirs::HasIndices
-      end
-    }.should raise_error(RuntimeError)
-  end
-
   describe "the class" do
     uses_constants("Car")
     before(:each) do

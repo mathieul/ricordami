@@ -1,3 +1,5 @@
+require "active_model/validator"
+
 module Souvenirs
   class UniqueValidator < ActiveModel::EachValidator
     def validate_each(record, attribute, value)

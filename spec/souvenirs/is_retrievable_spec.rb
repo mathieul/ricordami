@@ -1,15 +1,7 @@
 require "spec_helper"
 
-describe Souvenirs::CanBeQueried do
+describe Souvenirs::IsRetrievable do
   uses_constants("Tenant")
-
-  it "requires the module Souvenirs::CanBePersisted" do
-    lambda {
-      WillFail = Class.new do
-        include Souvenirs::CanBeQueried
-      end
-    }.should raise_error(RuntimeError)
-  end
 
   describe "#get & #[]" do
     it "loads a model with #get when it exists" do

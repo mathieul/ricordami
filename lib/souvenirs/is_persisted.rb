@@ -1,14 +1,8 @@
 require "souvenirs/has_attributes"
 
 module Souvenirs
-  module CanBePersisted
+  module IsPersisted
     extend ActiveSupport::Concern
-
-    included do
-      unless ancestors.include?(HasAttributes)
-        raise RuntimeError.new("missing mandatory module Souvenirs::HasAttributes")
-      end
-    end
 
     module ClassMethods
       attr_reader :save_queue, :delete_queue

@@ -8,9 +8,8 @@ module Souvenirs
       include ActiveModel::AttributeMethods
       include HasAttributes
       include HasIndices
-      include CanBePersisted
-      include CanBeQueried
-      include CanBeValidated
+      include IsPersisted
+      include IsRetrievable
     end
   end
 

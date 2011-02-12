@@ -5,12 +5,6 @@ module Souvenirs
   module HasIndices
     extend ActiveSupport::Concern
 
-    included do
-      unless ancestors.include?(HasAttributes)
-        raise RuntimeError.new("missing mandatory module Souvenirs::HasAttributes")
-      end
-    end
-
     module ClassMethods
       def indices
         @indices ||= {}
@@ -58,9 +52,6 @@ module Souvenirs
           get(id)
         end
       end
-    end
-
-    module InstanceMethods
     end
   end
 end

@@ -2,9 +2,6 @@ module Souvenirs
   module Connection
     extend ActiveSupport::Concern
 
-    included do
-    end
-
     module ClassMethods
       def driver
         @driver ||= create_driver

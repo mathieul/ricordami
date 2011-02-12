@@ -6,9 +6,6 @@ module Souvenirs
     extend ActiveSupport::Concern
     include ActiveModel::Validations
 
-    included do
-    end
-
     module ClassMethods
       def validates_uniqueness_of(*attr_names)
         validates_with UniqueValidator, _merge_attributes(attr_names)

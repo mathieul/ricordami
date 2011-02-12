@@ -1,14 +1,11 @@
-require "souvenirs/can_be_persisted"
+require "souvenirs/is_persisted"
 require "souvenirs/has_indices"
 
 module Souvenirs
-  module CanBeQueried
+  module IsRetrievable
     extend ActiveSupport::Concern
 
     included do
-      unless ancestors.include?(CanBePersisted)
-        raise RuntimeError.new("missing mandatory module Souvenirs::CanBePersisted")
-      end
       index :unique => :id
     end
 
@@ -33,9 +30,6 @@ module Souvenirs
       def count
         indices[:all_ids].count
       end
-    end
-
-    module InstanceMethods
     end
   end
 end

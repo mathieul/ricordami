@@ -1,7 +1,9 @@
 require "acceptance_helper"
+require "souvenirs/can_be_validated"
 
 class Singer
   include Souvenirs::Model
+  include Souvenirs::CanBeValidated
 
   attribute :username
   attribute :email

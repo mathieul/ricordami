@@ -1,15 +1,7 @@
 require "spec_helper"
 
-describe Souvenirs::CanBePersisted do
+describe Souvenirs::IsPersisted do
   uses_constants("Tenant")
-
-  it "requires the module Souvenirs::HasAttributes" do
-    lambda {
-      WillFail = Class.new do
-        include Souvenirs::CanBePersisted
-      end
-    }.should raise_error(RuntimeError)
-  end
 
   it "is not persisted and is a new record after it's just been initialized" do
     tenant = Tenant.new

@@ -80,14 +80,19 @@ feature "Stand-alone model" do
     Singer["1"].email.should == "serge@gainsbourg.com"
 
     Singer.get_by_username("bashung").first_name.should == "Alain"
-
-    Singer.find(:deceased => true).map(&:username).should =~ ["lucien", "bashung"]
   end
 
   scenario "finding models using basic queries" do
-    pending
+    Singer.create!(:username => "ben", :email => "benjamin@biolay.com",
+                   :first_name => "Benjamin", :last_name => "Biolay", :deceased => "false")
+    Singer.create!(:username => "lucien", :email => "serge@gainsbourg.com",
+                   :first_name => "Serge", :last_name => "Gainsbourg", :deceased => "true")
+    Singer.create!(:username => "bashung", :email => "alain@bashung.com",
+                   :first_name => "Alain", :last_name => "Bashung", :deceased => "true")
+
+    found = Singer.and(:deceased => "true").all
+    found.map(&:username).shoud =~ %w(lucien bashung)
     # Model.all or Model.first or Model.last
-    # .where(:deceased => "true")
     # .and(:deceased => "true", :language => "French")
     # .any(:first_name => "Alain", :last_name => "French")
     # .not(:username => "ben")

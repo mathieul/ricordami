@@ -2,7 +2,6 @@ require "spec_helper"
 require "souvenirs/can_be_validated"
 
 describe Souvenirs::CanBeValidated do
-
   describe "Active Model validations" do
     uses_constants("Call")
 

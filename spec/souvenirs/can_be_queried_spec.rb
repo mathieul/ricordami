@@ -19,9 +19,20 @@ describe Souvenirs::CanBeQueried do
       query.should be_a(Souvenirs::Query)
     end
 
+    it "passes self as the query runner to the query" do
+      query = Customer.and
+      query.runner.should == Customer
+    end
+
     it "delegates #and to the new query" do
       query = Customer.and(:key => "value")
       query.expressions.should == [[:and, {:key => "value"}]]
+    end
+
+    it "returns the models found with #all" do
+      %w(Sophie Zhanna Mathieu).each { |n| Customer.create(:name => n) }
+      found = Customer.and(:name => "Zhanna").all
+      found.length.should == 1
     end
   end
 

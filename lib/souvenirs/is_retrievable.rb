@@ -22,7 +22,7 @@ module Souvenirs
       end
       alias :[] :get
 
-      def all
+      def all(expressions = nil)
         ids = indices[:all_ids].all
         ids.map { |id| get(id) }
       end

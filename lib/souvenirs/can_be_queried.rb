@@ -4,18 +4,16 @@ module Souvenirs
   module CanBeQueried
     extend ActiveSupport::Concern
 
-    included do
-    end
-
     module ClassMethods
       [:and, :not, :any].each do |op|
         define_method(op) do |options = {}|
-          Query.new.send(op, options)
+          Query.new(self).send(op, options)
         end
       end
-    end
 
-    module InstanceMethods
+      def all(expressions = nil)
+        return super if expressions.nil?
+      end
     end
   end
 end

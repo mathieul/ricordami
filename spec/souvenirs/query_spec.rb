@@ -4,7 +4,8 @@ require "souvenirs/query"
 describe Souvenirs::Query do
 
   describe "instance" do
-    let(:query) { Souvenirs::Query.new }
+    uses_constants("Instrument")
+    let(:query) { Souvenirs::Query.new(Instrument) }
 
     it "has expressions" do
       query.expressions.should == []
@@ -43,5 +44,21 @@ describe Souvenirs::Query do
       end
     end
 
+    describe "running the query" do
+      it "delegates #all to the runner" do
+        Instrument.should_receive(:all).with([[:and, {:key => "val"}]])
+        query.and(:key => "val").all
+      end
+
+      it "delegates #first to the runner" do
+        Instrument.should_receive(:first).with([[:and, {:key => "val"}]])
+        query.and(:key => "val").first
+      end
+
+      it "delegates #last to the runner" do
+        Instrument.should_receive(:last).with([[:and, {:key => "val"}]])
+        query.and(:key => "val").last
+      end
+    end
   end
 end

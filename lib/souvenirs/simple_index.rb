@@ -16,6 +16,14 @@ module Souvenirs
                                :value => encode(value))
     end
 
+    def add(id, value)
+      Souvenirs.driver.sadd(key_name_for_value(value), id)
+    end
+
+    def rem(id, value)
+      Souvenirs.driver.srem(key_name_for_value(value), id)
+    end
+
     private
 
     def encode(value)

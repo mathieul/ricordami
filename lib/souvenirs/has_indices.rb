@@ -31,6 +31,19 @@ module Souvenirs
       def simple_index(field)
         index = SimpleIndex.new(self, field)
         return nil unless add_index(index)
+        queue_saving_operations do |obj|
+          old_v = obj.send("#{field}_was")
+          new_v = obj.send(field)
+          next if old_v == new_v
+          if obj.persisted? && old_v.present?
+            indices[index.name].rem(obj.id, old_v)
+          end
+          indices[index.name].add(obj.id, new_v)
+        end
+        queue_deleting_operations do |obj|
+          value = obj.send(field)
+          indices[index.name].rem(obj.id, value) if value.present?
+        end
         index
       end
 
@@ -45,16 +58,16 @@ module Souvenirs
         index = UniqueIndex.new(self, fields, options)
         return nil unless add_index(index)
         queue_saving_operations do |obj|
-          old_value = index.package_fields(obj, :previous_value => true)
-          new_value = index.package_fields(obj)
-          next if old_value == new_value
-          if obj.persisted? && old_value.present?
-            indices[index.name].rem(obj.id, old_value)
+          old_v = serialize_values(index.fields, obj, :previous => true)
+          new_v = serialize_values(index.fields, obj)
+          next if old_v == new_v
+          if obj.persisted? && old_v.present?
+            indices[index.name].rem(obj.id, old_v)
           end
-          indices[index.name].add(obj.id, new_value)
+          indices[index.name].add(obj.id, new_v)
         end
         queue_deleting_operations do |obj|
-          value = index.package_fields(obj, :for_deletion => true)
+          value = serialize_values(index.fields, obj)
           indices[index.name].rem(obj.id, value) if value.present?
         end
         index
@@ -67,6 +80,15 @@ module Souvenirs
           id = index.id_for_values(*args)
           get(id)
         end
+      end
+
+      private
+
+      def serialize_values(fields, obj, opts = {})
+        fields.map do |f|
+          attr = opts[:previous] ? "#{f}_was" : f
+          obj.send(attr)
+        end.join(UniqueIndex::SEPARATOR)
       end
     end
   end

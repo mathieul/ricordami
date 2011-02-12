@@ -32,8 +32,8 @@ describe Souvenirs::UniqueIndex do
     DataSource.attribute :domain
     other = subject.new(DataSource, [:name, :domain], :get_by => true)
     other.add("ze-id", ["jobs", "apple.com"])
-    Souvenirs.driver.smembers("DataSource:udx:all_name_domains").should == ["jobs:-:apple.com"]
-    Souvenirs.driver.hget("DataSource:hsh:name_domain_to_id", "jobs:-:apple.com").should == "ze-id"
+    Souvenirs.driver.smembers("DataSource:udx:all_name_domains").should == ["jobs_-::-_apple.com"]
+    Souvenirs.driver.hget("DataSource:hsh:name_domain_to_id", "jobs_-::-_apple.com").should == "ze-id"
   end
 
   it "doesn't index the has index with #add if :get_by is false or fields is :id" do
@@ -78,28 +78,5 @@ describe Souvenirs::UniqueIndex do
     %w(allo la terre).each { |v| @index.add("ze-id", v) }
     @index.should include("terre")
     @index.should_not include("earth")
-  end
-
-  it "serializes object fields into a string with #package_fields" do
-    index = DataSource.index :unique => [:id, :name]
-    ds = DataSource.create(:id => "zeid", :name => "oldname")
-    ds.name = "newname"
-    index.package_fields(ds).should == "zeid:-:newname"
-    index.package_fields(ds, :previous_value => true).should == "zeid:-:oldname"
-  end
-
-  it "returns nil if there is no value to serialize with #package_fields" do
-    DataSource.attribute :first
-    DataSource.attribute :second
-    index = DataSource.index :unique => [:first, :second]
-    ds = DataSource.create(:first => "un", :second => "deux")
-    index.package_fields(ds, :previous_value => true).should be_nil
-  end
-
-  it "serializes persisted value of object fields into a string with #package_fields" do
-    DataSource.attribute :name
-    index = DataSource.index :unique => [:name]
-    ds = DataSource.create(:name => "blah")
-    index.package_fields(ds, :for_deletion => true).should == "blah"
   end
 end

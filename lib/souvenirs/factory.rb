@@ -12,12 +12,12 @@ module Souvenirs
       when :sequence
         "#{opts[:model]}:seq:#{opts[:type]}"
       when :attributes
-        "#{opts[:model]}:attributes:#{opts[:id]}"
+        "#{opts[:model]}:att:#{opts[:id]}"
       when :unique_index
-        "#{opts[:model]}:uidx:#{opts[:name]}"
+        "#{opts[:model]}:udx:#{opts[:name]}"
       when :hash_ref
         fields = opts[:fields].join("_") + "_to_id"
-        "#{opts[:model]}:hash:#{fields}"
+        "#{opts[:model]}:hsh:#{fields}"
       end
     end
   end

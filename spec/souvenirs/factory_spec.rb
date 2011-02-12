@@ -21,17 +21,17 @@ describe Souvenirs::Factory do
 
     it "returns a key name for model attributes with :attributes" do
       name = subject.key_name(:attributes, :model => "Boat", :id => "42")
-      name.should == "Boat:attributes:42"
+      name.should == "Boat:att:42"
     end
 
     it "returns a key name for a unique index with :unique_index" do
       name = subject.key_name(:unique_index, :model => "Call", :name => "ani")
-      name.should == "Call:uidx:ani"
+      name.should == "Call:udx:ani"
     end
 
     it "returns a key name for a hash reference with :hash_ref" do
       name = subject.key_name(:hash_ref, :model => "Call", :fields=> ["ani", "dnis"])
-      name.should == "Call:hash:ani_dnis_to_id"
+      name.should == "Call:hsh:ani_dnis_to_id"
     end
   end
 end

@@ -21,7 +21,7 @@ describe Souvenirs::IsPersisted do
       it "persists a new model" do
         Tenant.attribute :balance
         persister_action.call
-        attributes = Souvenirs.driver.hgetall("Tenant:attributes:jojo")
+        attributes = Souvenirs.driver.hgetall("Tenant:att:jojo")
         attributes["id"].should == "jojo"
         attributes["balance"].should == "-$99.98"
       end
@@ -148,7 +148,7 @@ describe Souvenirs::IsPersisted do
 
     it "deletes the attributes from the DB" do
       tenant.delete.should be_true
-      from_db = Souvenirs.driver.hgetall("Tenant:attributes:myid")
+      from_db = Souvenirs.driver.hgetall("Tenant:att:myid")
       from_db.should be_empty
     end
 

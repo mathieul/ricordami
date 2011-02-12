@@ -16,36 +16,36 @@ describe Souvenirs::UniqueIndex do
   end
 
   it "returns its internal index name with #uidx_key_name" do
-    @index.uidx_key_name.should == "DataSource:uidx:all_ids"
+    @index.uidx_key_name.should == "DataSource:udx:all_ids"
   end
 
   it "returns its internal reference name with #ref_key_name" do
-    @index.ref_key_name.should == "DataSource:hash:id_to_id"
+    @index.ref_key_name.should == "DataSource:hsh:id_to_id"
   end
 
   it "adds a string to the index with #add" do
     @index.add("ze-id", "allo")
-    Souvenirs.driver.smembers("DataSource:uidx:all_ids").should == ["allo"]
+    Souvenirs.driver.smembers("DataSource:udx:all_ids").should == ["allo"]
   end
 
   it "also indices the hash index with #add if fields is not :id and :get_by is true" do
     DataSource.attribute :domain
     other = subject.new(DataSource, [:name, :domain], :get_by => true)
     other.add("ze-id", ["jobs", "apple.com"])
-    Souvenirs.driver.smembers("DataSource:uidx:all_name_domains").should == ["jobs:-:apple.com"]
-    Souvenirs.driver.hget("DataSource:hash:name_domain_to_id", "jobs:-:apple.com").should == "ze-id"
+    Souvenirs.driver.smembers("DataSource:udx:all_name_domains").should == ["jobs:-:apple.com"]
+    Souvenirs.driver.hget("DataSource:hsh:name_domain_to_id", "jobs:-:apple.com").should == "ze-id"
   end
 
   it "doesn't index the has index with #add if :get_by is false or fields is :id" do
     one = subject.new(DataSource, :name)
     one.add("ze-id", "jobs")
-    Souvenirs.driver.hexists("DataSource:hash:name_to_id", "jobs").should be_false
+    Souvenirs.driver.hexists("DataSource:hsh:name_to_id", "jobs").should be_false
     two = subject.new(DataSource, :id, :get_by => true)
     two.add("ze-id", "ze-id")
-    Souvenirs.driver.hexists("DataSource:hash:id_to_id", "ze-id").should be_false
+    Souvenirs.driver.hexists("DataSource:hsh:id_to_id", "ze-id").should be_false
     three = subject.new(DataSource, :name, :get_by => true)
     three.add("ze-id", "jobs")
-    Souvenirs.driver.hexists("DataSource:hash:name_to_id", "jobs").should be_true
+    Souvenirs.driver.hexists("DataSource:hsh:name_to_id", "jobs").should be_true
   end
 
   it "returns the id from values with #id_for_values if :get_by is true" do
@@ -61,7 +61,7 @@ describe Souvenirs::UniqueIndex do
   it "removes a string from the index with #rem" do
     @index.add("ze-id", "allo")
     @index.rem("ze-id", "allo")
-    Souvenirs.driver.smembers("DataSource:uidx:all_ids").should == []
+    Souvenirs.driver.smembers("DataSource:udx:all_ids").should == []
   end
 
   it "returns the number of entries with #count" do

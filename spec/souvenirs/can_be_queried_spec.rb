@@ -74,6 +74,10 @@ describe Souvenirs::CanBeQueried do
         }.should raise_error(Souvenirs::MissingIndex)
       end
 
+      it "returns an empty array if no conditions where passed" do
+        Customer.and.all.should == []
+      end
+
       it "returns the models found with #all (1 condition, 1 result)" do
         Customer.index :simple => :name
         %w(Sophie Zhanna Mathieu).each { |n| Customer.create(:name => n) }
@@ -92,5 +96,4 @@ describe Souvenirs::CanBeQueried do
       end
     end
   end
-
 end

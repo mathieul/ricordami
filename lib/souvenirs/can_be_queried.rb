@@ -15,8 +15,14 @@ module Souvenirs
         return super if expressions.nil?
         found = expressions.reduce(nil) do |key, expression|
           type, conditions = expression
-          raise TypeNotSupported if type != :and
-          run_and_expression(conditions, key)
+          raise TypeNotSupported unless [:and, :or].include?(type)
+          if conditions.empty?
+            Array(key)
+          else
+            keys = get_keys_for_each_condition(conditions)
+            key_name = key_name_for_expression(type, conditions, key)
+            send("run_expression_#{type}", key_name, key, keys)
+          end
         end
         return [] if found.empty?
         Souvenirs.driver.smembers(found).map  { |id| self[id] }
@@ -24,22 +30,29 @@ module Souvenirs
 
       private
 
-      def run_and_expression(conditions, initial_key = nil)
-        # get index value key for each condition
-        info = [:and]
-        keys = conditions.map do |field, value|
+      def get_keys_for_each_condition(conditions)
+        conditions.map do |field, value|
           index = indices[field]
           raise MissingIndex.new(field.to_s) if index.nil?
-          info << field
           index.key_name_for_value(value)
         end
-        keys.unshift(initial_key) unless initial_key.nil?
+      end
 
-        # run a difference of all index value key
-        key_name = Factory.key_name(:volatile_set,
-                                    :model => self,
-                                    :key => initial_key,
-                                    :info => info)
+      def key_name_for_expression(type, conditions, initial_key)
+        Factory.key_name(:volatile_set,
+                         :model => self,
+                         :key => initial_key,
+                         :info => [type] + conditions.keys)
+      end
+
+      def run_expression_and(key_name, start_key, keys)
+        keys.unshift(start_key) unless start_key.nil?
+        Souvenirs.driver.sinterstore(key_name, *keys)
+        key_name
+      end
+
+      def run_expression_or(key_name, start_key, keys)
+        raise "TODO"
         Souvenirs.driver.sinterstore(key_name, *keys)
         key_name
       end

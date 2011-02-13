@@ -42,11 +42,11 @@ describe Souvenirs::Factory do
     it "returns a volatile key name for a set with :volatile_set" do
       kn1 = subject.key_name(:volatile_set, :model => "Call",
                              :key => nil, :info => [:and, "username", "sex"])
-      kn1.should == "~:Call:set:and:username:sex"
+      kn1.should == "~:Call:set:and(username,sex)"
       kn2 = subject.key_name(:volatile_set, :model => "Call",
-                             :key => "~:Call:set:and:username:sex",
+                             :key => "~:Call:set:and(username,sex)",
                              :info => [:or, "country"])
-      kn2.should == "~:Call:set:and:username:sex:or:country"
+      kn2.should == "~:Call:set:and(username,sex):or(country)"
     end
   end
 end

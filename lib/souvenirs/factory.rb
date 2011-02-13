@@ -24,7 +24,13 @@ module Souvenirs
         value = encode(opts[:value])
         "#{opts[:model]}:idx:#{opts[:field]}:#{value}"
       when :volatile_set
-        info = opts[:info]
+        info = opts[:info].dup
+        op = info.shift
+        if info.empty?
+          info = [op]
+        else
+          info = ["#{op}(#{info.join(",")})"]
+        end
         unless opts[:key].nil?
           key = opts[:key].sub("~:#{opts[:model]}:set:", "")
           info.unshift(key)

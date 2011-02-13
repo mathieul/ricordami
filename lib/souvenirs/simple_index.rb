@@ -1,5 +1,3 @@
-require "base64"
-
 module Souvenirs
   class SimpleIndex
     attr_reader :owner_type, :field, :name
@@ -13,7 +11,7 @@ module Souvenirs
     def key_name_for_value(value)
       Factory.key_name(:index, :model => @owner_type,
                                :field => @field,
-                               :value => encode(value))
+                               :value => value)
     end
 
     def add(id, value)
@@ -22,12 +20,6 @@ module Souvenirs
 
     def rem(id, value)
       Souvenirs.driver.srem(key_name_for_value(value), id)
-    end
-
-    private
-
-    def encode(value)
-      Base64.encode64(value.to_s).gsub("\n", "")
     end
   end
 end

@@ -10,6 +10,7 @@ describe Souvenirs::CanBeQueried do
       attribute :country
       attribute :sex
       attribute :name
+      attribute :no_index
     end
   end
 
@@ -58,9 +59,18 @@ describe Souvenirs::CanBeQueried do
 
   describe "running queries" do
     describe ":and" do
+      before(:each) do
+        Customer.index :simple => :country
+        Customer.index :simple => :sex
+        Customer.create(:name => "Zhanna", :sex => "F", :country => "Latvia")
+        Customer.create(:name => "Mathieu", :sex => "M", :country => "France")
+        Customer.create(:name => "Sophie", :sex => "F", :country => "USA")
+        Customer.create(:name => "Brioche", :sex => "F", :country => "USA")
+      end
+
       it "raises an error if there's no simple index for one of the conditions" do
         lambda {
-          Customer.and(:name => "Zhanna").all
+          Customer.and(:no_index => "Blah").all
         }.should raise_error(Souvenirs::MissingIndex)
       end
 
@@ -72,13 +82,12 @@ describe Souvenirs::CanBeQueried do
       end
 
       it "returns the models found with #all (2 conditions, 2 results)" do
-        Customer.index :simple => :country
-        Customer.index :simple => :sex
-        Customer.create(:name => "Zhanna", :sex => "F", :country => "Latvia")
-        Customer.create(:name => "Mathieu", :sex => "M", :country => "France")
-        Customer.create(:name => "Sophie", :sex => "F", :country => "USA")
-        Customer.create(:name => "Brioche", :sex => "F", :country => "USA")
         found = Customer.and(:country => "USA", :sex => "F").all
+        found.map(&:name).should =~ ["Sophie", "Brioche"]
+      end
+
+      it "returns the models found with #all for a composed query" do
+        found = Customer.and(:country => "USA").and(:sex => "F").all
         found.map(&:name).should =~ ["Sophie", "Brioche"]
       end
     end

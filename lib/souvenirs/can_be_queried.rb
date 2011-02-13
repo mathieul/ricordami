@@ -15,14 +15,10 @@ module Souvenirs
         return super if expressions.nil?
         found = expressions.reduce(nil) do |key, expression|
           type, conditions = expression
-          raise TypeNotSupported unless [:and, :or].include?(type)
-          if conditions.empty?
-            Array(key)
-          else
-            keys = get_keys_for_each_condition(conditions)
-            key_name = key_name_for_expression(type, conditions, key)
-            send("run_expression_#{type}", key_name, key, keys)
-          end
+          keys = get_keys_for_each_condition(conditions)
+          next Array(key) if keys.empty?
+          key_name = key_name_for_expression(type, conditions, key)
+          send("run_#{type}", key_name, key, keys)
         end
         return [] if found.empty?
         Souvenirs.driver.smembers(found).map  { |id| self[id] }
@@ -45,15 +41,27 @@ module Souvenirs
                          :info => [type] + conditions.keys)
       end
 
-      def run_expression_and(key_name, start_key, keys)
+      def run_and(key_name, start_key, keys)
         keys.unshift(start_key) unless start_key.nil?
         Souvenirs.driver.sinterstore(key_name, *keys)
         key_name
       end
 
-      def run_expression_or(key_name, start_key, keys)
-        raise "TODO"
-        Souvenirs.driver.sinterstore(key_name, *keys)
+      def run_or(key_name, start_key, keys)
+        unless start_key.nil?
+          Souvenirs.driver.sinterstore(key_name, start_key, keys.shift)
+          keys.unshift(key_name)
+        end
+        Souvenirs.driver.sunionstore(key_name, *keys)
+        key_name
+      end
+
+      def run_not(key_name, start_key, keys)
+        unless start_key.nil?
+          Souvenirs.driver.sinterstore(key_name, start_key, keys.shift)
+          keys.unshift(key_name)
+        end
+        Souvenirs.driver.sdiffstore(key_name, *keys)
         key_name
       end
     end

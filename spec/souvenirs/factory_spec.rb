@@ -48,5 +48,17 @@ describe Souvenirs::Factory do
                              :info => [:or, "country"])
       kn2.should == "~:Call:set:and(username,sex):or(country)"
     end
+
+    it "returns a temporary key name for a model with :model_tmp" do
+      5.times do |i|
+        name = subject.key_name(:model_tmp, :model => "Leg")
+        name.should == "Leg:val:_tmp:#{i + 1}"
+      end
+    end
+
+    it "returns a key name for the model lock with :model_lock" do
+      name = subject.key_name(:model_lock, :model => "Leg")
+      name.should == "Leg:val:_lock"
+    end
   end
 end

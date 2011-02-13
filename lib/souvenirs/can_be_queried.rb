@@ -49,7 +49,7 @@ module Souvenirs
       end
 
       def run_any(key_name, start_key, keys)
-        tmp_key = Factory.key_name(:volatile_set, :model => self, :info => %w(TMP))
+        tmp_key = Factory.key_name(:model_tmp, :model => self)
         keys.each_with_index do |key, i|
           if i == 0
             # if only one condition key, :any condition is same as :and condition

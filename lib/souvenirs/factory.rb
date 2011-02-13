@@ -36,6 +36,11 @@ module Souvenirs
           info.unshift(key)
         end
         "~:#{opts[:model]}:set:#{info.join(":")}"
+      when :model_tmp
+        lock_id = Souvenirs.driver.incr("#{opts[:model]}:seq:lock")
+        "#{opts[:model]}:val:_tmp:#{lock_id}"
+      when :model_lock
+        "#{opts[:model]}:val:_lock"
       end
     end
 

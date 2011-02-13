@@ -6,6 +6,7 @@ module Souvenirs
       extend  ActiveModel::Naming
       include ActiveModel::Conversion
       include ActiveModel::AttributeMethods
+      include IsLockable
       include HasAttributes
       include HasIndices
       include IsPersisted

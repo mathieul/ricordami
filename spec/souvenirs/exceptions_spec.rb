@@ -24,4 +24,8 @@ describe Souvenirs::Error do
   it "has an error to notify when a type is not supported" do
     Souvenirs::TypeNotSupported.new.should be_a_kind_of(Souvenirs::Error)
   end
+
+  it "has an error to notify when an index is missing" do
+    Souvenirs::MissingIndex.new.should be_a_kind_of(Souvenirs::Error)
+  end
 end

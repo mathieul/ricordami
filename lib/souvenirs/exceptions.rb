@@ -6,4 +6,5 @@ module Souvenirs
   InvalidIndexDefinition  = Class.new(Error)
   ModelHasBeenDeleted     = Class.new(Error)
   TypeNotSupported        = Class.new(Error)
+  MissingIndex            = Class.new(Error)
 end

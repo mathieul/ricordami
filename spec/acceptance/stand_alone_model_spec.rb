@@ -1,15 +1,17 @@
 require "acceptance_helper"
 require "souvenirs/can_be_validated"
+require "souvenirs/can_be_queried"
 
 class Singer
   include Souvenirs::Model
   include Souvenirs::CanBeValidated
+  include Souvenirs::CanBeQueried
 
   attribute :username
   attribute :email
   attribute :first_name
   attribute :last_name
-  attribute :deceased, :default => "false", :indexed => true
+  attribute :deceased, :default => "false", :indexed => :simple
 
   index :unique => :username, :get_by => true
 
@@ -90,7 +92,7 @@ feature "Stand-alone model" do
                    :first_name => "Alain", :last_name => "Bashung", :deceased => "true")
 
     found = Singer.and(:deceased => "true").all
-    found.map(&:username).shoud =~ %w(lucien bashung)
+    found.map(&:username).should =~ %w(lucien bashung)
     # Model.all or Model.first or Model.last
     # .and(:deceased => "true", :language => "French")
     # .any(:first_name => "Alain", :last_name => "French")

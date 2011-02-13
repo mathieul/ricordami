@@ -20,6 +20,7 @@ module Souvenirs
       def attribute(name, options = {})
         instance = Attribute.new(name, options)
         self.attributes[name.to_sym] = instance
+        index(:simple => name.to_sym) if instance.indexed?
         instance
       end
 

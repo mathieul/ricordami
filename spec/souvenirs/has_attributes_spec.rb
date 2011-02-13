@@ -15,6 +15,11 @@ describe Souvenirs::HasAttributes do
       Boat.attributes[:color].default_value.should == "black"
       Boat.attributes[:color].should be_read_only
     end
+
+    it "declares a simple index if the attribute is indexed" do
+      Boat.attribute :size, :indexed => true
+      Boat.indices.should have_key(:size)
+    end
   end
 
   describe "an instance" do

@@ -10,6 +10,7 @@ describe Souvenirs::CanBeQueried do
       attribute :country
       attribute :sex
       attribute :name
+      attribute :kind
       attribute :no_index
     end
   end
@@ -58,16 +59,18 @@ describe Souvenirs::CanBeQueried do
   end
 
   describe "running queries" do
-    describe ":and" do
-      before(:each) do
-        Customer.index :simple => :country
-        Customer.index :simple => :sex
-        Customer.create(:name => "Zhanna", :sex => "F", :country => "Latvia")
-        Customer.create(:name => "Mathieu", :sex => "M", :country => "France")
-        Customer.create(:name => "Sophie", :sex => "F", :country => "USA")
-        Customer.create(:name => "Brioche", :sex => "F", :country => "USA")
-      end
+    before(:each) do
+      Customer.index :simple => :country
+      Customer.index :simple => :sex
+      Customer.index :simple => :name
+      Customer.index :simple => :kind
+      Customer.create(:name => "Zhanna", :sex => "F", :country => "Latvia", :kind => "human")
+      Customer.create(:name => "Mathieu", :sex => "M", :country => "France", :kind => "human")
+      Customer.create(:name => "Sophie", :sex => "F", :country => "USA", :kind => "human")
+      Customer.create(:name => "Brioche", :sex => "F", :country => "USA", :kind => "dog")
+    end
 
+    describe ":and" do
       it "raises an error if there's no simple index for one of the conditions" do
         lambda {
           Customer.and(:no_index => "Blah").all
@@ -80,7 +83,6 @@ describe Souvenirs::CanBeQueried do
 
       it "returns the models found with #all (1 condition, 1 result)" do
         Customer.index :simple => :name
-        %w(Sophie Zhanna Mathieu).each { |n| Customer.create(:name => n) }
         found = Customer.and(:name => "Zhanna").all
         found.map(&:name).should == ["Zhanna"]
       end
@@ -93,6 +95,36 @@ describe Souvenirs::CanBeQueried do
       it "returns the models found with #all for a composed query" do
         found = Customer.and(:country => "USA").and(:sex => "F").all
         found.map(&:name).should =~ ["Sophie", "Brioche"]
+      end
+    end
+
+    describe ":any" do
+      it "raises an error if there's no simple index for one of the conditions" do
+        lambda {
+          Customer.any(:no_index => "Blah").all
+        }.should raise_error(Souvenirs::MissingIndex)
+      end
+
+      it "returns an empty array if no conditions where passed" do
+        Customer.any.all.should == []
+      end
+
+      it "returns the models found with #all (1 condition, 1 result)" do
+        Customer.index :simple => :name
+        found = Customer.any(:name => "Zhanna").all
+        found.map(&:name).should == ["Zhanna"]
+      end
+
+      it "returns the models found with #all (2 conditions, 3 results)" do
+        found = Customer.any(:country => "USA", :sex => "F").all
+        found.map(&:name).should =~ ["Sophie", "Brioche", "Zhanna"]
+      end
+
+      it "returns the models found with #all for a composed query" do
+        found = Customer.and(:country => "USA").any(:name => "Sophie", :kind => "dog").all
+        found.map(&:name).should =~ ["Sophie", "Brioche"]
+        found = Customer.and(:country => "USA").any(:name => "Sophie", :kind => "human").all
+        found.map(&:name).should == ["Sophie"]
       end
     end
   end

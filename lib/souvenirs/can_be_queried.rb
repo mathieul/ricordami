@@ -13,7 +13,8 @@ module Souvenirs
 
       def all(expressions = nil)
         return super if expressions.nil?
-        found = expressions.reduce(nil) do |key, expression|
+        key_all_ids = indices[:all_ids].uidx_key_name
+        found = expressions.reduce(key_all_ids) do |key, expression|
           type, conditions = expression
           keys = get_keys_for_each_condition(conditions)
           next Array(key) if keys.empty?
@@ -34,20 +35,20 @@ module Souvenirs
         end
       end
 
-      def key_name_for_expression(type, conditions, initial_key)
+      def key_name_for_expression(type, conditions, previous_key)
         Factory.key_name(:volatile_set,
                          :model => self,
-                         :key => initial_key,
+                         :key => previous_key,
                          :info => [type] + conditions.keys)
       end
 
       def run_and(key_name, start_key, keys)
-        keys.unshift(start_key) unless start_key.nil?
+        keys.unshift(start_key)
         Souvenirs.driver.sinterstore(key_name, *keys)
         key_name
       end
 
-      def run_or(key_name, start_key, keys)
+      def run_any(key_name, start_key, keys)
         unless start_key.nil?
           Souvenirs.driver.sinterstore(key_name, start_key, keys.shift)
           keys.unshift(key_name)

@@ -43,17 +43,25 @@ module Souvenirs
       end
 
       def run_and(key_name, start_key, keys)
-        keys.unshift(start_key)
-        Souvenirs.driver.sinterstore(key_name, *keys)
+        # we get the intersection of the start key and the condition keys
+        Souvenirs.driver.sinterstore(key_name, start_key, *keys)
         key_name
       end
 
       def run_any(key_name, start_key, keys)
-        unless start_key.nil?
-          Souvenirs.driver.sinterstore(key_name, start_key, keys.shift)
-          keys.unshift(key_name)
+        tmp_key = Factory.key_name(:volatile_set, :model => self, :info => %w(TMP))
+        keys.each_with_index do |key, i|
+          if i == 0
+            # if only one condition key, :any condition is same as :and condition
+            Souvenirs.driver.sinterstore(key_name, start_key, keys.first)
+          else
+            # we get the intersection of the start key with each condition key
+            # and we make a union of all of those
+          end
+          Souvenirs.driver.sinterstore(tmp_key, start_key, key)
+          Souvenirs.driver.sunionstore(key_name, key_name, tmp_key)
         end
-        Souvenirs.driver.sunionstore(key_name, *keys)
+        Souvenirs.driver.del(tmp_key)
         key_name
       end
 

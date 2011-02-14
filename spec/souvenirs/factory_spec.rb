@@ -57,8 +57,8 @@ describe Souvenirs::Factory do
     end
 
     it "returns a key name for the model lock with :model_lock" do
-      name = subject.key_name(:model_lock, :model => "Leg")
-      name.should == "Leg:val:_lock"
+      name = subject.key_name(:model_lock, :model => "Leg", :id => 3)
+      name.should == "Leg:val:3:_lock"
     end
   end
 end

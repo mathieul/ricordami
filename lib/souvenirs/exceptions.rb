@@ -7,4 +7,5 @@ module Souvenirs
   ModelHasBeenDeleted     = Class.new(Error)
   TypeNotSupported        = Class.new(Error)
   MissingIndex            = Class.new(Error)
+  LockTimeout             = Class.new(Error)
 end

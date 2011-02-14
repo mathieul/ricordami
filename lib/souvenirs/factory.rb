@@ -40,7 +40,7 @@ module Souvenirs
         lock_id = Souvenirs.driver.incr("#{opts[:model]}:seq:lock")
         "#{opts[:model]}:val:_tmp:#{lock_id}"
       when :model_lock
-        "#{opts[:model]}:val:_lock"
+        "#{opts[:model]}:val:#{opts[:id]}:_lock"
       end
     end
 

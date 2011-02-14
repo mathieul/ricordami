@@ -17,9 +17,10 @@ RSpec.configure do |config|
   config.include Support::DbManager
   config.before(:each) do
     Souvenirs.configure do |config|
-      config.from_hash(:redis_host => "127.0.0.1",
-                       :redis_port => 6379,
-                       :redis_db   => 7)
+      config.from_hash(:redis_host  => "127.0.0.1",
+                       :redis_port  => 6379,
+                       :redis_db    => 7,
+                       :thread_safe => true)
     end
     Souvenirs.driver.flushdb
   end

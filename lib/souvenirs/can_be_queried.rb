@@ -5,7 +5,7 @@ module Souvenirs
     extend ActiveSupport::Concern
 
     module ClassMethods
-      [:and, :not, :any].each do |op|
+      [:where, :and, :not, :any].each do |op|
         define_method(op) do |options = {}|
           Query.new(self).send(op, options)
         end
@@ -48,6 +48,8 @@ module Souvenirs
         key_name
       end
 
+      alias :run_where :run_and
+
       def run_any(key_name, start_key, keys)
         tmp_key = Factory.key_name(:model_tmp, :model => self)
         keys.each_with_index do |key, i|
@@ -66,11 +68,9 @@ module Souvenirs
       end
 
       def run_not(key_name, start_key, keys)
-        unless start_key.nil?
-          Souvenirs.driver.sinterstore(key_name, start_key, keys.shift)
-          keys.unshift(key_name)
+        keys.each_with_index do |key, i|
+          Souvenirs.driver.sdiffstore(key_name, i == 0 ? start_key : key_name, key)
         end
-        Souvenirs.driver.sdiffstore(key_name, *keys)
         key_name
       end
     end

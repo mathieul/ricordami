@@ -91,8 +91,8 @@ feature "Stand-alone model" do
     Singer.create(:username => "bashung", :email => "alain@bashung.com",
                    :first_name => "Alain", :last_name => "Bashung", :deceased => "true")
 
-    found = Singer.and(:deceased => "true").all
-    found.map(&:username).should =~ %w(lucien bashung)
+    deceased = Singer.and(:deceased => "true").all
+    deceased.map(&:username).should =~ %w(lucien bashung)
     # Model.all or Model.first or Model.last
     # .and(:deceased => "true", :language => "French")
     # .any(:first_name => "Alain", :last_name => "French")

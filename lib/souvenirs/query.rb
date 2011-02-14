@@ -13,6 +13,7 @@ module Souvenirs
         self
       end
     end
+    alias :where :and
 
     [:all, :first, :last].each do |cmd|
       define_method(cmd) do

@@ -96,6 +96,11 @@ describe Souvenirs::CanBeQueried do
         found = Customer.and(:country => "USA").and(:sex => "F").all
         found.map(&:name).should =~ ["Sophie", "Brioche"]
       end
+
+      it "can use #where instead of #and" do
+        found = Customer.where(:country => "USA").and(:sex => "F").all
+        found.map(&:name).should =~ ["Sophie", "Brioche"]
+      end
     end
 
     describe ":any" do
@@ -125,6 +130,36 @@ describe Souvenirs::CanBeQueried do
         found.map(&:name).should =~ ["Sophie", "Brioche"]
         found = Customer.and(:country => "USA").any(:name => "Sophie", :kind => "human").all
         found.map(&:name).should == ["Sophie"]
+      end
+    end
+
+    describe ":not" do
+      it "raises an error if there's no simple index for one of the conditions" do
+        lambda {
+          Customer.not(:no_index => "Blah").all
+        }.should raise_error(Souvenirs::MissingIndex)
+      end
+
+      it "returns an empty array if no conditions where passed" do
+        Customer.not.all.should == []
+      end
+
+      it "returns the models found with #all (1 condition, 1 result)" do
+        Customer.index :simple => :name
+        found = Customer.not(:name => "Zhanna").all
+        found.map(&:name).should =~ ["Sophie", "Brioche", "Mathieu"]
+      end
+
+      it "returns the models found with #all (2 conditions, 1 result)" do
+        found = Customer.not(:country => "USA", :sex => "F").all
+        found.map(&:name).should == ["Mathieu"]
+      end
+
+      it "returns the models found with #all for a composed query" do
+        found = Customer.and(:country => "USA").not(:name => "Sophie", :kind => "dog").all
+        found.map(&:name).should be_empty
+        found = Customer.and(:country => "USA").not(:name => "Sophie", :kind => "human").all
+        found.map(&:name).should == ["Brioche"]
       end
     end
   end

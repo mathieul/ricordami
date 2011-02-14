@@ -17,6 +17,11 @@ describe Souvenirs::Query do
         query.expressions.pop.should == [:and, {:allo => "la terre"}]
       end
 
+      it "uses :where as an alias for :and" do
+        query.where(:allo => "la terre")
+        query.expressions.pop.should == [:and, {:allo => "la terre"}]
+      end
+
       it "returns self" do
         query.and.should == query
       end

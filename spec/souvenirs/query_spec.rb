@@ -51,18 +51,38 @@ describe Souvenirs::Query do
 
     describe "running the query" do
       it "delegates #all to the runner" do
-        Instrument.should_receive(:all).with([[:and, {:key => "val"}]])
+        Instrument.should_receive(:all).with([[:and, {:key => "val"}]], nil)
         query.and(:key => "val").all
       end
 
       it "delegates #first to the runner" do
-        Instrument.should_receive(:first).with([[:and, {:key => "val"}]])
-        query.and(:key => "val").first
+        Instrument.should_receive(:first).with([[:and, {:key => "val"}]], [:key, :asc])
+        query.and(:key => "val").sort(:key).first
       end
 
       it "delegates #last to the runner" do
-        Instrument.should_receive(:last).with([[:and, {:key => "val"}]])
-        query.and(:key => "val").last
+        Instrument.should_receive(:last).with([[:and, {:key => "val"}]], [:key, :desc])
+        query.and(:key => "val").sort(:key, :desc).last
+      end
+    end
+
+    describe "sorting the query" do
+      it "remembers the sorting attribute with #sort" do
+        query.sort(:username)
+        query.sort_by.should == :username
+      end
+
+      it "remembers the sorting direction with #sort" do
+        query.sort(:username)
+        query.sort_dir.should == :asc
+        query.sort(:username, :desc)
+        query.sort_dir.should == :desc
+      end
+
+      it "raises an error if the sorting order is not :asc or :desc" do
+        lambda {
+          query.sort(:username, :blah)
+        }.should raise_error(ArgumentError)
       end
     end
   end

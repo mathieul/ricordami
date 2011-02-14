@@ -7,10 +7,10 @@ describe Souvenirs::CanBeQueried do
   before(:each) do
     class Customer
       include Souvenirs::CanBeQueried
-      attribute :country
-      attribute :sex
-      attribute :name
-      attribute :kind
+      attribute :country, :indexed => true
+      attribute :sex,     :indexed => true
+      attribute :name,    :indexed => true
+      attribute :kind,    :indexed => true
       attribute :no_index
     end
   end
@@ -60,10 +60,6 @@ describe Souvenirs::CanBeQueried do
 
   describe "running queries" do
     before(:each) do
-      Customer.index :simple => :country
-      Customer.index :simple => :sex
-      Customer.index :simple => :name
-      Customer.index :simple => :kind
       Customer.create(:name => "Zhanna", :sex => "F", :country => "Latvia", :kind => "human")
       Customer.create(:name => "Mathieu", :sex => "M", :country => "France", :kind => "human")
       Customer.create(:name => "Sophie", :sex => "F", :country => "USA", :kind => "human")
@@ -126,9 +122,9 @@ describe Souvenirs::CanBeQueried do
       end
 
       it "returns the models found with #all for a composed query" do
-        found = Customer.and(:country => "USA").any(:name => "Sophie", :kind => "dog").all
+        found = Customer.where(:country => "USA").any(:name => "Sophie", :kind => "dog").all
         found.map(&:name).should =~ ["Sophie", "Brioche"]
-        found = Customer.and(:country => "USA").any(:name => "Sophie", :kind => "human").all
+        found = Customer.where(:country => "USA").any(:name => "Sophie", :kind => "human").all
         found.map(&:name).should == ["Sophie"]
       end
     end
@@ -156,11 +152,33 @@ describe Souvenirs::CanBeQueried do
       end
 
       it "returns the models found with #all for a composed query" do
-        found = Customer.and(:country => "USA").not(:name => "Sophie", :kind => "dog").all
+        found = Customer.where(:country => "USA").not(:name => "Sophie", :kind => "dog").all
         found.map(&:name).should be_empty
-        found = Customer.and(:country => "USA").not(:name => "Sophie", :kind => "human").all
+        found = Customer.where(:country => "USA").not(:name => "Sophie", :kind => "human").all
         found.map(&:name).should == ["Brioche"]
       end
+    end
+  end
+
+  describe "sorting result" do
+    uses_constants("Student")
+
+    before(:each) do
+      class Student
+        include Souvenirs::CanBeQueried
+        attribute :name,    :indexed => true
+        attribute :grade,   :indexed => true
+        attribute :school,  :indexed => true
+      end
+      [["Zhanna", 12], ["Sophie", 19],
+       ["Brioche", 4], ["Mathieu", 15]].each do |name, grade|
+         Student.create(:name => name, :grade => grade, :school => "Lajoo")
+       end
+    end
+
+    it "can sort the result with #sort" do
+      result = Student.where(:school => "Lajoo").sort(:name).all
+      result.map(&:name).should == %w(Brioche Mathieu Sophie Zhanna)
     end
   end
 end

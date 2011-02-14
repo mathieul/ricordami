@@ -11,21 +11,33 @@ module Souvenirs
         end
       end
 
-      def all(expressions = nil)
+      def all(expressions = nil, sort_info = nil)
         return super if expressions.nil?
+        result_key = run_expressions(expressions)
+        ids = if sort_info.nil?
+          Souvenirs.driver.smembers(result_key)
+        else
+          order = sort_info.last == :asc ? "ALPHA ASC" : "ALPHA DESC"
+          Souvenirs.driver.sort(result_key,
+                                :order => order,
+                                :by => "Student:att:*->#{sort_info.first}")
+        end
+        ids.map { |id| self[id] }
+      end
+
+      private
+
+      def run_expressions(expressions)
         key_all_ids = indices[:all_ids].uidx_key_name
-        found = expressions.reduce(key_all_ids) do |key, expression|
+        result_key = expressions.reduce(key_all_ids) do |key, expression|
           type, conditions = expression
           keys = get_keys_for_each_condition(conditions)
           next Array(key) if keys.empty?
           key_name = key_name_for_expression(type, conditions, key)
           send("run_#{type}", key_name, key, keys)
         end
-        return [] if found.empty?
-        Souvenirs.driver.smembers(found).map  { |id| self[id] }
+        result_key.empty?? [] : result_key
       end
-
-      private
 
       def get_keys_for_each_condition(conditions)
         conditions.map do |field, value|

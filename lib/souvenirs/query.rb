@@ -22,8 +22,8 @@ module Souvenirs
       end
     end
 
-    def sort(attribute, dir = :asc)
-      unless dir == :asc || dir == :desc
+    def sort(attribute, dir = :asc_alpha)
+      unless [:asc_alpha, :asc_num, :desc_alpha, :desc_num].include?(dir)
         raise ArgumentError.new("sorting direction #{dir.inspect} is invalid")
       end
       @sort_by, @sort_dir = attribute, dir

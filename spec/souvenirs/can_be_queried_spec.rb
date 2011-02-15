@@ -176,7 +176,17 @@ describe Souvenirs::CanBeQueried do
        end
     end
 
-    it "can sort the result with #sort" do
+    it "can sort the result alphanumerically with #sort" do
+      result = Student.where(:school => "Lajoo").sort(:name, :asc_alpha).all
+      result.map(&:name).should == %w(Brioche Mathieu Sophie Zhanna)
+    end
+
+    it "can sort the result numerically with #sort" do
+      result = Student.where(:school => "Lajoo").sort(:grade, :asc_num).all
+      result.map(&:name).should == %w(Brioche Zhanna Mathieu Sophie)
+    end
+
+    it "defaults to sorting ascending / alphanumerically" do
       result = Student.where(:school => "Lajoo").sort(:name).all
       result.map(&:name).should == %w(Brioche Mathieu Sophie Zhanna)
     end

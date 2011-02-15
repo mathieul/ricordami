@@ -60,5 +60,10 @@ describe Souvenirs::Factory do
       name = subject.key_name(:model_lock, :model => "Leg", :id => 3)
       name.should == "Leg:val:3:_lock"
     end
+
+    it "returns a key name for sort an attribute with :model_sort" do
+      name = subject.key_name(:model_sort, :model => "Student", :sort_by => :name)
+      name.should == "Student:att:*->name"
+    end
   end
 end

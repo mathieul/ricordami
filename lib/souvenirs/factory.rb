@@ -41,6 +41,8 @@ module Souvenirs
         "#{opts[:model]}:val:_tmp:#{lock_id}"
       when :model_lock
         "#{opts[:model]}:val:#{opts[:id]}:_lock"
+      when :model_sort
+        "#{opts[:model]}:att:*->#{opts[:sort_by]}"
       end
     end
 

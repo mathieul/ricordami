@@ -17,15 +17,26 @@ module Souvenirs
         ids = if sort_info.nil?
           Souvenirs.driver.smembers(result_key)
         else
-          order = sort_info.last == :asc ? "ALPHA ASC" : "ALPHA DESC"
+          sort_key = Factory.key_name(:model_sort,
+                                      :model => self,
+                                      :sort_by => sort_info.first)
           Souvenirs.driver.sort(result_key,
-                                :order => order,
-                                :by => "Student:att:*->#{sort_info.first}")
+                                :order => order_for(sort_info.last),
+                                :by => sort_key)
         end
         ids.map { |id| self[id] }
       end
 
       private
+
+      def order_for(dir)
+        case dir
+        when :asc_alpha  then "ALPHA ASC"
+        when :asc_num    then "ASC"
+        when :desc_alpha then "ALPHA DESC"
+        else                  "DESC"
+        end
+      end
 
       def run_expressions(expressions)
         key_all_ids = indices[:all_ids].uidx_key_name

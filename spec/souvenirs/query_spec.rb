@@ -51,18 +51,29 @@ describe Souvenirs::Query do
 
     describe "running the query" do
       it "delegates #all to the runner" do
-        Instrument.should_receive(:all).with([[:and, {:key => "val"}]], nil)
+        Instrument.should_receive(:all).with(:expressions => [[:and, {:key => "val"}]])
         query.and(:key => "val").all
       end
 
       it "delegates #first to the runner" do
-        Instrument.should_receive(:first).with([[:and, {:key => "val"}]], [:key, :asc_alpha])
+        Instrument.should_receive(:first).with(:expressions => [[:and, {:key => "val"}]],
+                                               :sort_by => :key,
+                                               :order => "ALPHA ASC")
         query.and(:key => "val").sort(:key).first
       end
 
       it "delegates #last to the runner" do
-        Instrument.should_receive(:last).with([[:and, {:key => "val"}]], [:key, :desc_alpha])
+        Instrument.should_receive(:last).with(:expressions => [[:and, {:key => "val"}]],
+                                              :sort_by => :key,
+                                              :order => "ALPHA DESC")
         query.and(:key => "val").sort(:key, :desc_alpha).last
+      end
+
+      it "delegates #rand to the runner" do
+        Instrument.should_receive(:rand).with(:expressions => [[:and, {:key => "val"}]],
+                                              :sort_by => :key,
+                                              :order => "ALPHA ASC")
+        query.and(:key => "val").sort(:key).rand
       end
     end
 

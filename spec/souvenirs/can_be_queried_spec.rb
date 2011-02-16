@@ -191,4 +191,37 @@ describe Souvenirs::CanBeQueried do
       result.map(&:name).should == %w(Brioche Mathieu Sophie Zhanna)
     end
   end
+
+  describe "fetching result" do
+    before(:each) do
+      class Student
+        include Souvenirs::CanBeQueried
+        attribute :name,    :indexed => true
+        attribute :grade,   :indexed => true
+        attribute :school,  :indexed => true
+      end
+      [["Zhanna", 12], ["Sophie", 19],
+       ["Brioche", 4], ["Mathieu", 15]].each do |name, grade|
+         Student.create(:name => name, :grade => grade, :school => "Lajoo")
+       end
+      @query = Student.where(:school => "Lajoo").sort(:name)
+    end
+    let(:query) { @query }
+
+    it "fetches all the results with #all" do
+      query.all.map(&:name).should == %w(Brioche Mathieu Sophie Zhanna)
+    end
+
+    it "fetches the first instance with #first" do
+      query.first.name.should == "Brioche"
+    end
+
+    it "fetches the last instance with #last" do
+      query.last.name.should == "Zhanna"
+    end
+
+    it "fetches a random instance with #rand" do
+      %w(Brioche Mathieu Sophie Zhanna).should include(query.rand.name)
+    end
+  end
 end

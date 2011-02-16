@@ -15,10 +15,12 @@ module Souvenirs
     end
     alias :where :and
 
-    [:all, :first, :last].each do |cmd|
+    [:all, :first, :last, :rand].each do |cmd|
       define_method(cmd) do
-        sort_info = @sort_by.nil?? nil : [@sort_by, @sort_dir]
-        runner.send(cmd, expressions, sort_info)
+        opts = {:expressions => expressions}
+        opts[:sort_by] = @sort_by unless @sort_by.nil?
+        opts[:order] = order_for(@sort_dir) unless @sort_dir.nil?
+        runner.send(cmd, opts)
       end
     end
 
@@ -29,5 +31,18 @@ module Souvenirs
       @sort_by, @sort_dir = attribute, dir
       self
     end
+
+    private
+
+    def order_for(dir)
+      case dir
+      when nil         then nil
+      when :asc_alpha  then "ALPHA ASC"
+      when :asc_num    then "ASC"
+      when :desc_alpha then "ALPHA DESC"
+      else                  "DESC"
+      end
+    end
+
   end
 end

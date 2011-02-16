@@ -11,32 +11,40 @@ module Souvenirs
         end
       end
 
-      def all(expressions = nil, sort_info = nil)
-        return super if expressions.nil?
-        result_key = run_expressions(expressions)
-        ids = if sort_info.nil?
-          Souvenirs.driver.smembers(result_key)
-        else
-          sort_key = Factory.key_name(:model_sort,
-                                      :model => self,
-                                      :sort_by => sort_info.first)
-          Souvenirs.driver.sort(result_key,
-                                :order => order_for(sort_info.last),
-                                :by => sort_key)
+      def all(opts = nil)
+        return super if opts.nil?
+        result_key = run_expressions(opts.delete(:expressions))
+        get_result_ids(result_key, opts).map do |id|
+          self[id]
         end
-        ids.map { |id| self[id] }
+      end
+
+      def first(opts)
+        result_key = run_expressions(opts.delete(:expressions))
+        opts[:limit] = 1
+        id = get_result_ids(result_key, opts).first
+        self[id]
+      end
+
+      def last(opts)
+        result_key = run_expressions(opts.delete(:expressions))
+        opts[:limit] = 1
+        opts[:order] = reverse_order(opts[:order])
+        id = get_result_ids(result_key, opts).first
+        self[id]
+      end
+
+      def rand(opts)
+        result_key = run_expressions(opts.delete(:expressions))
+        size = Souvenirs.driver.scard(result_key)
+        opts[:start] = Kernel.rand(size)
+        opts[:limit] = 1
+        opts[:order] = reverse_order(opts[:order])
+        id = get_result_ids(result_key, opts).first
+        self[id]
       end
 
       private
-
-      def order_for(dir)
-        case dir
-        when :asc_alpha  then "ALPHA ASC"
-        when :asc_num    then "ASC"
-        when :desc_alpha then "ALPHA DESC"
-        else                  "DESC"
-        end
-      end
 
       def run_expressions(expressions)
         key_all_ids = indices[:all_ids].uidx_key_name
@@ -63,6 +71,16 @@ module Souvenirs
                          :model => self,
                          :key => previous_key,
                          :info => [type] + conditions.keys)
+      end
+
+      def get_result_ids(key, opts)
+        return Souvenirs.driver.smembers(key) if opts[:sort_by].nil?
+        sort_key = Factory.key_name(:model_sort,
+                                    :model => self,
+                                    :sort_by => opts[:sort_by])
+        Souvenirs.driver.sort(key,
+                              :order => opts[:order],
+                              :by => sort_key)
       end
 
       def run_and(key_name, start_key, keys)
@@ -95,6 +113,11 @@ module Souvenirs
           Souvenirs.driver.sdiffstore(key_name, i == 0 ? start_key : key_name, key)
         end
         key_name
+      end
+
+      def reverse_order(order)
+        return order.sub("DESC", "ASC") if order.index("DESC")
+        order.sub("ASC", "DESC")
       end
     end
   end

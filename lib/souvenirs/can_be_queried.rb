@@ -50,10 +50,10 @@ module Souvenirs
         key_all_ids = indices[:all_ids].uidx_key_name
         result_key = expressions.reduce(key_all_ids) do |key, expression|
           type, conditions = expression
-          keys = get_keys_for_each_condition(conditions)
-          next Array(key) if keys.empty?
-          key_name = key_name_for_expression(type, conditions, key)
-          send("run_#{type}", key_name, key, keys)
+          condition_keys = get_keys_for_each_condition(conditions)
+          next Array(key) if condition_keys.empty?
+          target_key = key_name_for_expression(type, conditions, key)
+          send("run_#{type}", target_key, key, condition_keys)
         end
         result_key.empty?? [] : result_key
       end

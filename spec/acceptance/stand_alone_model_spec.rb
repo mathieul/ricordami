@@ -1,11 +1,13 @@
 require "acceptance_helper"
 require "souvenirs/can_be_validated"
 require "souvenirs/can_be_queried"
+require "souvenirs/can_be_observed"
 
 class Singer
   include Souvenirs::Model
   include Souvenirs::CanBeValidated
   include Souvenirs::CanBeQueried
+  include Souvenirs::CanBeObserved
 
   attribute :username
   attribute :email

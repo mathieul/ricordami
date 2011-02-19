@@ -15,9 +15,9 @@ module Souvenirs
     end
     alias :where :and
 
-    [:all, :first, :last, :rand].each do |cmd|
-      define_method(cmd) do
-        opts = {:expressions => expressions}
+    [:all, :paginate, :first, :last, :rand].each do |cmd|
+      define_method(cmd) do |opts = {}|
+        opts[:expressions] = expressions
         opts[:sort_by] = @sort_by unless @sort_by.nil?
         opts[:order] = order_for(@sort_dir) unless @sort_dir.nil?
         runner.send(cmd, opts)

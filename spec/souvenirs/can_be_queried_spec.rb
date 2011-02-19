@@ -56,6 +56,19 @@ describe Souvenirs::CanBeQueried do
         query.expressions.should == [[:any, {:key => "value"}]]
       end
     end
+
+    describe "#sort" do
+      it "returns a new query" do
+        query = Customer.sort(:sex)
+        query.should be_a(Souvenirs::Query)
+      end
+
+      it "delegates #sort to the new query" do
+        query = Customer.sort(:sex, :desc_alpha)
+        query.sort_by.should == :sex
+        query.sort_dir.should == :desc_alpha
+      end
+    end
   end
 
   describe "running queries" do
@@ -210,6 +223,14 @@ describe Souvenirs::CanBeQueried do
 
     it "fetches all the results with #all" do
       query.all.map(&:name).should == %w(Brioche Mathieu Sophie Zhanna)
+    end
+
+    it "fetches the requested page of the results with #paginate" do
+      fetched = query.paginate(:page => 1, :per_page => 2)
+      fetched.map(&:name).should == %w(Brioche Mathieu)
+      fetched = query.paginate(:page => 2, :per_page => 2)
+      fetched.map(&:name).should == %w(Sophie Zhanna)
+      query.paginate(:page => 3, :per_page => 2).should be_empty
     end
 
     it "fetches the first instance with #first" do

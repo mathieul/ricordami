@@ -55,6 +55,11 @@ describe Souvenirs::Query do
         query.and(:key => "val").all
       end
 
+      it "delegates #paginate to the runner" do
+        Instrument.should_receive(:paginate).with(:expressions => [[:and, {:key => "val"}]], :page => 3, :per_page => 18)
+        query.and(:key => "val").paginate(:page => 3, :per_page => 18)
+      end
+
       it "delegates #first to the runner" do
         Instrument.should_receive(:first).with(:expressions => [[:and, {:key => "val"}]],
                                                :sort_by => :key,

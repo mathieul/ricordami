@@ -11,37 +11,49 @@ module Souvenirs
         end
       end
 
-      def all(opts = nil)
-        return super if opts.nil?
-        result_key = run_expressions(opts.delete(:expressions))
+      def sort(*args)
+        Query.new(self).send(:sort, *args)
+      end
+
+      def all(opts = {})
+        result_key = run_expressions(opts.delete(:expressions) || [])
         get_result_ids(result_key, opts).map do |id|
           self[id]
         end
       end
 
-      def first(opts)
-        result_key = run_expressions(opts.delete(:expressions))
-        opts[:limit] = 1
-        id = get_result_ids(result_key, opts).first
-        self[id]
+      def paginate(opts = {})
+        result_key = run_expressions(opts.delete(:expressions) || [])
+        page = opts[:page] || 1
+        per_page = opts[:per_page] || 20
+        start = (page - 1) * per_page
+        opts[:limit] = [start, per_page]
+        get_result_ids(result_key, opts).map do |id|
+          self[id]
+        end
       end
 
-      def last(opts)
-        result_key = run_expressions(opts.delete(:expressions))
-        opts[:limit] = 1
-        opts[:order] = reverse_order(opts[:order])
-        id = get_result_ids(result_key, opts).first
-        self[id]
+      def first(opts = {})
+        result_key = run_expressions(opts.delete(:expressions) || [])
+        opts[:limit] = [0, 1]
+        ids = get_result_ids(result_key, opts)
+        self[ids.first]
       end
 
-      def rand(opts)
-        result_key = run_expressions(opts.delete(:expressions))
+      def last(opts = {})
+        result_key = run_expressions(opts.delete(:expressions) || [])
         size = Souvenirs.driver.scard(result_key)
-        opts[:start] = Kernel.rand(size)
-        opts[:limit] = 1
-        opts[:order] = reverse_order(opts[:order])
-        id = get_result_ids(result_key, opts).first
-        self[id]
+        opts[:limit] = [size - 1, 1]
+        ids = get_result_ids(result_key, opts)
+        self[ids.first]
+      end
+
+      def rand(opts = {})
+        result_key = run_expressions(opts.delete(:expressions) || [])
+        size = Souvenirs.driver.scard(result_key)
+        opts[:limit] = [Kernel.rand(size), 1]
+        ids = get_result_ids(result_key, opts)
+        self[ids.first]
       end
 
       private
@@ -74,13 +86,12 @@ module Souvenirs
       end
 
       def get_result_ids(key, opts)
-        return Souvenirs.driver.smembers(key) if opts[:sort_by].nil?
+        return Souvenirs.driver.smembers(key) unless opts[:sort_by] || opts[:limit]
         sort_key = Factory.key_name(:model_sort,
                                     :model => self,
                                     :sort_by => opts[:sort_by])
-        Souvenirs.driver.sort(key,
-                              :order => opts[:order],
-                              :by => sort_key)
+        sort_options = opts.slice(:order, :limit)
+        Souvenirs.driver.sort(key, sort_options.merge(:by => sort_key))
       end
 
       def run_and(key_name, start_key, keys)

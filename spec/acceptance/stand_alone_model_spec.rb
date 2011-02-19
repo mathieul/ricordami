@@ -93,10 +93,17 @@ feature "Stand-alone model" do
 
     deceased = Singer.and(:deceased => "true").all
     deceased.map(&:username).should =~ %w(lucien bashung)
-    # Model.all or Model.first or Model.last
-    # .and(:deceased => "true", :language => "French")
-    # .any(:first_name => "Alain", :last_name => "French")
-    # .not(:username => "ben")
+    q = Singer.where(:deceased => "true")
+    q.sort(:first_name, :asc_alpha).first.email.should == "alain@bashung.com"
+    q.sort(:first_name, :desc_alpha).last.email.should == "alain@bashung.com"
+    Singer.not(:deceased => true).all.map(&:username).should == ["ben"]
+    first = Singer.first.username
+    last = Singer.last.username
+    rand = Singer.rand.username
+    first.should_not == last
+    Singer.all.map(&:username).should include(first)
+    Singer.all.map(&:username).should include(last)
+    Singer.all.map(&:username).should include(rand)
   end
 
   scenario "dirty state of models" do
@@ -122,5 +129,27 @@ feature "Stand-alone model" do
     alain.previous_changes.should == {"first_name" => ["Alain", "Bob"]}
   end
 
-  scenario "paginate list of models"
+  scenario "paginate list of models" do
+    [
+      ["Serge", "Gainsbourg"], ["Alain", "Bashung"], ["Benjamin", "Biolay"],
+      ["Charles", "Aznavour"], ["Yves", "Montand", true], ["Nino", "Ferrer", true],
+      ["Johnny", "Hallyday"], ["David", "Guetta"], ["Bruno", "Benabar"],
+      ["Alain", "Souchon"], ["Jacques", "Dutronc"], ["Georges", "Brasens"]
+    ].each do |first, last, deceased|
+      Singer.create(:username => (first + last[0..0]).downcase, :first_name => first,
+                    :last_name => last, :email => "#{first.downcase}@#{last.downcase}.fr",
+                    :deceased => deceased ? "true" : "false").should be_persisted
+    end
+    Singer.count.should == 12
+
+    Singer.paginate(:page => 1, :per_page => 5).should have(5).singers
+    Singer.paginate(:page => 2, :per_page => 5).should have(5).singers
+    Singer.paginate(:page => 3, :per_page => 5).should have(2).singers
+    Singer.paginate(:page => 4, :per_page => 5).should have(0).singers
+
+    page1 = Singer.sort(:last_name, :asc_alpha).paginate(:page => 1, :per_page => 5)
+    page1.map(&:last_name).should == ["Aznavour", "Bashung", "Benabar", "Biolay", "Brasens"]
+    page3 = Singer.sort(:last_name, :asc_alpha).paginate(:page => 3, :per_page => 5)
+    page3.map(&:last_name).should == ["Montand", "Souchon"]
+  end
 end

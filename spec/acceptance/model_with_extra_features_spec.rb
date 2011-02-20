@@ -10,22 +10,19 @@ class Singer
   attribute :first_name
   attribute :last_name
   attribute :deceased, :default => "false", :indexed => :simple
+
+  publish_when :created, :updated, :deleted
 end
 
 feature "Model extra features" do
-  before(:each) do
-    Souvenirs.configure do |c|
-      c.redis_host  = "127.0.0.1"
-      c.redis_port  = 6379
-      c.redis_db    = 1
-      c.thread_safe = false
-    end
-  end
-
   scenario "observers" do
-    messages = []
-    observer = Singer.observe do |event, info|
-      messages << [event, info]
+    messages, observer = [], nil
+    thread = Thread.new do
+      observer = Singer.observe do |a_singer|
+        a_singer.was_created { |info| messages << [:created, info] }
+        a_singer.was_updated { |info| messages << [:updated, info] }
+        a_singer.was_deleted { |info| messages << [:deleted, info] }
+      end
     end
 
     serge = Singer.create(:username => "lucien", :email => "serge@gainsbourg.com",
@@ -41,7 +38,8 @@ feature "Model extra features" do
     serge.delete
 
     Singer.stop_observer(observer)
-    observer.join
+    thread.join
+
     messages.should == [
       [:created, {:id => "1"}],
       [:updated, {:id => "1", :first_name => ["Lucien", "Serge"]}],

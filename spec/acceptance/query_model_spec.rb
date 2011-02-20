@@ -15,15 +15,6 @@ class Singer
 end
 
 feature "Query model" do
-  before(:each) do
-    Souvenirs.configure do |c|
-      c.redis_host  = "127.0.0.1"
-      c.redis_port  = 6379
-      c.redis_db    = 1
-      c.thread_safe = false
-    end
-  end
-
   scenario "retrieve models" do
     Singer.create(:username => "lucien", :email => "serge@gainsbourg.com",
                    :first_name => "Serge", :last_name => "Gainsbourg")

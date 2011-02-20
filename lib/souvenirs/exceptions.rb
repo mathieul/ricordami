@@ -8,4 +8,5 @@ module Souvenirs
   TypeNotSupported        = Class.new(Error)
   MissingIndex            = Class.new(Error)
   LockTimeout             = Class.new(Error)
+  EventNotSupported       = Class.new(Error)
 end

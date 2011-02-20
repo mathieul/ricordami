@@ -28,4 +28,8 @@ describe Souvenirs::Error do
   it "has an error to notify when an index is missing" do
     Souvenirs::MissingIndex.new.should be_a_kind_of(Souvenirs::Error)
   end
+
+  it "has an error to notify when an event is not supported" do
+    Souvenirs::EventNotSupported.new.should be_a_kind_of(Souvenirs::Error)
+  end
 end

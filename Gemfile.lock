@@ -39,12 +39,9 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  activemodel
-  activesupport
   autotest
   autotest-growl
   awesome_print
-  redis
   rspec
   souvenirs!
   steak

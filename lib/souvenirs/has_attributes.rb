@@ -10,7 +10,7 @@ module Souvenirs
     included do
       attribute_method_suffix('', '=')
       attribute :id, :read_only => true,
-                     :initial   => Attribute.id_generator(self)
+                     :initial   => :sequence
     end
 
     module ClassMethods
@@ -20,6 +20,7 @@ module Souvenirs
 
       def attribute(name, options = {})
         instance = Attribute.new(name, options)
+        options = OptionsExpander.new(self, options)
         self.attributes[name.to_sym] = instance
         index(:simple => name.to_sym) if instance.indexed?
         instance
@@ -129,6 +130,21 @@ module Souvenirs
         @persisted_attributes = @attributes.clone
         @previously_changed = changes
         @changed_attributes.clear if @changed_attributes
+      end
+    end
+
+    class OptionsExpander
+      def initialize(model, opts = {})
+        opts.slice(:initial, :default).each do |name, value|
+          next unless value.is_a?(Symbol) && respond_to?(value)
+          opts[name] = send(value, model)
+        end
+        opts
+      end
+
+      def sequence(model)
+        key = KeyNamer.sequence(model, :type => "id")
+        Proc.new { model.redis.incr(key) }
       end
     end
   end

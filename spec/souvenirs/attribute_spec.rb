@@ -69,28 +69,16 @@ describe Souvenirs::Attribute do
     end
 
     it "allows to use a block as an initial value for dynamic values" do
-      i = 0
-      attribute = subject.new(:id, :initial => Proc.new { i += 1 })
-      attribute.initial_value.should == 1
+      i = 1
+      attribute = subject.new(:id, :initial => Proc.new { i *= 2 })
       attribute.initial_value.should == 2
-      attribute.initial_value.should == 3
+      attribute.initial_value.should == 4
+      attribute.initial_value.should == 8
     end
 
     it "retuns if an initial value is set with #initial_value?" do
       subject.new(:id, :initial => "1").initial_value?.should be_true
       without = subject.new(:foo).initial_value?.should be_false
-    end
-  end
-
-  describe "#id_generator" do
-    uses_constants("User", "Car")
-
-    it "returns a sequence generator for the model" do
-      gen1 = subject.id_generator(User)
-      10.times { |i| gen1.call.should == i + 1 }
-      gen2 = subject.id_generator(Car)
-      gen2.call.should == 1
-      gen2.call.should == 2
     end
   end
 end

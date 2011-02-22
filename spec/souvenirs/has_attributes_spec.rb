@@ -20,6 +20,14 @@ describe Souvenirs::HasAttributes do
       Boat.attribute :size, :indexed => true
       Boat.indices.should have_key(:size)
     end
+
+    it "replaces :initial value with a generator if it's a symbol" do
+      Boat.attribute :id, :initial => :sequence
+      attribute = Boat.attributes[:id]
+      attribute.initial_value.should == 1
+      attribute.initial_value.should == 2
+      attribute.initial_value.should == 3
+    end
   end
 
   describe "an instance" do

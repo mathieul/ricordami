@@ -1,4 +1,4 @@
-require "souvenirs/namer"
+require "souvenirs/key_namer"
 
 module Souvenirs
   module IsLockable
@@ -8,7 +8,7 @@ module Souvenirs
       # Pretty much stolen from redis objects
       # http://github.com/nateware/redis-objects/blob/master/lib/redis/lock.rb
       def lock!(options = {}, &block)
-        key           = Namer.key(:model_lock, :model => self.class, :id => id)
+        key           = KeyNamer.lock(self.class, :id => id)
         start         = Time.now
         acquired_lock = false
         expiration    = nil

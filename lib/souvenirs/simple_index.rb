@@ -1,4 +1,4 @@
-require "souvenirs/namer"
+require "souvenirs/key_namer"
 
 module Souvenirs
   class SimpleIndex
@@ -11,7 +11,7 @@ module Souvenirs
     end
 
     def key_name_for_value(value)
-      Namer.key(:index, :model => @model, :field => @field, :value => value)
+      KeyNamer.index(@model, :field => @field, :value => value)
     end
 
     def add(id, value)

@@ -1,4 +1,4 @@
-require "souvenirs/namer"
+require "souvenirs/key_namer"
 
 module Souvenirs
   class UniqueIndex
@@ -15,15 +15,11 @@ module Souvenirs
     end
 
     def uidx_key_name
-      @uidx_key_name ||= Namer.key(:unique_index,
-                                   :model => @model,
-                                   :name => @name)
+      @uidx_key_name ||= KeyNamer.unique_index(@model, :name => @name)
     end
 
     def ref_key_name
-      @ref_key_name ||= Namer.key(:hash_ref,
-                                  :model => @model,
-                                  :fields => @fields)
+      @ref_key_name ||= KeyNamer.hash_ref(@model, :fields => @fields)
     end
 
     def add(id, value)

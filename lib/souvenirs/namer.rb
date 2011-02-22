@@ -1,10 +1,10 @@
 require "base64"
 
 module Souvenirs
-  module Factory
+  module Namer
     extend self
 
-    def key_name(type, opts = {})
+    def key(type, opts = {})
       case type
       when :sequence
         "#{opts[:model]}:seq:#{opts[:type]}"

@@ -1,3 +1,5 @@
+require "souvenirs/namer"
+
 module Souvenirs
   class SimpleIndex
     attr_reader :model, :field, :name
@@ -9,9 +11,7 @@ module Souvenirs
     end
 
     def key_name_for_value(value)
-      Factory.key_name(:index, :model => @model,
-                               :field => @field,
-                               :value => value)
+      Namer.key(:index, :model => @model, :field => @field, :value => value)
     end
 
     def add(id, value)

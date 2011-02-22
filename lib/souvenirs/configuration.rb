@@ -1,5 +1,3 @@
-require "souvenirs/factory"
-
 module Souvenirs
   module Configuration
     extend ActiveSupport::Concern

@@ -1,3 +1,4 @@
+require "souvenirs/namer"
 require "souvenirs/query.rb"
 
 module Souvenirs
@@ -79,7 +80,7 @@ module Souvenirs
       end
 
       def key_name_for_expression(type, conditions, previous_key)
-        Factory.key_name(:volatile_set,
+        Namer.key(:volatile_set,
                          :model => self,
                          :key => previous_key,
                          :info => [type] + conditions.keys)
@@ -87,7 +88,7 @@ module Souvenirs
 
       def get_result_ids(key, opts)
         return redis.smembers(key) unless opts[:sort_by] || opts[:limit]
-        sort_key = Factory.key_name(:model_sort,
+        sort_key = Namer.key(:model_sort,
                                     :model => self,
                                     :sort_by => opts[:sort_by])
         sort_options = opts.slice(:order, :limit)
@@ -103,7 +104,7 @@ module Souvenirs
       alias :run_where :run_and
 
       def run_any(key_name, start_key, keys)
-        tmp_key = Factory.key_name(:model_tmp, :model => self)
+        tmp_key = Namer.key(:model_tmp, :model => self)
         keys.each_with_index do |key, i|
           if i == 0
             # if only one condition key, :any condition is same as :and condition

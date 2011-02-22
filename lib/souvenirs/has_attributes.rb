@@ -1,3 +1,4 @@
+require "souvenirs/namer"
 require "souvenirs/attribute"
 
 module Souvenirs
@@ -25,9 +26,7 @@ module Souvenirs
       end
 
       def attributes_key_name_for(id)
-        Factory.key_name(:attributes,
-                         :model => self.to_s,
-                         :id => id)
+        Namer.key(:attributes, :model => self.to_s, :id => id)
       end
     end
 

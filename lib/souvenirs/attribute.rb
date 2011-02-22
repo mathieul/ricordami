@@ -1,9 +1,11 @@
+require "souvenirs/namer"
+
 module Souvenirs
   class Attribute
     attr_reader :name
 
     def self.id_generator(model)
-      key = Factory.key_name(:sequence, :type => "id", :model => model)
+      key = Namer.key(:sequence, :type => "id", :model => model)
       Proc.new { model.redis.incr(key) }
     end
 

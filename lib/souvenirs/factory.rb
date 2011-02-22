@@ -4,11 +4,6 @@ module Souvenirs
   module Factory
     extend self
 
-    def id_generator(model)
-      key = key_name(:sequence, :type => "id", :model => model)
-      Proc.new { Souvenirs.driver.incr(key) }
-    end
-
     def key_name(type, opts = {})
       case type
       when :sequence
@@ -37,7 +32,7 @@ module Souvenirs
         end
         "~:#{opts[:model]}:set:#{info.join(":")}"
       when :model_tmp
-        lock_id = Souvenirs.driver.incr("#{opts[:model]}:seq:lock")
+        lock_id = opts[:model].redis.incr("#{opts[:model]}:seq:lock")
         "#{opts[:model]}:val:_tmp:#{lock_id}"
       when :model_lock
         "#{opts[:model]}:val:#{opts[:id]}:_lock"

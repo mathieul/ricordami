@@ -1,25 +1,25 @@
 module Souvenirs
   class SimpleIndex
-    attr_reader :owner_type, :field, :name
+    attr_reader :model, :field, :name
 
-    def initialize(owner_type, field)
-      @owner_type = owner_type
+    def initialize(model, field)
+      @model = model
       @field = field.to_sym
       @name = @field
     end
 
     def key_name_for_value(value)
-      Factory.key_name(:index, :model => @owner_type,
+      Factory.key_name(:index, :model => @model,
                                :field => @field,
                                :value => value)
     end
 
     def add(id, value)
-      Souvenirs.driver.sadd(key_name_for_value(value), id)
+      @model.redis.sadd(key_name_for_value(value), id)
     end
 
     def rem(id, value)
-      Souvenirs.driver.srem(key_name_for_value(value), id)
+      @model.redis.srem(key_name_for_value(value), id)
     end
   end
 end

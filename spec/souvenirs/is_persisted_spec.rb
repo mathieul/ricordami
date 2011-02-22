@@ -16,6 +16,11 @@ describe Souvenirs::IsPersisted do
     tenant.should_not be_a_new_record
   end
 
+  it "returns the redis driver instance with #redis" do
+    Tenant.redis.should == Souvenirs.driver
+    Tenant.new.redis.should == Souvenirs.driver
+  end
+
   describe "#save & #create" do
     shared_examples_for "a persister" do
       it "persists a new model" do

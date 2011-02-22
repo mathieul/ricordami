@@ -7,7 +7,7 @@ describe Souvenirs::HasAttributes do
     it "can declare attributes using #attribute" do
       Boat.attribute :sail
       Boat.attributes[:sail].should be_a(Souvenirs::Attribute)
-      Boat.attributes[:sail].name.should == "sail"
+      Boat.attributes[:sail].name.should == :sail
     end
 
     it "can pass attribute options when declaring an attribute" do

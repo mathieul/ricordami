@@ -15,7 +15,7 @@ module Souvenirs
 
       def load_attributes_for(id)
         key_name = attributes_key_name_for(id)
-        Souvenirs.driver.hgetall(key_name)
+        redis.hgetall(key_name)
       end
 
       def queue_saving_operations(&block)
@@ -28,6 +28,10 @@ module Souvenirs
         raise ArgumentError.new("missing block") unless block_given?
         raise ArgumentError.new("expecting block with 1 argument") unless block.arity == 1
         (@delete_queue ||= []) << block
+      end
+
+      def redis
+        @redis ||= Souvenirs.driver
       end
     end
 
@@ -53,7 +57,7 @@ module Souvenirs
       def save(opts = {})
         raise ModelHasBeenDeleted.new("can't save a deleted model") if deleted?
         set_initial_attribute_values if new_record?
-        Souvenirs.driver.tap do |driver|
+        redis.tap do |driver|
           driver.multi
           driver.hmset(attributes_key_name, *attributes.to_a.flatten)
           self.class.save_queue.each { |block| block.call(self) } if self.class.save_queue
@@ -81,7 +85,7 @@ module Souvenirs
 
       def delete
         raise ModelHasBeenDeleted.new("can't delete a model already deleted") if deleted?
-        Souvenirs.driver.tap do |driver|
+        redis.tap do |driver|
           driver.multi
           driver.del(attributes_key_name)
           self.class.delete_queue.reverse.each { |block| block.call(self) } if self.class.delete_queue
@@ -91,6 +95,10 @@ module Souvenirs
         @deleted = true
         freeze
         true
+      end
+
+      def redis
+        self.class.redis
       end
     end
   end

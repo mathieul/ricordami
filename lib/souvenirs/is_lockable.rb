@@ -6,7 +6,6 @@ module Souvenirs
       # Pretty much stolen from redis objects
       # http://github.com/nateware/redis-objects/blob/master/lib/redis/lock.rb
       def lock!(options = {}, &block)
-        client        = Souvenirs.driver
         key           = Factory.key_name(:model_lock, :model => self.class, :id => id)
         start         = Time.now
         acquired_lock = false
@@ -16,14 +15,14 @@ module Souvenirs
 
         while (Time.now - start) < timeout
           expiration    = generate_expiration(expires_in)
-          acquired_lock = client.setnx(key, expiration)
+          acquired_lock = redis.setnx(key, expiration)
           break if acquired_lock
 
-          old_expiration = client.get(key).to_f
+          old_expiration = redis.get(key).to_f
 
           if old_expiration < Time.now.to_f
             expiration     = generate_expiration(expires_in)
-            old_expiration = client.getset(key, expiration).to_f
+            old_expiration = redis.getset(key, expiration).to_f
 
             if old_expiration < Time.now.to_f
               acquired_lock = true
@@ -39,7 +38,7 @@ module Souvenirs
         begin
           yield
         ensure
-          client.del(key) if expiration > Time.now.to_f
+          redis.del(key) if expiration > Time.now.to_f
         end
       end
 

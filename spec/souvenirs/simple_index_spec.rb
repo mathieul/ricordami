@@ -11,8 +11,8 @@ describe Souvenirs::SimpleIndex do
   end
   let(:index) { @index }
 
-  it "is initialized with an owner type, a name and a field" do
-    index.owner_type.should == Friend
+  it "is initialized with a model, a name and a field" do
+    index.model.should == Friend
     index.field.should == :first_name
     index.name.should == :first_name
   end

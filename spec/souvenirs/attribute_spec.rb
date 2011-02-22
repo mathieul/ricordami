@@ -1,23 +1,22 @@
 require "spec_helper"
 
 describe Souvenirs::Attribute do
-
-  describe "instance" do
     subject { Souvenirs::Attribute }
 
+  describe "an instance" do
     it "has a name" do
-      attribute = subject.new("singer")
-      attribute.name.should == "singer"
+      attribute = subject.new(:singer)
+      attribute.name.should == :singer
     end
 
     it "accepts a string for its name" do
       attribute = subject.new("string")
-      attribute.name.should == "string"
+      attribute.name.should == :string
     end
 
     it "accepts also a symbol for its name" do
       attribute = subject.new(:string)
-      attribute.name.should == "string"
+      attribute.name.should == :string
     end
 
     it "has an option :default for a default value" do
@@ -80,6 +79,18 @@ describe Souvenirs::Attribute do
     it "retuns if an initial value is set with #initial_value?" do
       subject.new(:id, :initial => "1").initial_value?.should be_true
       without = subject.new(:foo).initial_value?.should be_false
+    end
+  end
+
+  describe "#id_generator" do
+    uses_constants("User", "Car")
+
+    it "returns a sequence generator for the model" do
+      gen1 = subject.id_generator(User)
+      10.times { |i| gen1.call.should == i + 1 }
+      gen2 = subject.id_generator(Car)
+      gen2.call.should == 1
+      gen2.call.should == 2
     end
   end
 end

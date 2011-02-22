@@ -2,10 +2,15 @@ module Souvenirs
   class Attribute
     attr_reader :name
 
+    def self.id_generator(model)
+      key = Factory.key_name(:sequence, :type => "id", :model => model)
+      Proc.new { model.redis.incr(key) }
+    end
+
     def initialize(name, options = {})
       options.assert_valid_keys(:default, :read_only, :initial, :indexed)
       @options = options
-      @name = name.to_s
+      @name = name.to_sym
     end
 
     [:default, :initial].each do |name|

@@ -42,7 +42,7 @@ module Souvenirs
 
       def last(opts = {})
         result_key = run_expressions(opts.delete(:expressions) || [])
-        size = Souvenirs.driver.scard(result_key)
+        size = redis.scard(result_key)
         opts[:limit] = [size - 1, 1]
         ids = get_result_ids(result_key, opts)
         self[ids.first]
@@ -50,7 +50,7 @@ module Souvenirs
 
       def rand(opts = {})
         result_key = run_expressions(opts.delete(:expressions) || [])
-        size = Souvenirs.driver.scard(result_key)
+        size = redis.scard(result_key)
         opts[:limit] = [Kernel.rand(size), 1]
         ids = get_result_ids(result_key, opts)
         self[ids.first]
@@ -86,17 +86,17 @@ module Souvenirs
       end
 
       def get_result_ids(key, opts)
-        return Souvenirs.driver.smembers(key) unless opts[:sort_by] || opts[:limit]
+        return redis.smembers(key) unless opts[:sort_by] || opts[:limit]
         sort_key = Factory.key_name(:model_sort,
                                     :model => self,
                                     :sort_by => opts[:sort_by])
         sort_options = opts.slice(:order, :limit)
-        Souvenirs.driver.sort(key, sort_options.merge(:by => sort_key))
+        redis.sort(key, sort_options.merge(:by => sort_key))
       end
 
       def run_and(key_name, start_key, keys)
         # we get the intersection of the start key and the condition keys
-        Souvenirs.driver.sinterstore(key_name, start_key, *keys)
+        redis.sinterstore(key_name, start_key, *keys)
         key_name
       end
 
@@ -107,21 +107,21 @@ module Souvenirs
         keys.each_with_index do |key, i|
           if i == 0
             # if only one condition key, :any condition is same as :and condition
-            Souvenirs.driver.sinterstore(key_name, start_key, keys.first)
+            redis.sinterstore(key_name, start_key, keys.first)
           else
             # we get the intersection of the start key with each condition key
             # and we make a union of all of those
           end
-          Souvenirs.driver.sinterstore(tmp_key, start_key, key)
-          Souvenirs.driver.sunionstore(key_name, key_name, tmp_key)
+          redis.sinterstore(tmp_key, start_key, key)
+          redis.sunionstore(key_name, key_name, tmp_key)
         end
-        Souvenirs.driver.del(tmp_key)
+        redis.del(tmp_key)
         key_name
       end
 
       def run_not(key_name, start_key, keys)
         keys.each_with_index do |key, i|
-          Souvenirs.driver.sdiffstore(key_name, i == 0 ? start_key : key_name, key)
+          redis.sdiffstore(key_name, i == 0 ? start_key : key_name, key)
         end
         key_name
       end

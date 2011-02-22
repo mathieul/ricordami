@@ -76,7 +76,7 @@ module Souvenirs
       def create_unique_get_method(index)
         meth = :"get_by_#{index.fields.map(&:to_s).join("-")}"
         define_singleton_method(meth) do |*args|
-          all = Souvenirs.driver.hgetall(index.ref_key_name)
+          all = redis.hgetall(index.ref_key_name)
           id = index.id_for_values(*args)
           get(id)
         end

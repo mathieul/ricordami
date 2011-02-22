@@ -16,7 +16,7 @@ describe Souvenirs::IsLockable do
       end
       t1.join
       t2.join
-      ts2.should > ts1
+      ts2.should >= ts1
     end
   end
 

@@ -110,6 +110,10 @@ describe Souvenirs::CanBeQueried do
         found = Customer.where(:country => "USA").and(:sex => "F").all
         found.map(&:name).should =~ ["Sophie", "Brioche"]
       end
+
+      it "doesn't require #all if another method call is chained" do
+        Customer.where(:country => "USA").and(:sex => "F").map(&:name).should =~ ["Sophie", "Brioche"]
+      end
     end
 
     describe ":any" do
@@ -139,6 +143,10 @@ describe Souvenirs::CanBeQueried do
         found.map(&:name).should =~ ["Sophie", "Brioche"]
         found = Customer.where(:country => "USA").any(:name => "Sophie", :kind => "human").all
         found.map(&:name).should == ["Sophie"]
+      end
+
+      it "doesn't require #all if another method call is chained" do
+        Customer.any(:country => "USA", :sex => "F").map(&:name).should =~ ["Sophie", "Brioche", "Zhanna"]
       end
     end
 
@@ -170,6 +178,10 @@ describe Souvenirs::CanBeQueried do
         found = Customer.where(:country => "USA").not(:name => "Sophie", :kind => "human").all
         found.map(&:name).should == ["Brioche"]
       end
+
+      it "doesn't require #all if another method call is chained" do
+        Customer.not(:country => "USA", :sex => "F").map(&:name).should == ["Mathieu"]
+      end
     end
   end
 
@@ -190,17 +202,17 @@ describe Souvenirs::CanBeQueried do
     end
 
     it "can sort the result alphanumerically with #sort" do
-      result = Student.where(:school => "Lajoo").sort(:name, :asc_alpha).all
+      result = Student.where(:school => "Lajoo").sort(:name, :asc_alpha)
       result.map(&:name).should == %w(Brioche Mathieu Sophie Zhanna)
     end
 
     it "can sort the result numerically with #sort" do
-      result = Student.where(:school => "Lajoo").sort(:grade, :asc_num).all
+      result = Student.where(:school => "Lajoo").sort(:grade, :asc_num)
       result.map(&:name).should == %w(Brioche Zhanna Mathieu Sophie)
     end
 
     it "defaults to sorting ascending / alphanumerically" do
-      result = Student.where(:school => "Lajoo").sort(:name).all
+      result = Student.where(:school => "Lajoo").sort(:name)
       result.map(&:name).should == %w(Brioche Mathieu Sophie Zhanna)
     end
   end

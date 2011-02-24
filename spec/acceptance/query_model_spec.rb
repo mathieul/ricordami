@@ -60,7 +60,7 @@ feature "Query model" do
     q = Singer.where(:deceased => "true")
     q.sort(:first_name, :asc_alpha).first.email.should == "alain@bashung.com"
     q.sort(:first_name, :desc_alpha).last.email.should == "alain@bashung.com"
-    Singer.not(:deceased => true).all.map(&:username).should == ["ben"]
+    Singer.not(:deceased => true).map(&:username).should == ["ben"]
     first = Singer.first.username
     last = Singer.last.username
     rand = Singer.rand.username

@@ -80,6 +80,14 @@ describe Souvenirs::Query do
                                               :order => "ALPHA ASC")
         query.and(:key => "val").sort(:key).rand
       end
+
+      it "accepts any unknown method and delegate it to the result of #all" do
+        instruments = %w(guitar bass drums).map { |value| Struct.new(:name).new(value) }
+        Instrument.should_receive(:all).
+          with(:expressions => [[:and, {:key => "val"}]]).
+          and_return(instruments)
+        query.and(:key => "val").map(&:name).should =~ ["guitar", "bass", "drums"]
+      end
     end
 
     describe "sorting the query" do

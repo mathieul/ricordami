@@ -44,5 +44,8 @@ module Souvenirs
       end
     end
 
+    def method_missing(meth, *args, &blk)
+      all.send(meth, *args, &blk)
+    end
   end
 end

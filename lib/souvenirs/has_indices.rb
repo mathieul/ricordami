@@ -1,6 +1,6 @@
 require "souvenirs/has_attributes"
 require "souvenirs/unique_index"
-require "souvenirs/simple_index"
+require "souvenirs/value_index"
 
 module Souvenirs
   module HasIndices
@@ -13,11 +13,11 @@ module Souvenirs
 
       def index(options = {})
         # for now we can only create unique indices
-        options.assert_valid_keys(:unique, :get_by, :simple)
+        options.assert_valid_keys(:unique, :get_by, :value)
         fields = options.delete(:unique)
         return unique_index(fields, options) if fields.present?
-        field = options.delete(:simple)
-        return simple_index(field) if field.present?
+        field = options.delete(:value)
+        return value_index(field) if field.present?
         raise InvalidIndexDefinition.new(self.class)
       end
 
@@ -28,8 +28,8 @@ module Souvenirs
         end
       end
 
-      def simple_index(field)
-        index = SimpleIndex.new(self, field)
+      def value_index(field)
+        index = ValueIndex.new(self, field)
         return nil unless add_index(index)
         queue_saving_operations do |obj|
           old_v = obj.send("#{field}_was")

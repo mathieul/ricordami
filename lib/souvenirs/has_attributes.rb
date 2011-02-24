@@ -22,7 +22,7 @@ module Souvenirs
         instance = Attribute.new(name, options)
         options = OptionsExpander.new(self, options)
         self.attributes[name.to_sym] = instance
-        index(:simple => name.to_sym) if instance.indexed?
+        index(instance.indexed => name.to_sym) if instance.indexed?
         instance
       end
 

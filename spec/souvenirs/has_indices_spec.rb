@@ -8,14 +8,14 @@ describe Souvenirs::HasIndices do
       Car.attribute :name
     end
 
-    it "raises an error if an index is not declared unique" do
+    it "raises an error when declaring an index that's neither unique or a value index" do
       lambda { Car.index }.should raise_error(Souvenirs::InvalidIndexDefinition)
     end
 
-    describe "declaring a simple index" do
-      it "can declare a simple index with #index" do
-        index = Car.index :simple => :model
-        Car.indices[:model].should be_a(Souvenirs::SimpleIndex)
+    describe "declaring a value index" do
+      it "can declare a value index with #index" do
+        index = Car.index :value => :model
+        Car.indices[:model].should be_a(Souvenirs::ValueIndex)
         Car.indices[:model].should == index
       end
     end

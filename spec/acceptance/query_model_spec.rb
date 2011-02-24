@@ -9,12 +9,25 @@ class Singer
   attribute :email
   attribute :first_name
   attribute :last_name
-  attribute :deceased, :default => "false", :indexed => :simple
+  attribute :deceased, :default => "false", :indexed => :value
 
   index :unique => :username, :get_by => true
 end
 
 feature "Query model" do
+  def create_12_singers
+    [
+      ["Serge", "Gainsbourg"], ["Alain", "Bashung"], ["Benjamin", "Biolay"],
+      ["Charles", "Aznavour"], ["Yves", "Montand", true], ["Nino", "Ferrer", true],
+      ["Johnny", "Hallyday"], ["David", "Guetta"], ["Bruno", "Benabar"],
+      ["Alain", "Souchon"], ["Jacques", "Dutronc"], ["Georges", "Brasens"]
+    ].each do |first, last, deceased|
+      Singer.create(:username => (first + last[0..0]).downcase, :first_name => first,
+                    :last_name => last, :email => "#{first.downcase}@#{last.downcase}.fr",
+                    :deceased => deceased ? "true" : "false").should be_persisted
+    end
+  end
+
   scenario "retrieve models" do
     Singer.create(:username => "lucien", :email => "serge@gainsbourg.com",
                    :first_name => "Serge", :last_name => "Gainsbourg")
@@ -58,17 +71,7 @@ feature "Query model" do
   end
 
   scenario "paginate list of models" do
-    [
-      ["Serge", "Gainsbourg"], ["Alain", "Bashung"], ["Benjamin", "Biolay"],
-      ["Charles", "Aznavour"], ["Yves", "Montand", true], ["Nino", "Ferrer", true],
-      ["Johnny", "Hallyday"], ["David", "Guetta"], ["Bruno", "Benabar"],
-      ["Alain", "Souchon"], ["Jacques", "Dutronc"], ["Georges", "Brasens"]
-    ].each do |first, last, deceased|
-      Singer.create(:username => (first + last[0..0]).downcase, :first_name => first,
-                    :last_name => last, :email => "#{first.downcase}@#{last.downcase}.fr",
-                    :deceased => deceased ? "true" : "false").should be_persisted
-    end
-    Singer.count.should == 12
+    create_12_singers
 
     Singer.paginate(:page => 1, :per_page => 5).should have(5).singers
     Singer.paginate(:page => 2, :per_page => 5).should have(5).singers
@@ -79,5 +82,12 @@ feature "Query model" do
     page1.map(&:last_name).should == ["Aznavour", "Bashung", "Benabar", "Biolay", "Brasens"]
     page3 = Singer.sort(:last_name, :asc_alpha).paginate(:page => 3, :per_page => 5)
     page3.map(&:last_name).should == ["Montand", "Souchon"]
+  end
+
+  scenario "query using #and, #any and #not filters" do
+    Singer.index :value => :first_name
+    create_12_singers
+
+    Singer.where(:first_name => "Alain").all.map(&:last_name).should =~ %w(Bashung Souchon)
   end
 end

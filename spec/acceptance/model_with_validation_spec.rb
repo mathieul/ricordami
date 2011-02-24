@@ -9,7 +9,7 @@ class Singer
   attribute :email
   attribute :first_name
   attribute :last_name
-  attribute :deceased, :default => "false", :indexed => :simple
+  attribute :deceased, :default => "false", :indexed => :value
 
   index :unique => :username, :get_by => true
 

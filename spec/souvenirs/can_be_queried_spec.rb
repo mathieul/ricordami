@@ -7,10 +7,10 @@ describe Souvenirs::CanBeQueried do
   before(:each) do
     class Customer
       include Souvenirs::CanBeQueried
-      attribute :country, :indexed => true
-      attribute :sex,     :indexed => true
-      attribute :name,    :indexed => true
-      attribute :kind,    :indexed => true
+      attribute :country, :indexed => :value
+      attribute :sex,     :indexed => :value
+      attribute :name,    :indexed => :value
+      attribute :kind,    :indexed => :value
       attribute :no_index
     end
   end
@@ -80,7 +80,7 @@ describe Souvenirs::CanBeQueried do
     end
 
     describe ":and" do
-      it "raises an error if there's no simple index for one of the conditions" do
+      it "raises an error if there's no value index for one of the conditions" do
         lambda {
           Customer.and(:no_index => "Blah").all
         }.should raise_error(Souvenirs::MissingIndex)
@@ -91,7 +91,7 @@ describe Souvenirs::CanBeQueried do
       end
 
       it "returns the models found with #all (1 condition, 1 result)" do
-        Customer.index :simple => :name
+        Customer.index :value => :name
         found = Customer.and(:name => "Zhanna").all
         found.map(&:name).should == ["Zhanna"]
       end
@@ -113,7 +113,7 @@ describe Souvenirs::CanBeQueried do
     end
 
     describe ":any" do
-      it "raises an error if there's no simple index for one of the conditions" do
+      it "raises an error if there's no value index for one of the conditions" do
         lambda {
           Customer.any(:no_index => "Blah").all
         }.should raise_error(Souvenirs::MissingIndex)
@@ -124,7 +124,7 @@ describe Souvenirs::CanBeQueried do
       end
 
       it "returns the models found with #all (1 condition, 1 result)" do
-        Customer.index :simple => :name
+        Customer.index :value => :name
         found = Customer.any(:name => "Zhanna").all
         found.map(&:name).should == ["Zhanna"]
       end
@@ -143,7 +143,7 @@ describe Souvenirs::CanBeQueried do
     end
 
     describe ":not" do
-      it "raises an error if there's no simple index for one of the conditions" do
+      it "raises an error if there's no value index for one of the conditions" do
         lambda {
           Customer.not(:no_index => "Blah").all
         }.should raise_error(Souvenirs::MissingIndex)
@@ -154,7 +154,7 @@ describe Souvenirs::CanBeQueried do
       end
 
       it "returns the models found with #all (1 condition, 1 result)" do
-        Customer.index :simple => :name
+        Customer.index :value => :name
         found = Customer.not(:name => "Zhanna").all
         found.map(&:name).should =~ ["Sophie", "Brioche", "Mathieu"]
       end
@@ -179,9 +179,9 @@ describe Souvenirs::CanBeQueried do
     before(:each) do
       class Student
         include Souvenirs::CanBeQueried
-        attribute :name,    :indexed => true
-        attribute :grade,   :indexed => true
-        attribute :school,  :indexed => true
+        attribute :name,    :indexed => :value
+        attribute :grade,   :indexed => :value
+        attribute :school,  :indexed => :value
       end
       [["Zhanna", 12], ["Sophie", 19],
        ["Brioche", 4], ["Mathieu", 15]].each do |name, grade|
@@ -209,9 +209,9 @@ describe Souvenirs::CanBeQueried do
     before(:each) do
       class Student
         include Souvenirs::CanBeQueried
-        attribute :name,    :indexed => true
-        attribute :grade,   :indexed => true
-        attribute :school,  :indexed => true
+        attribute :name,    :indexed => :value
+        attribute :grade,   :indexed => :value
+        attribute :school,  :indexed => :value
       end
       [["Zhanna", 12], ["Sophie", 19],
        ["Brioche", 4], ["Mathieu", 15]].each do |name, grade|

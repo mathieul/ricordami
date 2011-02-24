@@ -1,8 +1,8 @@
 require "spec_helper"
-require "souvenirs/simple_index"
+require "souvenirs/value_index"
 
-describe Souvenirs::SimpleIndex do
-  subject { Souvenirs::SimpleIndex }
+describe Souvenirs::ValueIndex do
+  subject { Souvenirs::ValueIndex }
 
   before(:each) do
     create_constant("Friend")

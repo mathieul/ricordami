@@ -1,7 +1,7 @@
 require "souvenirs/key_namer"
 
 module Souvenirs
-  class SimpleIndex
+  class ValueIndex
     attr_reader :model, :field, :name
 
     def initialize(model, field)

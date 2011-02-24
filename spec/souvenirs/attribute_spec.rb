@@ -50,9 +50,23 @@ describe Souvenirs::Attribute do
       subject.new(:not_read_only).should_not be_read_only
     end
 
-    it "has an option :indexed when the attribute should be indexed for queries" do
-      attribute = subject.new(:georges, :indexed => true)
-      attribute.should be_indexed
+    it "has an option :indexed to index the attribute as unique" do
+      attribute = subject.new(:georges, :indexed => :unique)
+      attribute.indexed.should == :unique
+    end
+
+    it "has an option :indexed to index the attribute by value" do
+      attribute = subject.new(:georges, :indexed => :value)
+      attribute.indexed.should == :value
+    end
+
+    it "raises an error if :indexed is not :unique or :value" do
+      lambda {
+        subject.new(:georges, :indexed => :blah)
+      }.should raise_error(Souvenirs::InvalidIndexDefinition)
+      lambda {
+        subject.new(:georges)
+      }.should_not raise_error
     end
 
     it "its value can be used for queries when :indexed is not set" do

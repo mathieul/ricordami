@@ -16,9 +16,19 @@ describe Souvenirs::HasAttributes do
       Boat.attributes[:color].should be_read_only
     end
 
-    it "declares a simple index if the attribute is indexed" do
-      Boat.attribute :size, :indexed => true
+    it "creates an index if :indexed is set" do
+      Boat.attribute :size, :indexed => :value
       Boat.indices.should have_key(:size)
+    end
+
+    it "creates a unique index if :indexed is :unique" do
+      Boat.attribute :size, :indexed => :unique
+      Boat.indices[:all_sizes].should be_a(Souvenirs::UniqueIndex)
+    end
+
+    it "creates a value index if :indexed is :value" do
+      Boat.attribute :size, :indexed => :value
+      Boat.indices[:size].should be_a(Souvenirs::ValueIndex)
     end
 
     it "replaces :initial value with a generator if it's a symbol" do

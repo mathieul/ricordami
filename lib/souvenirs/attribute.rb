@@ -6,6 +6,9 @@ module Souvenirs
 
     def initialize(name, options = {})
       options.assert_valid_keys(:default, :read_only, :initial, :indexed)
+      if options[:indexed] && ![:value, :unique].include?(options[:indexed])
+        raise InvalidIndexDefinition.new(options[:indexed].to_s)
+      end
       @options = options
       @name = name.to_sym
     end
@@ -23,6 +26,10 @@ module Souvenirs
 
     def read_only?
       !!@options[:read_only]
+    end
+
+    def indexed
+      @options[:indexed]
     end
 
     def indexed?

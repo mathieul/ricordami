@@ -60,7 +60,7 @@ module Souvenirs
       private
 
       def run_expressions(expressions)
-        key_all_ids = indices[:all_ids].uidx_key_name
+        key_all_ids = indices[:id].uidx_key_name
         result_key = expressions.reduce(key_all_ids) do |key, expression|
           type, conditions = expression
           condition_keys = get_keys_for_each_condition(conditions)

@@ -13,11 +13,11 @@ describe Souvenirs::UniqueIndex do
     it "is initialized with a model, a name and the fields to be unique" do
       @index.model.should == DataSource
       @index.fields.should == [:id]
-      @index.name.should == :all_ids
+      @index.name.should == :id
     end
 
     it "returns its internal index name with #uidx_key_name" do
-      @index.uidx_key_name.should == "DataSource:udx:all_ids"
+      @index.uidx_key_name.should == "DataSource:udx:id"
     end
 
     it "returns its internal reference name with #ref_key_name" do
@@ -26,14 +26,14 @@ describe Souvenirs::UniqueIndex do
 
     it "adds a string to the index with #add" do
       @index.add("ze-id", "allo")
-      Souvenirs.driver.smembers("DataSource:udx:all_ids").should == ["allo"]
+      Souvenirs.driver.smembers("DataSource:udx:id").should == ["allo"]
     end
 
     it "also indices the hash index with #add if fields is not :id and :get_by is true" do
       DataSource.attribute :domain
       other = subject.new(DataSource, [:name, :domain], :get_by => true)
       other.add("ze-id", ["jobs", "apple.com"])
-      Souvenirs.driver.smembers("DataSource:udx:all_name_domains").should == ["jobs_-::-_apple.com"]
+      Souvenirs.driver.smembers("DataSource:udx:name_domain").should == ["jobs_-::-_apple.com"]
       Souvenirs.driver.hget("DataSource:hsh:name_domain_to_id", "jobs_-::-_apple.com").should == "ze-id"
     end
 
@@ -62,7 +62,7 @@ describe Souvenirs::UniqueIndex do
     it "removes a string from the index with #rem" do
       @index.add("ze-id", "allo")
       @index.rem("ze-id", "allo")
-      Souvenirs.driver.smembers("DataSource:udx:all_ids").should == []
+      Souvenirs.driver.smembers("DataSource:udx:id").should == []
     end
 
     it "returns the number of entries with #count" do

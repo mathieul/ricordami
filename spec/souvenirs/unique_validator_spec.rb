@@ -19,7 +19,7 @@ describe Souvenirs::UniqueValidator do
 
   it "#setup adds a unique index" do
     validator.setup(Call)
-    Call.indices[:all_names].should be_a(Souvenirs::UniqueIndex)
+    Call.indices[:name].should be_a(Souvenirs::UniqueIndex)
   end
 
   it "#validate_each adds an error if the value is already used" do

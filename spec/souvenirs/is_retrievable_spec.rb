@@ -33,10 +33,10 @@ describe Souvenirs::IsRetrievable do
       Tenant.attribute :name
       instance = Tenant.new(:id => "hi")
       instance.save
-      Tenant.indices[:all_ids].all.should == ["hi"]
+      Tenant.indices[:id].all.should == ["hi"]
       instance.name = "john"
       instance.save
-      Tenant.indices[:all_ids].all.should == ["hi"]
+      Tenant.indices[:id].all.should == ["hi"]
     end
 
     it "returns all the instances with #all" do

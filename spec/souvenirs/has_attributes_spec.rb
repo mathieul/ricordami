@@ -23,7 +23,7 @@ describe Souvenirs::HasAttributes do
 
     it "creates a unique index if :indexed is :unique" do
       Boat.attribute :size, :indexed => :unique
-      Boat.indices[:all_sizes].should be_a(Souvenirs::UniqueIndex)
+      Boat.indices[:size].should be_a(Souvenirs::UniqueIndex)
     end
 
     it "creates a value index if :indexed is :value" do

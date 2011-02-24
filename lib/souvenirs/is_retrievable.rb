@@ -23,12 +23,12 @@ module Souvenirs
       alias :[] :get
 
       def all(expressions = nil)
-        ids = indices[:all_ids].all
+        ids = indices[:id].all
         ids.map { |id| get(id) }
       end
 
       def count
-        indices[:all_ids].count
+        indices[:id].count
       end
     end
   end

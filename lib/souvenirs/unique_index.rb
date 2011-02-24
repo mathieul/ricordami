@@ -10,8 +10,7 @@ module Souvenirs
       @model = model
       @fields = [fields].flatten.map(&:to_sym)
       @need_get_by = options[:get_by] && @fields != [:id]
-      @name = (%w(all) + @fields).join("_") + "s"
-      @name = @name.to_sym
+      @name = @fields.join("_").to_sym
     end
 
     def uidx_key_name

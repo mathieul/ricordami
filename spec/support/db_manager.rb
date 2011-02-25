@@ -1,10 +1,8 @@
-require 'active_support/basic_object'
-
 module Support
   module DbManager
     def switch_db_to_error
       @_db_mode_error = true
-      error = ActiveSupport::BasicObject.new
+      error = Object.new
       def error.method_missing(meth, *args, &blk)
         raise Errno::ECONNREFUSED
       end

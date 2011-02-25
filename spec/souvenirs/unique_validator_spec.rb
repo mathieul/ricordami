@@ -5,10 +5,8 @@ describe Souvenirs::UniqueValidator do
   uses_constants("Call")
 
   before(:each) do
-    class Call
-      include Souvenirs::CanBeValidated
-      attribute :name
-    end
+    Call.send(:include, Souvenirs::CanBeValidated)
+    Call.attribute :name
   end
   let(:record) { Call.new(:name => "sophie") }
   let(:validator) { Souvenirs::UniqueValidator.new(:attributes => [:name]) }

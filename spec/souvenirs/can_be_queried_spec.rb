@@ -5,14 +5,12 @@ describe Souvenirs::CanBeQueried do
   uses_constants("Customer")
 
   before(:each) do
-    class Customer
-      include Souvenirs::CanBeQueried
-      attribute :country, :indexed => :value
-      attribute :sex,     :indexed => :value
-      attribute :name,    :indexed => :value
-      attribute :kind,    :indexed => :value
-      attribute :no_index
-    end
+    Customer.send(:include, Souvenirs::CanBeQueried)
+    Customer.attribute :country, :indexed => :value
+    Customer.attribute :sex,     :indexed => :value
+    Customer.attribute :name,    :indexed => :value
+    Customer.attribute :kind,    :indexed => :value
+    Customer.attribute :no_index
   end
 
   describe "building queries" do
@@ -189,12 +187,10 @@ describe Souvenirs::CanBeQueried do
     uses_constants("Student")
 
     before(:each) do
-      class Student
-        include Souvenirs::CanBeQueried
-        attribute :name,    :indexed => :value
-        attribute :grade,   :indexed => :value
-        attribute :school,  :indexed => :value
-      end
+      Student.send(:include, Souvenirs::CanBeQueried)
+      Student.attribute :name,    :indexed => :value
+      Student.attribute :grade,   :indexed => :value
+      Student.attribute :school,  :indexed => :value
       [["Zhanna", 12], ["Sophie", 19],
        ["Brioche", 4], ["Mathieu", 15]].each do |name, grade|
          Student.create(:name => name, :grade => grade, :school => "Lajoo")
@@ -219,12 +215,10 @@ describe Souvenirs::CanBeQueried do
 
   describe "fetching result" do
     before(:each) do
-      class Student
-        include Souvenirs::CanBeQueried
-        attribute :name,    :indexed => :value
-        attribute :grade,   :indexed => :value
-        attribute :school,  :indexed => :value
-      end
+      Student.send(:include, Souvenirs::CanBeQueried)
+      Student.attribute :name,    :indexed => :value
+      Student.attribute :grade,   :indexed => :value
+      Student.attribute :school,  :indexed => :value
       [["Zhanna", 12], ["Sophie", 19],
        ["Brioche", 4], ["Mathieu", 15]].each do |name, grade|
          Student.create(:name => name, :grade => grade, :school => "Lajoo")

@@ -9,4 +9,5 @@ module Souvenirs
   MissingIndex            = Class.new(Error)
   LockTimeout             = Class.new(Error)
   EventNotSupported       = Class.new(Error)
+  OptionValueInvalid      = Class.new(Error)
 end

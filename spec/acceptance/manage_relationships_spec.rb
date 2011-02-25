@@ -8,7 +8,7 @@ class Singer
   attribute :first_name
   attribute :last_name
 
-  references_many :albums, :dependent => :delete
+  #references_many :albums, :dependent => :delete
 end
 
 class Album
@@ -17,7 +17,7 @@ class Album
 
   attribute :title
 
-  referenced_in :singer
+  #referenced_in :singer
 end
 
 feature "Manage relationships" do

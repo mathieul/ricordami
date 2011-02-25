@@ -86,8 +86,8 @@ describe Souvenirs::CanBeQueried do
         }.should raise_error(Souvenirs::MissingIndex)
       end
 
-      it "returns an empty array if no conditions where passed" do
-        Customer.and.all.should == []
+      it "returns all entries if no conditions where passed" do
+        Customer.and.all.map(&:name).should =~ %w(Zhanna Mathieu Sophie Brioche)
       end
 
       it "returns the models found with #all (1 condition, 1 result)" do
@@ -123,8 +123,8 @@ describe Souvenirs::CanBeQueried do
         }.should raise_error(Souvenirs::MissingIndex)
       end
 
-      it "returns an empty array if no conditions where passed" do
-        Customer.any.all.should == []
+      it "returns all entries if no conditions where passed" do
+        Customer.any.all.map(&:name).should =~ %w(Zhanna Mathieu Sophie Brioche)
       end
 
       it "returns the models found with #all (1 condition, 1 result)" do
@@ -157,8 +157,8 @@ describe Souvenirs::CanBeQueried do
         }.should raise_error(Souvenirs::MissingIndex)
       end
 
-      it "returns an empty array if no conditions where passed" do
-        Customer.not.all.should == []
+      it "returns all entries if no conditions where passed" do
+        Customer.not.all.map(&:name).should =~ %w(Zhanna Mathieu Sophie Brioche)
       end
 
       it "returns the models found with #all (1 condition, 1 result)" do

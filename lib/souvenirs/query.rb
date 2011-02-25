@@ -8,7 +8,8 @@ module Souvenirs
     end
 
     [:and, :not, :any].each do |op|
-      define_method(op) do |options = {}|
+      define_method(op) do |*args|
+        options = args.first || {}
         @expressions << [op, options.dup]
         self
       end
@@ -16,7 +17,8 @@ module Souvenirs
     alias :where :and
 
     [:all, :paginate, :first, :last, :rand].each do |cmd|
-      define_method(cmd) do |options = {}|
+      define_method(cmd) do |*args|
+        options = args.first || {}
         options[:expressions] = expressions
         options[:sort_by] = @sort_by unless @sort_by.nil?
         options[:order] = order_for(@sort_dir) unless @sort_dir.nil?

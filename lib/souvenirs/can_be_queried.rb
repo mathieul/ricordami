@@ -7,7 +7,8 @@ module Souvenirs
 
     module ClassMethods
       [:where, :and, :not, :any].each do |op|
-        define_method(op) do |options = {}|
+        define_method(op) do |*args|
+          options = args.first || {}
           Query.new(self).send(op, options)
         end
       end
@@ -64,7 +65,7 @@ module Souvenirs
         result_key = expressions.reduce(key_all_ids) do |key, expression|
           type, conditions = expression
           condition_keys = get_keys_for_each_condition(conditions)
-          next Array(key) if condition_keys.empty?
+          next key if condition_keys.empty?
           target_key = key_name_for_expression(type, conditions, key)
           send("run_#{type}", target_key, key, condition_keys)
         end

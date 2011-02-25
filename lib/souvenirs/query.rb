@@ -16,11 +16,11 @@ module Souvenirs
     alias :where :and
 
     [:all, :paginate, :first, :last, :rand].each do |cmd|
-      define_method(cmd) do |opts = {}|
-        opts[:expressions] = expressions
-        opts[:sort_by] = @sort_by unless @sort_by.nil?
-        opts[:order] = order_for(@sort_dir) unless @sort_dir.nil?
-        runner.send(cmd, opts)
+      define_method(cmd) do |options = {}|
+        options[:expressions] = expressions
+        options[:sort_by] = @sort_by unless @sort_by.nil?
+        options[:order] = order_for(@sort_dir) unless @sort_dir.nil?
+        runner.send(cmd, options)
       end
     end
 

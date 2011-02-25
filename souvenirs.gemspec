@@ -26,7 +26,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency "autotest-growl"
   s.add_development_dependency "rspec"
   s.add_development_dependency "steak"
-  s.add_development_dependency "rcov" if RUBY_VERSION[0..2] == "1.8"
+  s.add_development_dependency "rcov" if RUBY_ENGINE == "ruby" && RUBY_VERSION[0..2] == "1.8"
   s.add_development_dependency "awesome_print"
   s.add_development_dependency "thor"
 end

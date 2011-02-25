@@ -90,6 +90,12 @@ module Souvenirs
           obj.send(attr)
         end.join(UniqueIndex::SEPARATOR)
       end
+
+      def define_singleton_method(*args, &block)
+        class << self
+          self
+        end.send(:define_method, *args, &block)
+      end unless method_defined? :define_singleton_method
     end
   end
 end

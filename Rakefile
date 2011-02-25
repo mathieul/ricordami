@@ -2,7 +2,7 @@ require "bundler"
 Bundler::GemHelper.install_tasks
 
 require "rspec/core/rake_task"
-require "rcov" if RUBY_VERSION[0..2] == "1.8"
+require "rcov" if RUBY_ENGINE == "ruby" && RUBY_VERSION[0..2] == "1.8"
 
 RSpec::Core::RakeTask.new(:rspec)
 

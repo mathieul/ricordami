@@ -6,7 +6,9 @@ describe Souvenirs::CanHaveRelationships do
 
   before(:each) do
     Computer.send(:include, Souvenirs::CanHaveRelationships)
+    Computer.attribute :model
     Software.send(:include, Souvenirs::CanHaveRelationships)
+    Software.attribute :name
   end
 
   describe "class" do
@@ -23,6 +25,29 @@ describe Souvenirs::CanHaveRelationships do
       Software.relationships[:computer].should be_a(Souvenirs::Relationship)
       Software.relationships[:computer].type.should == :referenced_in
       Software.relationships[:computer].name.should == :computer
+    end
+  end
+
+  describe "instance that is referenced..." do
+    it "creates an attribute for the referenced objects" do
+      game = Software.create(:name => "Masquerade")
+      game.computer_id.should be_nil
+    end
+
+    it "can access the referencer object with a method of the name of the reference" do
+      game = Software.create(:name => "Masquerade")
+      game.computer.should be_nil
+      computer = Computer.create(:model => "IIc")
+      game.computer_id = computer.id
+      game.computer.should be_a(Computer)
+      game.computer.name.model == "IIc"
+    end
+  end
+
+  describe "instance that references many..." do
+    it "can list all the objects it references with the reference method" do
+      pending
+      appleIIc = Computer.create(:model => "IIc")
     end
   end
 end

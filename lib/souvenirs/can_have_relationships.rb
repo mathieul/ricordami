@@ -14,7 +14,18 @@ module Souvenirs
           name = args.first
           options = args[1] || {}
           self.relationships[name] = Relationship.new(type, name, options)
+          send(:"create_methods_for_#{type}", self.relationships[name])
         end
+      end
+
+      private
+
+      def create_methods_for_references_many(relationship)
+        #raise "TODO"
+      end
+
+      def create_methods_for_referenced_in(relationship)
+        #raise "TODO"
       end
     end
 

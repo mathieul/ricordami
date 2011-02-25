@@ -23,7 +23,8 @@ Gem::Specification.new do |s|
   s.add_dependency "activesupport"
   s.add_dependency "activemodel"
   s.add_development_dependency "autotest"
-  s.add_development_dependency "autotest-growl"
+  s.add_development_dependency "infinity_test"
+  s.add_development_dependency "autotest-growl" if RUBY_PLATFORM =~ /darwin/
   s.add_development_dependency "rspec"
   s.add_development_dependency "steak"
   s.add_development_dependency "rcov" if RUBY_ENGINE == "ruby" && RUBY_VERSION[0..2] == "1.8"

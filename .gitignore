@@ -3,3 +3,4 @@ pkg/*
 .bundle
 coverage/
 data/*.csv
+*.rbc

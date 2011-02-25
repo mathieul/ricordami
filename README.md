@@ -2,6 +2,7 @@
 
 A simple way to persist Ruby models into the Redis data structure server.
 
+
 ## Example ##
 
     Souvenirs::Model.configure do |config|
@@ -40,6 +41,18 @@ A simple way to persist Ruby models into the Redis data structure server.
     operation = Operation.new(:account => account, :type => "debit", :value => "$99.99")
     operation.save
 
+
+## Run Specs ##
+
+    $ bundle exec rspec spec
+
+    $ rake rspec
+
+    $ bundle exec autotest
+
+    $ bundle exec infinity_test
+
+
 ## TODO ##
 
   * Description - I’m surprised at how many times I land on a project page that is obviously popular (because Twitter told me so) but I have no idea why because the project owners don’t tell me plainly what the project is or why I should care.
@@ -48,6 +61,7 @@ A simple way to persist Ruby models into the Redis data structure server.
   * Contribution guidelines - Tell me how I can help out including wanted features and code standards
   * Contributor list - List the humans behind the project
   * Credits, Inspiration, Alternatives - Tell me if this is a fork of or otherwise inspired by another project. I won’t think you’re a douche when I find out later.
+
 
 # RENAMING #
 

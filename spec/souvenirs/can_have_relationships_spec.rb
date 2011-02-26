@@ -7,8 +7,10 @@ describe Souvenirs::CanHaveRelationships do
   before(:each) do
     Computer.send(:include, Souvenirs::CanHaveRelationships)
     Computer.attribute :model
+    Computer.references_many :softwares
     Software.send(:include, Souvenirs::CanHaveRelationships)
     Software.attribute :name
+    Software.referenced_in :computer
   end
 
   describe "class" do
@@ -29,10 +31,6 @@ describe Souvenirs::CanHaveRelationships do
   end
 
   describe "instance that is referenced..." do
-    before(:each) do
-      Software.referenced_in :computer
-    end
-
     it "creates an attribute for the referrer id" do
       game = Software.create(:name => "Masquerade")
       game.computer_id.should be_nil
@@ -90,9 +88,25 @@ describe Souvenirs::CanHaveRelationships do
   end
 
   describe "instance that references many..." do
-    it "can list all the objects it references with the reference method" do
-      pending
-      appleIIc = Computer.create(:model => "IIc")
+    before(:each) do
+      @iic = Computer.create(:model => "IIc")
+      @mac = Computer.create(:model => "MacBook Air")
+      [
+        [@iic, "Masquerade"], [@iic, "Transylvania"], [@iic, "Bruce Lee"],
+        [@iic, "Karateka"], [@mac, "Half-Life"], [@mac, "Chopper 2"]
+      ].each do |computer, soft_name|
+        Software.create(:name => soft_name, :computer_id => computer.id)
+      end
     end
+
+    it "can list all the objects it references with the reference method" do
+      @iic.softwares.map(&:name).should =~ ["Masquerade", "Transylvania",
+                                            "Bruce Lee", "Karateka"]
+      @mac.softwares.map(&:name).should =~ ["Half-Life", "Chopper 2"]
+    end
+
+    it "can build a new reference object through the reference method"
+
+    it "can create a new reference object through the reference method"
   end
 end

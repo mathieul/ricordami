@@ -26,15 +26,19 @@ module Souvenirs
       private
 
       def create_for_references_many(relationship)
-        #raise "TODO"
+        klass = relationship.name.to_s.singularize.camelize.constantize
+        referrer_id = :"#{self.to_s.underscore}_id"
+        define_method(relationship.name) do
+          return [] unless persisted?
+          klass.where(referrer_id => self.id)
+        end
       end
 
       def create_for_referenced_in(relationship)
         referrer_id = :"#{relationship.name}_id"
-        attribute(referrer_id)
-        index(:value => :computer_id)
+        attribute(referrer_id, :indexed => :value)
         create_referrer_method(relationship.name)
-        overide_referrer_id(relationship.name)
+        overide_referrer_id_reader(relationship.name)
       end
 
       def create_referrer_method(name)
@@ -45,14 +49,14 @@ module Souvenirs
           return referrer unless referrer.nil?
           referrer_id = send(:"#{name}_id")
           return nil if referrer_id.nil?
-          klass = name.to_s.titleize.constantize
+          klass = name.to_s.camelize.constantize
           klass.get(referrer_id).tap do |referrer|
             instance_variable_set(referrer_var, referrer)
           end
         end
       end
 
-      def overide_referrer_id(name)
+      def overide_referrer_id_reader(name)
         referrer_var = :"@#{name}"
         # overide referrer id to sweep cache
         define_method(:"#{name}_id=") do |value|

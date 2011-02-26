@@ -75,7 +75,7 @@ module Souvenirs
       def get_keys_for_each_condition(conditions)
         conditions.map do |field, value|
           index = indices[field]
-          raise MissingIndex.new(field.to_s) if index.nil?
+          raise MissingIndex.new("class: #{self}, attribute: #{field.inspect}") if index.nil?
           index.key_name_for_value(value)
         end
       end

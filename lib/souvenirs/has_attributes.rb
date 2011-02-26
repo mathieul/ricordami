@@ -36,7 +36,8 @@ module Souvenirs
 
       def initialize(attrs = {})
         @attributes = {}.with_indifferent_access
-        load_mem_attributes(attrs) unless attrs.empty?
+        @reloading = false
+        update_mem_attributes(attrs) unless attrs.empty?
         set_default_attribute_values
       end
 
@@ -50,16 +51,21 @@ module Souvenirs
 
       # Replace attribute values with the hash attrs
       # Note: attrs keys can be strings or symbols
+      def update_mem_attributes(attrs)
+        @reloading = true
+        update_mem_attributes!(attrs)
+        @reloading = false
+      end
+
       def update_mem_attributes!(attrs)
         valid_keys = self.class.attributes.keys
         attrs.symbolize_keys.slice(*valid_keys).each do |name, value|
-          assert_can_update!(name)
-          write_attribute(name, value)
+          send(:"#{name}=", value)
         end
         true
       end
 
-      def load_mem_attributes(attrs)
+      def update_mem_attributes(attrs)
         valid_keys = self.class.attributes.keys
         attrs.symbolize_keys.slice(*valid_keys).each do |name, value|
           write_attribute(name, value)
@@ -85,7 +91,7 @@ module Souvenirs
 
       def attribute=(name, value)
         raise ModelHasBeenDeleted.new("can't update attribute #{name}") if deleted?
-        assert_can_update!(name)
+        assert_can_update!(name) unless @reloading
         write_attribute(name, value)
       end
 

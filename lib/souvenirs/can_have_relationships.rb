@@ -27,11 +27,22 @@ module Souvenirs
       def create_for_referenced_in(relationship)
         referrer_id_method = :"#{relationship.name}_id"
         attribute(referrer_id_method)
+        referrer_var = :"@#{relationship.name}"
+        # declare referrer method
         define_method(relationship.name) do
+          referrer = instance_variable_get(referrer_var)
+          return referrer unless referrer.nil?
           referrer_id = send(referrer_id_method)
           return nil if referrer_id.nil?
           klass = relationship.name.to_s.titleize.constantize
-          klass.get(referrer_id)
+          klass.get(referrer_id).tap do |referrer|
+            instance_variable_set(referrer_var, referrer)
+          end
+        end
+        # overide referrer id to sweep cache
+        define_method(:"#{relationship.name}_id=") do |value|
+          instance_variable_set(referrer_var, nil)
+          super(value)
         end
       end
     end

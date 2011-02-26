@@ -47,13 +47,37 @@ describe Souvenirs::CanHaveRelationships do
       game.computer.model.should == "IIc"
     end
 
-    it "caches the referrer isntance after it was cached" do
-      computer = Computer.create(:model => "IIc")
-      game = Software.create(:name => "Masquerade", :computer_id => computer.id)
-      game.computer.should == game.computer
-    end
+    describe "handling caching" do
+      before(:each) do
+        Computer.index :unique => :model, :get_by => true
+        %w(IIc Macintosh).each { |model| Computer.create(:model => model).should be_true }
+      end
 
-    it "sweeps the referrer isntance from the cache after it is reloaded"
+      it "caches the referrer isntance after it was cached" do
+        computer = Computer.get_by_model("IIc")
+        game = Software.create(:name => "Masquerade", :computer_id => computer.id)
+        game.computer.should == game.computer
+      end
+
+      it "updates the referrer when changing the referrer id" do
+        game = Software.create(:name => "Sorcery")
+        game.computer.should be_nil
+        game.computer_id = Computer.get_by_model("IIc").id
+        game.computer.model.should == "IIc"
+        game.computer_id = Computer.get_by_model("Macintosh").id
+        game.computer.model.should == "Macintosh"
+        game.computer_id = nil
+        game.computer.should be_nil
+      end
+
+      it "sweeps the referrer instance from the cache after it is reloaded" do
+        game = Software.create(:name => "Swashbuckler",
+                               :computer_id => Computer.get_by_model("IIc").id)
+        game.computer.model.should == "IIc"
+        game.update_attributes(:computer_id => Computer.get_by_model("Macintosh").id)
+        game.computer.model.should == "Macintosh"
+      end
+    end
   end
 
   describe "instance that references many..." do

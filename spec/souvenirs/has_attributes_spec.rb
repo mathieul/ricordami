@@ -138,18 +138,18 @@ describe Souvenirs::HasAttributes do
       }.should raise_error(Souvenirs::ReadOnlyAttribute)
     end
 
-    it "updates the attribute values in memory with #load_mem_attributes" do
+    it "updates the attribute values in memory with #update_mem_attributes" do
       User.attribute :age
       user = User.new(:age => "12")
-      user.load_mem_attributes(:age => "18")
+      user.update_mem_attributes(:age => "18")
       user.age.should == "18"
     end
 
-    it "changes read-only attributes with #load_mem_attributes" do
+    it "changes read-only attributes with #update_mem_attributes" do
       User.attribute :ssn, :read_only => true
       user = User.new(:ssn => "007")
       lambda {
-        user.load_mem_attributes(:ssn => "1234567890")
+        user.update_mem_attributes(:ssn => "1234567890")
       }.should_not raise_error
     end
 

@@ -72,7 +72,7 @@ module Souvenirs
 
       def reload
         attrs = self.class.send(:load_attributes_for, id)
-        load_mem_attributes(attrs) unless attrs.empty?
+        update_mem_attributes(attrs) unless attrs.empty?
         attributes_synced_with_db!
         self
       end

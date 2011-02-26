@@ -29,6 +29,10 @@ describe Souvenirs::CanHaveRelationships do
   end
 
   describe "instance that is referenced..." do
+    before(:each) do
+      Software.referenced_in :computer
+    end
+
     it "creates an attribute for the referenced objects" do
       game = Software.create(:name => "Masquerade")
       game.computer_id.should be_nil
@@ -40,8 +44,16 @@ describe Souvenirs::CanHaveRelationships do
       computer = Computer.create(:model => "IIc")
       game.computer_id = computer.id
       game.computer.should be_a(Computer)
-      game.computer.name.model == "IIc"
+      game.computer.model.should == "IIc"
     end
+
+    it "caches the referrer isntance after it was cached" do
+      computer = Computer.create(:model => "IIc")
+      game = Software.create(:name => "Masquerade", :computer_id => computer.id)
+      game.computer.should == game.computer
+    end
+
+    it "sweeps the referrer isntance from the cache after it is reloaded"
   end
 
   describe "instance that references many..." do

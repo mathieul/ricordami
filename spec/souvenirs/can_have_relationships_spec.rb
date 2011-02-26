@@ -33,12 +33,21 @@ describe Souvenirs::CanHaveRelationships do
       Software.referenced_in :computer
     end
 
-    it "creates an attribute for the referenced objects" do
+    it "creates an attribute for the referrer id" do
       game = Software.create(:name => "Masquerade")
       game.computer_id.should be_nil
     end
 
-    it "can access the referencer object with a method of the name of the reference" do
+    it "indexes the referrer id" do
+      iic = Computer.create(:model => "IIc")
+      mac = Computer.create(:model => "Macintosh")
+      Software.create(:name => "Masquerade", :computer_id => iic.id)
+      Software.create(:name => "Transylvania", :computer_id => iic.id)
+      Software.create(:name => "Dungeon Master", :computer_id => mac.id)
+      Software.where(:computer_id => iic.id).map(&:name).should =~ ["Masquerade", "Transylvania"]
+    end
+
+    it "can access the referrer with a method of the name of the reference" do
       game = Software.create(:name => "Masquerade")
       game.computer.should be_nil
       computer = Computer.create(:model => "IIc")

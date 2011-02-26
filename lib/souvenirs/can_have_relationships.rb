@@ -19,7 +19,9 @@ module Souvenirs
           name = args.first
           options = args[1] || {}
           self.relationships[name] = Relationship.new(type, name, options)
-          send(:"create_for_#{type}", self.relationships[name])
+          if type == :referenced_in
+            send(:"create_for_#{type}", self.relationships[name])
+          end
         end
       end
 
@@ -67,6 +69,14 @@ module Souvenirs
     end
 
     module InstanceMethods
+      def method_missing(meth, *args, &blk)
+        if relationship = self.class.relationships[meth]
+          self.class.send(:"create_for_#{relationship.type}", relationship)
+          send(meth, *args, &blk)
+        else
+          super
+        end
+      end
     end
   end
 end

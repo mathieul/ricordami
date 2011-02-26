@@ -2,7 +2,7 @@
 require "acceptance_helper"
 require "souvenirs/can_have_relationships"
 
-class Singer
+class Performer
   include Souvenirs::Model
   include Souvenirs::CanHaveRelationships
 
@@ -19,24 +19,24 @@ class Album
   attribute :title
   attribute :year, :indexed => :value
 
-  referenced_in :singer
+  referenced_in :performer
 end
 
 feature "Manage relationships" do
   scenario "has many / belongs to" do
-    serge = Singer.create(:first_name => "Serge", :last_name => "Gainsbourg")
+    serge = Performer.create(:first_name => "Serge", :last_name => "Gainsbourg")
     serge.albums.create(:title => "Melody Nelson", :year => "1971").should be_true
 
     marseillaise = serge.albums.build(:title => "Aux Armes et cætera", :year => "1979")
     marseillaise.save.should be_true
 
-    singer = Singer.first
-    singer.albums.map(&:title).should =~ ["Melody Nelson", "Aux Armes et cætera"]
-    singer.albums.where(:year => "1979").map(&:title).should =~ ["Aux Armes et cætera"]
-    singer.albums.sort(:year, :desc_num).map(&:title).should == ["Aux Armes et cætera", "Melody Nelson"]
+    performer = Performer.first
+    performer.albums.map(&:title).should =~ ["Melody Nelson", "Aux Armes et cætera"]
+    performer.albums.where(:year => "1979").map(&:title).should =~ ["Aux Armes et cætera"]
+    performer.albums.sort(:year, :desc_num).map(&:title).should == ["Aux Armes et cætera", "Melody Nelson"]
 
     Album.all.map(&:title).should =~ ["Melody Nelson", "Aux Armes et cætera"]
-    singer.delete
+    performer.delete
     Album.all.should be_empty
   end
 end

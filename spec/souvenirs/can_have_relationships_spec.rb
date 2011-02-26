@@ -99,14 +99,33 @@ describe Souvenirs::CanHaveRelationships do
       end
     end
 
+    it "has a method to access its referenced objects" do
+      @iic.should respond_to(:softwares)
+    end
+
     it "can list all the objects it references with the reference method" do
       @iic.softwares.map(&:name).should =~ ["Masquerade", "Transylvania",
                                             "Bruce Lee", "Karateka"]
       @mac.softwares.map(&:name).should =~ ["Half-Life", "Chopper 2"]
     end
 
-    it "can build a new reference object through the reference method"
+    it "can return there is no reference objects when non persisted" do
+      Computer.new.softwares.map(&:name).should == []
+      Computer.new.softwares.should be_empty
+      Computer.new.softwares.count.should == 0
+    end
 
-    it "can create a new reference object through the reference method"
+    it "can build a new reference object through the reference method" do
+      soft = @mac.softwares.build
+      soft.should_not be_persisted
+      soft.computer_id.should == @mac.id
+    end
+
+    it "can create a new reference object through the reference method" do
+      soft = @mac.softwares.create(:name => "Call of Duty 4")
+      soft.should be_persisted
+      soft.computer_id.should == @mac.id
+      soft.name.should == "Call of Duty 4"
+    end
   end
 end

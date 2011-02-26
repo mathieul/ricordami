@@ -1,10 +1,11 @@
 module Souvenirs
   class Query
-    attr_reader :expressions, :runner, :sort_by, :sort_dir
+    attr_reader :expressions, :runner, :builder, :sort_by, :sort_dir
 
-    def initialize(runner)
+    def initialize(runner, builder = nil)
       @expressions = []
       @runner = runner
+      @builder = builder || runner
     end
 
     [:and, :not, :any].each do |op|
@@ -18,6 +19,7 @@ module Souvenirs
 
     [:all, :paginate, :first, :last, :rand].each do |cmd|
       define_method(cmd) do |*args|
+        return runner unless runner.respond_to?(cmd)
         options = args.first || {}
         options[:expressions] = expressions
         options[:sort_by] = @sort_by unless @sort_by.nil?
@@ -32,6 +34,19 @@ module Souvenirs
       end
       @sort_by, @sort_dir = attribute, dir
       self
+    end
+
+    def build(attributes = {})
+      initial_values = {}
+      expressions.each do |operation, filters|
+        next unless operation == :and
+        initial_values.merge!(filters)
+      end
+      obj = builder.new(initial_values.merge(attributes))
+    end
+
+    def create(attributes = {})
+      build(attributes).tap { |obj| obj.save }
     end
 
     private

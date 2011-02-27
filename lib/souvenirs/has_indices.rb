@@ -31,7 +31,7 @@ module Souvenirs
       def value_index(field)
         index = ValueIndex.new(self, field)
         return nil unless add_index(index)
-        queue_saving_operations do |obj|
+        queue_saving_operations do |obj, session|
           old_v = obj.send("#{field}_was")
           new_v = obj.send(field)
           next if old_v == new_v
@@ -40,7 +40,7 @@ module Souvenirs
           end
           indices[index.name].add(obj.id, new_v)
         end
-        queue_deleting_operations do |obj|
+        queue_deleting_operations do |obj, session|
           value = obj.send(field)
           indices[index.name].rem(obj.id, value) if value.present?
         end
@@ -57,7 +57,7 @@ module Souvenirs
       def create_unique_index(fields, options)
         index = UniqueIndex.new(self, fields, options)
         return nil unless add_index(index)
-        queue_saving_operations do |obj|
+        queue_saving_operations do |obj, session|
           old_v = serialize_values(index.fields, obj, :previous => true)
           new_v = serialize_values(index.fields, obj)
           next if old_v == new_v
@@ -66,7 +66,7 @@ module Souvenirs
           end
           indices[index.name].add(obj.id, new_v)
         end
-        queue_deleting_operations do |obj|
+        queue_deleting_operations do |obj, session|
           value = serialize_values(index.fields, obj)
           indices[index.name].rem(obj.id, value) if value.present?
         end

@@ -7,26 +7,30 @@ describe Souvenirs::CanHaveRelationships do
   before(:each) do
     Computer.send(:include, Souvenirs::CanHaveRelationships)
     Computer.attribute :model
+    Computer.index :unique => :model, :get_by => true
     Computer.references_many :softwares
     Software.send(:include, Souvenirs::CanHaveRelationships)
     Software.attribute :name
+    Software.index :unique => :name, :get_by => true
     Software.referenced_in :computer
   end
 
   describe "class" do
-    it "can declare a :references_many relationship with #references_many" do
-      Computer.references_many :softwares, :dependent => :nullify
-      Computer.relationships[:softwares].should be_a(Souvenirs::Relationship)
-      Computer.relationships[:softwares].type.should == :references_many
-      Computer.relationships[:softwares].name.should == :softwares
-      Computer.relationships[:softwares].dependent.should == :nullify
-    end
-
     it "can declare a :referenced_in relationship with #referenced_in" do
       Software.referenced_in :computer
       Software.relationships[:computer].should be_a(Souvenirs::Relationship)
       Software.relationships[:computer].type.should == :referenced_in
       Software.relationships[:computer].name.should == :computer
+      Software.relationships[:computer].object_kind.should == :computer
+    end
+
+    it "can declare a :references_many relationship with #references_many" do
+      Computer.references_many :softwares, :dependent => :nullify, :as => :softs
+      Computer.relationships[:softs].should be_a(Souvenirs::Relationship)
+      Computer.relationships[:softs].type.should == :references_many
+      Computer.relationships[:softs].name.should == :softs
+      Computer.relationships[:softs].object_kind.should == :software
+      Computer.relationships[:softs].dependent.should == :nullify
     end
   end
 
@@ -56,7 +60,6 @@ describe Souvenirs::CanHaveRelationships do
 
     describe "handling caching" do
       before(:each) do
-        Computer.index :unique => :model, :get_by => true
         %w(IIc Macintosh).each { |model| Computer.create(:model => model).should be_true }
       end
 
@@ -126,6 +129,17 @@ describe Souvenirs::CanHaveRelationships do
       soft.should be_persisted
       soft.computer_id.should == @mac.id
       soft.name.should == "Call of Duty 4"
+    end
+
+    it "can have more than 1 reference for the same type of object"
+
+    it "deletes dependents when delete is set to :dependent" do
+      Computer.references_many :softwares, :as => :softs, :dependent => :delete
+      @iie = Computer.create(:model => "IIe")
+      @iie.softs.create(:name => "Castle Wolfenstein")
+      Software.get_by_name("Castle Wolfenstein").should_not be_nil
+      @iie.delete
+      Software.get_by_name("Castle Wolfenstein").should be_nil
     end
   end
 end

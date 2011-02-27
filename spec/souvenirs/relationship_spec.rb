@@ -5,10 +5,11 @@ describe Souvenirs::Relationship do
     subject { Souvenirs::Relationship }
 
   describe "an instance" do
-    it "has a type and a name" do
+    it "has a type, a name and an object kind" do
       relationship = subject.new(:references_many, :stuffs)
       relationship.type.should == :references_many
       relationship.name.should == :stuffs
+      relationship.object_kind.should == :stuff
     end
 
     it "raises an error if the type is not supported" do
@@ -22,6 +23,12 @@ describe Souvenirs::Relationship do
     it "can specify an optional dependent option" do
       relationship = subject.new(:references_many, :stuffs, :dependent => :delete)
       relationship.dependent.should == :delete
+    end
+
+    it "can specify an optional as option" do
+      relationship = subject.new(:references_many, :stuffs, :as => :things)
+      relationship.name.should == :things
+      relationship.object_kind.should == :stuff
     end
 
     it "raises an error if dependent is set but not equal to :nullify or :delete" do
@@ -40,6 +47,12 @@ describe Souvenirs::Relationship do
       lambda {
         subject.new(:references_many, :stuffs, :not_supported => :blah)
       }.should raise_error(ArgumentError)
+    end
+
+    it "returns the object class by expanding object_kind with #object_class" do
+      create_constants("Stuff")
+      relationship = subject.new(:references_many, :stuffs, :as => :things)
+      relationship.object_class.should == Stuff
     end
   end
 end

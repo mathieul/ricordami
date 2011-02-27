@@ -18,20 +18,29 @@ module Souvenirs
         define_method(type) do |*args|
           name = args.first
           options = args[1] || {}
-          self.relationships[name] = Relationship.new(type, name, options)
+          relationship = Relationship.new(type, name, options)
+          self.relationships[relationship.name] = relationship
           setup_method = :"setup_#{type}"
-          send(setup_method, self.relationships[name]) if respond_to?(setup_method, true)
+          send(setup_method, relationship) if respond_to?(setup_method, true)
         end
       end
 
       private
 
       def lazy_setup_references_many(relationship)
-        klass = relationship.name.to_s.singularize.camelize.constantize
+        klass = relationship.object_class
         referrer_id = :"#{self.to_s.underscore}_id"
         define_method(relationship.name) do
           return Query.new([], klass) unless persisted?
           klass.where(referrer_id => self.id)
+        end
+        if relationship.dependent == :delete
+          queue_before_deleting_operations do |obj, session|
+            session[relationship.name] = obj.send(relationship.name)
+          end
+          queue_deleting_operations do |obj, session|
+            session[relationship.name].each { |ref_obj| ref_obj.delete }
+          end
         end
       end
 
@@ -42,9 +51,9 @@ module Souvenirs
       end
 
       def lazy_setup_referenced_in(relationship)
+        klass = relationship.object_class
         name = relationship.name
         referrer_var = :"@#{name}"
-        klass = name.to_s.camelize.constantize
         define_method(name) do
           referrer = instance_variable_get(referrer_var)
           return referrer unless referrer.nil?

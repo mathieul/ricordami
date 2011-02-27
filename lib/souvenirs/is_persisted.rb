@@ -5,7 +5,7 @@ module Souvenirs
     extend ActiveSupport::Concern
 
     module ClassMethods
-      attr_reader :save_queue, :delete_queue
+      attr_reader :before_save_queue, :save_queue, :before_delete_queue, :delete_queue
 
       def create(*args)
         new(*args).tap do |instance|
@@ -18,16 +18,17 @@ module Souvenirs
         redis.hgetall(key_name)
       end
 
-      def queue_saving_operations(&block)
-        raise ArgumentError.new("missing block") unless block_given?
-        raise ArgumentError.new("expecting block with 1 argument") unless block.arity == 1
-        (@save_queue ||= []) << block
-      end
-
-      def queue_deleting_operations(&block)
-        raise ArgumentError.new("missing block") unless block_given?
-        raise ArgumentError.new("expecting block with 1 argument") unless block.arity == 1
-        (@delete_queue ||= []) << block
+      [
+        [:before_saving, :before_save_queue], [:saving, :save_queue],
+        [:before_deleting, :before_delete_queue], [:deleting, :delete_queue]
+      ].each do |action, queue|
+        var_name = :"@#{queue}"
+        define_method(:"queue_#{action}_operations") do |&block|
+          raise ArgumentError.new("missing block") unless block
+          raise ArgumentError.new("expecting block with 2 arguments") unless block.arity == 2
+          instance_variable_set(var_name, []) unless instance_variable_get(var_name)
+          instance_variable_get(var_name) << block
+        end
       end
 
       def redis
@@ -58,9 +59,11 @@ module Souvenirs
         raise ModelHasBeenDeleted.new("can't save a deleted model") if deleted?
         set_initial_attribute_values if new_record?
         redis.tap do |driver|
+          session = {}
+          self.class.before_save_queue.each { |block| block.call(self, session) } if self.class.before_save_queue
           driver.multi
           driver.hmset(attributes_key_name, *attributes.to_a.flatten)
-          self.class.save_queue.each { |block| block.call(self) } if self.class.save_queue
+          self.class.save_queue.each { |block| block.call(self, session) } if self.class.save_queue
           driver.exec
         end
         @persisted = true
@@ -86,9 +89,11 @@ module Souvenirs
       def delete
         raise ModelHasBeenDeleted.new("can't delete a model already deleted") if deleted?
         redis.tap do |driver|
+          session = {}
+          self.class.before_delete_queue.reverse.each { |block| block.call(self, session) } if self.class.before_delete_queue
           driver.multi
           driver.del(attributes_key_name)
-          self.class.delete_queue.reverse.each { |block| block.call(self) } if self.class.delete_queue
+          self.class.delete_queue.reverse.each { |block| block.call(self, session) } if self.class.delete_queue
           driver.exec
         end
         attributes_synced_with_db!

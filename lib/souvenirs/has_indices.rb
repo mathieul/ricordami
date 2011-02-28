@@ -41,8 +41,11 @@ module Souvenirs
           indices[index.name].add(obj.id, new_v)
         end
         queue_deleting_operations do |obj, session|
-          value = obj.send(field)
-          indices[index.name].rem(obj.id, value) if value.present?
+          if value = obj.send("#{field}_was")
+            indices[index.name].rem(obj.id, value, true).each do |command|
+              session.commands << command
+            end
+          end
         end
         index
       end
@@ -67,8 +70,11 @@ module Souvenirs
           indices[index.name].add(obj.id, new_v)
         end
         queue_deleting_operations do |obj, session|
-          value = serialize_values(index.fields, obj)
-          indices[index.name].rem(obj.id, value) if value.present?
+          if value = serialize_values(index.fields, obj)
+            indices[index.name].rem(obj.id, value, true).each do |command|
+              session.commands << command
+            end
+          end
         end
         index
       end

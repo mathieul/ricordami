@@ -32,4 +32,9 @@ describe Souvenirs::ValueIndex do
     index.rem("1", "VALUE")
     Souvenirs.driver.smembers("Friend:idx:first_name:VkFMVUU=").should == ["2"]
   end
+
+  it "returns the redis command to remove the value from the index when return_command is true" do
+    commands = index.rem("1", "VALUE", true)
+    commands.should == [[:srem, ["Friend:idx:first_name:VkFMVUU=", "1"]]]
+  end
 end

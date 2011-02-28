@@ -18,7 +18,8 @@ module Souvenirs
       @model.redis.sadd(key_name_for_value(value), id)
     end
 
-    def rem(id, value)
+    def rem(id, value, return_command = false)
+      return [[:srem, [key_name_for_value(value), id]]] if return_command
       @model.redis.srem(key_name_for_value(value), id)
     end
   end

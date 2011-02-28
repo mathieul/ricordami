@@ -35,11 +35,11 @@ module Souvenirs
           klass.where(referrer_id => self.id)
         end
         if relationship.dependent == :delete
-          queue_before_deleting_operations do |obj, session|
-            session[relationship.name] = obj.send(relationship.name)
-          end
           queue_deleting_operations do |obj, session|
-            session[relationship.name].each { |ref_obj| ref_obj.delete }
+            referenced_objects = obj.send(relationship.name)
+            referenced_objects.each do |referenced_object|
+              referenced_object.prepare_delete(session)
+            end
           end
         end
       end

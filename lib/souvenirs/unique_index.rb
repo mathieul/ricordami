@@ -27,7 +27,13 @@ module Souvenirs
       @model.redis.hset(ref_key_name, value, id) if @need_get_by
     end
 
-    def rem(id, value)
+    def rem(id, value, return_command = false)
+      if return_command
+        commands = []
+        commands << [:hdel, [ref_key_name, id]] if @need_get_by
+        commands << [:srem, [uidx_key_name, value]]
+        return commands
+      end
       @model.redis.hdel(ref_key_name, id) if @need_get_by
       value = value.join(SEPARATOR) if value.is_a?(Array)
       @model.redis.srem(uidx_key_name, value)

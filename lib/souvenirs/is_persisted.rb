@@ -5,7 +5,7 @@ module Souvenirs
     extend ActiveSupport::Concern
 
     module ClassMethods
-      attr_reader :before_save_queue, :save_queue, :before_delete_queue, :delete_queue
+      attr_reader :save_queue, :delete_queue
 
       def create(*args)
         new(*args).tap do |instance|
@@ -18,10 +18,7 @@ module Souvenirs
         redis.hgetall(key_name)
       end
 
-      [
-        [:before_saving, :before_save_queue], [:saving, :save_queue],
-        [:before_deleting, :before_delete_queue], [:deleting, :delete_queue]
-      ].each do |action, queue|
+      [[:saving, :save_queue], [:deleting, :delete_queue]].each do |action, queue|
         var_name = :"@#{queue}"
         define_method(:"queue_#{action}_operations") do |&block|
           raise ArgumentError.new("missing block") unless block
@@ -60,7 +57,6 @@ module Souvenirs
         set_initial_attribute_values if new_record?
         redis.tap do |driver|
           session = {}
-          self.class.before_save_queue.each { |block| block.call(self, session) } if self.class.before_save_queue
           driver.multi
           driver.hmset(attributes_key_name, *attributes.to_a.flatten)
           self.class.save_queue.each { |block| block.call(self, session) } if self.class.save_queue
@@ -88,14 +84,31 @@ module Souvenirs
 
       def delete
         raise ModelHasBeenDeleted.new("can't delete a model already deleted") if deleted?
+        db_commands, models = [], []
+        # TODO: use watch (Redis 2.2) and re-run prepare + execute if change
+        session = Struct.new(:models, :commands).new(models, db_commands)
+        prepare_delete(session)
+        execute_delete(db_commands)
+        models.each { |model| model.mark_as_deleted }
+      end
+
+      def prepare_delete(session)
+        session.models << self
+        session.commands << [:del, [attributes_key_name]]
+        self.class.delete_queue.reverse.each { |block| block.call(self, session) } if self.class.delete_queue
+      end
+
+      def execute_delete(db_commands)
         redis.tap do |driver|
-          session = {}
-          self.class.before_delete_queue.reverse.each { |block| block.call(self, session) } if self.class.before_delete_queue
           driver.multi
-          driver.del(attributes_key_name)
-          self.class.delete_queue.reverse.each { |block| block.call(self, session) } if self.class.delete_queue
+          db_commands.each do |message, args|
+            driver.send(message, *args)
+          end
           driver.exec
         end
+      end
+
+      def mark_as_deleted
         attributes_synced_with_db!
         @deleted = true
         freeze

@@ -139,7 +139,9 @@ describe Souvenirs::CanHaveRelationships do
       @iie.softs.create(:name => "Castle Wolfenstein")
       Software.get_by_name("Castle Wolfenstein").should_not be_nil
       @iie.delete
-      Software.get_by_name("Castle Wolfenstein").should be_nil
+      lambda {
+        Software.get_by_name("Castle Wolfenstein")
+      }.should raise_error(Souvenirs::NotFound)
     end
   end
 end

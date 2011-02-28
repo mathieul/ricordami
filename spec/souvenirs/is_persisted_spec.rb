@@ -93,36 +93,6 @@ describe Souvenirs::IsPersisted do
     end
   end
 
-  describe "grouping DB operations with #queue_before_saving_operations" do
-    it "raises an error if no block is passed" do
-      lambda {
-        Tenant.queue_before_saving_operations
-      }.should raise_error(ArgumentError)
-    end
-
-    it "raises an error if the block passed doesn't take 2 arguments" do
-      lambda {
-        Tenant.queue_before_saving_operations { |one| [one] }
-      }.should raise_error(ArgumentError)
-    end
-
-    it "allows to queue DB operations that will run before instance is saved" do
-      logs = []
-      Tenant.attribute :name
-      Tenant.queue_before_saving_operations do |obj, session|
-        logs << if obj.persisted?
-          "ALREADY persisted"
-        else
-          "NOT persisted"
-        end
-      end
-      tenant = Tenant.new
-      tenant.save
-      tenant.update_attributes(:name => "blah")
-      logs.should == ["NOT persisted", "ALREADY persisted"]
-    end
-  end
-
   describe "grouping DB operations with #queue_saving_operations" do
     it "raises an error if no block is passed" do
       lambda {
@@ -153,30 +123,6 @@ describe Souvenirs::IsPersisted do
     end
   end
 
-  describe "grouping DB operations with #queue_before_deleting_operations" do
-    it "raises an error if no block is passed" do
-      lambda {
-        Tenant.queue_before_deleting_operations
-      }.should raise_error(ArgumentError)
-    end
-
-    it "raises an error if the block passed doesn't take 2 arguments" do
-      lambda {
-        Tenant.queue_before_deleting_operations { |one| [one] }
-      }.should raise_error(ArgumentError)
-    end
-
-    it "allows to queue DB operations that will run before instance is deleted" do
-      logs = []
-      Tenant.attribute :name
-      Tenant.queue_before_deleting_operations { |obj, session| logs << "Before tenant deleted #1" }
-      Tenant.queue_before_deleting_operations { |obj, session| logs << "Before tenant deleted #2" }
-      tenant = Tenant.create
-      tenant.delete
-      logs.should == ["Before tenant deleted #2", "Before tenant deleted #1"]
-    end
-  end
-
   describe "grouping DB operations with #queue_deleting_operations" do
     it "raises an error if no block is passed" do
       lambda {
@@ -198,16 +144,6 @@ describe Souvenirs::IsPersisted do
       tenant = Tenant.create
       tenant.delete
       logs.should == ["Tenant deleted #2", "Tenant deleted #1"]
-    end
-
-    it "allows to share a session hash between delete queue callbacks" do
-      Tenant.attribute :name
-      Tenant.queue_before_deleting_operations { |obj, session| session[:before] = "set before deletion" }
-      message = nil
-      Tenant.queue_deleting_operations { |obj, session| message = "from session: #{session[:before]}" }
-      tenant = Tenant.create
-      tenant.delete
-      message.should == "from session: set before deletion"
     end
   end
 

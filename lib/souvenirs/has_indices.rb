@@ -21,11 +21,11 @@ module Souvenirs
         raise InvalidIndexDefinition.new(self.class)
       end
 
-      def unique_index(fields, options = {})
-        create_unique_index(fields, options).tap do |index|
-          next if index.nil?
-          create_unique_get_method(index) if options[:get_by]
-        end
+      private
+
+      def add_index(index)
+        return false if self.indices.has_key?(index.name)
+        self.indices[index.name] = index
       end
 
       def value_index(field)
@@ -47,11 +47,11 @@ module Souvenirs
         index
       end
 
-      private
-
-      def add_index(index)
-        return false if self.indices.has_key?(index.name)
-        self.indices[index.name] = index
+      def unique_index(fields, options = {})
+        create_unique_index(fields, options).tap do |index|
+          next if index.nil?
+          create_unique_get_method(index) if options[:get_by]
+        end
       end
 
       def create_unique_index(fields, options)
@@ -81,8 +81,6 @@ module Souvenirs
           get(id)
         end
       end
-
-      private
 
       def serialize_values(fields, obj, opts = {})
         fields.map do |f|

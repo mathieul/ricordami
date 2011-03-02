@@ -36,4 +36,8 @@ describe Souvenirs::Error do
   it "has an error to notify when an option value is invalid" do
     Souvenirs::OptionValueInvalid.new.should be_a_kind_of(Souvenirs::Error)
   end
+
+  it "has an error to notify when mandatory arguments are missing" do
+    Souvenirs::MissingMandatoryArgs.new.should be_a_kind_of(Souvenirs::Error)
+  end
 end

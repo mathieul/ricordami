@@ -132,24 +132,13 @@ describe Souvenirs::CanHaveRelationships do
     end
 
     it "can have more than 1 reference for the same type of object" do
-      # referrer =>  referrer_id, reference class, plural relation name,  dependent
-      #              referrer_id = self.foreign_key || :foreign_key
-      #              reference_class = name.singular || :class_name(reference)
-      #              relation name = name
-      #              dependent = nil || :dependent
-      #              => plural relation name, :foreign_key, :class_name(reference), :dependent
-      # reference => referrer id, referrer class,  singular relation name
-      #              referrer_id = name.singular.foreign_key || :foreign_key
-      #              referrer class = name || :class_name(referrer)
-      #              relation name = name
-      #              => singular relation name, :foreign_key, :class_name(referrer)
       Computer.references_many :softwares, :as => :softs, :alias => :host, :dependent => :delete
       Software.referenced_in :computer, :as => :host, :alias => :softs
       iie = Computer.create(:model => "IIe")
       iie.softs.create(:name => "Masquerade")
       iie.softwares.create(:name => "Conan")
-      iie.softs.map(&:name).should == "Masquerade"
-      iie.softwares.map(&:name).should == "Conan"
+      iie.softs.map(&:name).should == ["Masquerade"]
+      iie.softwares.map(&:name).should == ["Conan"]
     end
 
     it "deletes dependents when delete is set to :dependent" do

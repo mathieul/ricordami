@@ -18,7 +18,8 @@ module Souvenirs
         define_method(type) do |*args|
           name = args.first
           options = args[1] || {}
-          relationship = Relationship.new(type, name, options)
+          options.merge!(:other => name, :self => self.to_s.underscore.to_sym)
+          relationship = Relationship.new(type, options)
           self.relationships[relationship.name] = relationship
           setup_method = :"setup_#{type}"
           send(setup_method, relationship) if respond_to?(setup_method, true)
@@ -29,10 +30,10 @@ module Souvenirs
 
       def lazy_setup_references_many(relationship)
         klass = relationship.object_class
-        referrer_id = self.to_s.foreign_key.to_sym
+        referrer_id_sym = relationship.referrer_id.to_sym
         define_method(relationship.name) do
           return Query.new([], klass) unless persisted?
-          klass.where(referrer_id => self.id)
+          klass.where(referrer_id_sym => self.id)
         end
         if relationship.dependent == :delete
           queue_deleting_operations do |obj, session|
@@ -45,9 +46,9 @@ module Souvenirs
       end
 
       def setup_referenced_in(relationship)
-        referrer_id = :"#{relationship.name}_id"
-        attribute(referrer_id, :indexed => :value)
-        overide_referrer_id_reader(relationship.name)
+        #puts "class(#{self} - referrer_id = #{relationship.referrer_id.inspect}"
+        attribute(relationship.referrer_id, :indexed => :value)
+        overide_referrer_id_reader(relationship)
       end
 
       def lazy_setup_referenced_in(relationship)
@@ -57,18 +58,18 @@ module Souvenirs
         define_method(name) do
           referrer = instance_variable_get(referrer_var)
           return referrer unless referrer.nil?
-          referrer_id = send(:"#{name}_id")
-          return nil if referrer_id.nil?
-          klass.get(referrer_id).tap do |referrer|
+          referrer_id_val = send(relationship.referrer_id)
+          return nil if referrer_id_val.nil?
+          klass.get(referrer_id_val).tap do |referrer|
             instance_variable_set(referrer_var, referrer)
           end
         end
       end
 
-      def overide_referrer_id_reader(name)
-        referrer_var = :"@#{name}"
+      def overide_referrer_id_reader(relationship)
+        referrer_var = :"@#{relationship.name}"
         # overide referrer id to sweep cache
-        define_method(:"#{name}_id=") do |value|
+        define_method(:"#{relationship.referrer_id}=") do |value|
           instance_variable_set(referrer_var, nil)
           super(value)
         end

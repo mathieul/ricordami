@@ -28,7 +28,7 @@ module Souvenirs
     def referrer_id
       return @referrer_id unless @referrer_id.nil?
       referrer = type == :referenced_in ? @name.to_s : @alias.to_s.singularize
-      referrer.foreign_key
+      @referrer_id = referrer.foreign_key
     end
 
     private

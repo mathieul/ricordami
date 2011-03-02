@@ -29,7 +29,7 @@ module Souvenirs
 
       def lazy_setup_references_many(relationship)
         klass = relationship.object_class
-        referrer_id = :"#{self.to_s.underscore}_id"
+        referrer_id = self.to_s.foreign_key.to_sym
         define_method(relationship.name) do
           return Query.new([], klass) unless persisted?
           klass.where(referrer_id => self.id)

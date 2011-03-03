@@ -30,9 +30,18 @@ module Souvenirs
 
       def set_block_to_delete_dependents(relationship)
         queue_deleting_operations do |obj, session|
-          referenced_objects = obj.send(relationship.name)
-          referenced_objects.each do |referenced_object|
-            referenced_object.prepare_delete(session)
+          ref_objs = obj.send(relationship.name)
+          ref_objs = [ref_objs] if relationship.type == :references_one
+          ref_objs.each { |ref_obj| ref_obj.prepare_delete(session) }
+        end
+      end
+
+      def set_block_to_nullify_dependents(relationship)
+        queue_deleting_operations do |obj, session|
+          ref_objs = obj.send(relationship.name)
+          ref_objs = [ref_objs] if relationship.type == :references_one
+          ref_objs.each do |ref_obj|
+            ref_obj.update_attributes(relationship.referrer_id => nil)
           end
         end
       end
@@ -44,17 +53,34 @@ module Souvenirs
           return Query.new([], klass) unless persisted?
           klass.where(referrer_id_sym => self.id)
         end
-        set_block_to_delete_dependents(relationship) if relationship.dependent == :delete
+        case relationship.dependent
+        when :delete  then set_block_to_delete_dependents(relationship)
+        when :nullify then set_block_to_nullify_dependents(relationship)
+        end
       end
 
       def lazy_setup_references_one(relationship)
         klass = relationship.object_class
         referrer_id_sym = relationship.referrer_id.to_sym
+        # define reference build method
+        build_method = :"build_#{relationship.name}"
+        define_method(build_method) do |*args|
+          options = args.first || {}
+          klass.new(options.merge(referrer_id_sym => self.id))
+        end
+        # define reference create method
+        define_method(:"create_#{relationship.name}") do |*args|
+          send(build_method, *args).tap { |obj| obj.save }
+        end
+        # define reference method reader
         define_method(relationship.name) do
           return nil unless persisted?
           klass.where(referrer_id_sym => self.id).first
         end
-        set_block_to_delete_dependents(relationship) if relationship.dependent == :delete
+        case relationship.dependent
+        when :delete  then set_block_to_delete_dependents(relationship)
+        when :nullify then set_block_to_nullify_dependents(relationship)
+        end
       end
 
       def setup_referenced_in(relationship)
@@ -90,8 +116,12 @@ module Souvenirs
     module InstanceMethods
       private
 
+      RE_METHOD = /^(build|create)_(.*)$/
+
       def method_missing(meth, *args, &blk)
-        if relationship = self.class.relationships[meth]
+        match = RE_METHOD.match(meth.to_s)
+        meth_root = match.nil?? meth : match[2].to_sym
+        if relationship = self.class.relationships[meth_root]
           self.class.send(:"lazy_setup_#{relationship.type}", relationship)
           send(meth, *args, &blk)
         else

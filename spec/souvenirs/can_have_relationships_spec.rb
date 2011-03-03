@@ -166,6 +166,17 @@ describe Souvenirs::CanHaveRelationships do
         Software.get_by_name("Castle Wolfenstein")
       }.should raise_error(Souvenirs::NotFound)
     end
+
+    it "sets to nil reference's referrer_id when delete is set to :nullify" do
+      Computer.references_many :softwares, :as => :softs, :alias => :host, :dependent => :nullify
+      Software.referenced_in :computer, :as => :host, :alias => :softs
+      iie = Computer.create(:model => "IIe")
+      iie.reload
+      iie.softs.create(:name => "Castle Wolfenstein")
+      Software.get_by_name("Castle Wolfenstein").host_id.should == iie.id
+      iie.delete
+      Software.get_by_name("Castle Wolfenstein").host_id.should be_empty
+    end
   end
 
   describe "instance that references one..." do
@@ -198,7 +209,7 @@ describe Souvenirs::CanHaveRelationships do
     it "can create a new reference object through the reference method" do
       soft = @datasoft.create_software(:name => "Alternate Reality: The City")
       soft.should be_persisted
-      soft.editor_id.should == @aes.id
+      soft.editor_id.should == @datasoft.id
       soft.name.should == "Alternate Reality: The City"
     end
 
@@ -221,6 +232,17 @@ describe Souvenirs::CanHaveRelationships do
       lambda {
         Software.get_by_name("Karateka")
       }.should raise_error(Souvenirs::NotFound)
+    end
+
+    it "sets to nil reference's referrer_id when delete is set to :nullify" do
+      Editor.references_one  :software, :as => :soft, :alias => :developper, :dependent => :nullify
+      Software.referenced_in :editor, :as => :developper, :alias => :soft
+      broderbund = Editor.create(:corp_name => "Brøderbund")
+      broderbund.reload
+      broderbund.create_soft(:name => "Choplifter")
+      Software.get_by_name("Choplifter").developper_id.should == broderbund.id
+      broderbund.delete
+      Software.get_by_name("Choplifter").developper_id.should be_empty
     end
   end
 end

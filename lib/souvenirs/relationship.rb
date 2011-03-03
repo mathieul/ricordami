@@ -1,6 +1,6 @@
 module Souvenirs
   class Relationship
-    SUPPORTED_TYPES = [:references_many, :referenced_in]
+    SUPPORTED_TYPES = [:references_many, :references_one, :referenced_in]
     MANDATORY_ARGS = [:other, :self]
 
     attr_reader :type, :name, :object_kind, :dependent, :self_kind, :alias

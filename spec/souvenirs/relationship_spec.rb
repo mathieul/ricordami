@@ -57,10 +57,17 @@ describe Souvenirs::Relationship do
       relationship.referrer_id.should == "chef_id"
     end
 
-    it "deducts the referrer id from the self or alias parameter for any other relationship" do
+    it "deducts the referrer id from the self or alias parameter for a references_many relationship" do
       relationship = subject.new(:references_many, :self => :cook, :other => :ingredients)
       relationship.referrer_id.should == "cook_id"
       relationship = subject.new(:references_many, :self => :cook, :alias => :chef, :other => :ingredients, :as => :stuff)
+      relationship.referrer_id.should == "chef_id"
+    end
+
+    it "deducts the referrer id from the self or alias parameter for a references_one relationship" do
+      relationship = subject.new(:references_one, :self => :cook, :other => :hat)
+      relationship.referrer_id.should == "cook_id"
+      relationship = subject.new(:references_one, :self => :cook, :alias => :chef, :other => :hat, :as => :toque)
       relationship.referrer_id.should == "chef_id"
     end
 
@@ -89,6 +96,7 @@ describe Souvenirs::Relationship do
     it "raises an error if the type is not supported" do
       lambda { subject.new(:references_many, valid_options) }.should_not raise_error
       lambda { subject.new(:referenced_in, valid_options) }.should_not raise_error
+      lambda { subject.new(:references_one, valid_options) }.should_not raise_error
       lambda {
         subject.new(:blah, valid_options)
       }.should raise_error(Souvenirs::TypeNotSupported)

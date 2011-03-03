@@ -28,6 +28,15 @@ module Souvenirs
 
       private
 
+      def set_block_to_delete_dependents(relationship)
+        queue_deleting_operations do |obj, session|
+          referenced_objects = obj.send(relationship.name)
+          referenced_objects.each do |referenced_object|
+            referenced_object.prepare_delete(session)
+          end
+        end
+      end
+
       def lazy_setup_references_many(relationship)
         klass = relationship.object_class
         referrer_id_sym = relationship.referrer_id.to_sym
@@ -35,18 +44,20 @@ module Souvenirs
           return Query.new([], klass) unless persisted?
           klass.where(referrer_id_sym => self.id)
         end
-        if relationship.dependent == :delete
-          queue_deleting_operations do |obj, session|
-            referenced_objects = obj.send(relationship.name)
-            referenced_objects.each do |referenced_object|
-              referenced_object.prepare_delete(session)
-            end
-          end
+        set_block_to_delete_dependents(relationship) if relationship.dependent == :delete
+      end
+
+      def lazy_setup_references_one(relationship)
+        klass = relationship.object_class
+        referrer_id_sym = relationship.referrer_id.to_sym
+        define_method(relationship.name) do
+          return nil unless persisted?
+          klass.where(referrer_id_sym => self.id).first
         end
+        set_block_to_delete_dependents(relationship) if relationship.dependent == :delete
       end
 
       def setup_referenced_in(relationship)
-        #puts "class(#{self} - referrer_id = #{relationship.referrer_id.inspect}"
         attribute(relationship.referrer_id, :indexed => :value)
         overide_referrer_id_reader(relationship)
       end

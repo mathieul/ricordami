@@ -1,8 +1,9 @@
+# -*- encoding: utf-8 -*-
 require "spec_helper"
 require "souvenirs/can_have_relationships"
 
 describe Souvenirs::CanHaveRelationships do
-  uses_constants("Computer", "Software")
+  uses_constants("Computer", "Software", "Editor")
 
   before(:each) do
     Computer.send(:include, Souvenirs::CanHaveRelationships)
@@ -13,6 +14,11 @@ describe Souvenirs::CanHaveRelationships do
     Software.attribute :name
     Software.index :unique => :name, :get_by => true
     Software.referenced_in :computer
+    Software.referenced_in :editor
+    Editor.send(:include, Souvenirs::CanHaveRelationships)
+    Editor.attribute :corp_name
+    Editor.index :unique => :corp_name, :get_by => true
+    Editor.references_one :software
   end
 
   describe "class" do
@@ -31,6 +37,15 @@ describe Souvenirs::CanHaveRelationships do
       Computer.relationships[:softs].name.should == :softs
       Computer.relationships[:softs].object_kind.should == :software
       Computer.relationships[:softs].dependent.should == :nullify
+    end
+
+    it "can declare a :references_one relationship with #references_one" do
+      Editor.references_one :software, :dependent => :nullify
+      Editor.relationships[:software].should be_a(Souvenirs::Relationship)
+      Editor.relationships[:software].type.should == :references_one
+      Editor.relationships[:software].name.should == :software
+      Editor.relationships[:software].object_kind.should == :software
+      Editor.relationships[:software].dependent.should == :nullify
     end
   end
 
@@ -149,6 +164,62 @@ describe Souvenirs::CanHaveRelationships do
       iie.delete
       lambda {
         Software.get_by_name("Castle Wolfenstein")
+      }.should raise_error(Souvenirs::NotFound)
+    end
+  end
+
+  describe "instance that references one..." do
+    before(:each) do
+      @aes = Editor.create(:corp_name => "American Eagle Software")
+      Software.create(:name => "Masquerade", :editor_id => @aes.id)
+      @datasoft = Editor.create(:corp_name => "Datasoft")
+      Software.create(:name => "Bruce Lee", :editor_id => @datasoft.id)
+    end
+
+    it "has a method to access its referenced object" do
+      @aes.should respond_to(:software)
+    end
+
+    it "can fetch the object it references with the reference method" do
+      @aes.software.name.should == "Masquerade"
+      @datasoft.software.name.should == "Bruce Lee"
+    end
+
+    it "can return there is no reference objects when non persisted" do
+      Editor.new.software.should be_nil
+    end
+
+    it "can build a new reference object through a build reference method" do
+      soft = @aes.build_software
+      soft.should_not be_persisted
+      soft.editor_id.should == @aes.id
+    end
+
+    it "can create a new reference object through the reference method" do
+      soft = @datasoft.create_software(:name => "Alternate Reality: The City")
+      soft.should be_persisted
+      soft.editor_id.should == @aes.id
+      soft.name.should == "Alternate Reality: The City"
+    end
+
+    it "can have more than 1 reference for the same type of object" do
+      Editor.references_one :software, :as => :soft, :alias => :second_editor, :dependent => :delete
+      Software.referenced_in :editor, :as => :second_editor, :alias => :soft
+      broderbund = Editor.create(:corp_name => "Brøderbund")
+      broderbund.create_software(:name => "Karateka")
+      broderbund.create_soft(:name => "Lode Runner")
+      broderbund.software.name.should == "Karateka"
+      broderbund.soft.name.should == "Lode Runner"
+    end
+
+    it "deletes dependents when delete is set to :dependent" do
+      Editor.references_one :software, :as => :soft, :dependent => :delete
+      broderbund = Editor.create(:corp_name => "Brøderbund")
+      broderbund.create_soft(:name => "Karateka")
+      Software.get_by_name("Karateka").should_not be_nil
+      broderbund.delete
+      lambda {
+        Software.get_by_name("Karateka")
       }.should raise_error(Souvenirs::NotFound)
     end
   end

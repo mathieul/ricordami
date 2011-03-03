@@ -53,6 +53,42 @@ A simple way to persist Ruby models into the Redis data structure server.
     $ bundle exec infinity_test
 
 
+## Infinity Tests ##
+
+You need to install several versions of Ruby. First list what is
+currently installed. Only install the missing versions
+
+Ruby Enterprise:
+
+    $ rvm install ree-1.8.7-2011.03 # install if necessary
+    $ rvm use ree-1.8.7-2011.03
+    $ rvm gemset create souvenirs
+    $ gem install bundler --no-ri --no-rdoc
+    $ rvm gemset use souvenirs
+    $ bundle
+
+Rubinius:
+
+    $ rvm install rbx-1.2.2 # install if necessary
+    $ rvm use rbx-1.2.2
+    $ rvm gemset create souvenirs
+    $ rvm gemset use souvenirs
+    $ gem install bundler --no-ri --no-rdoc
+    $ bundle
+
+MRI 1.9.2:
+
+    $ rvm install 1.9.2-p180 # install if necessary
+    $ rvm use 1.9.2-p180
+    $ rvm gemset create souvenirs
+    $ rvm gemset use souvenirs
+    $ gem install bundler --no-ri --no-rdoc
+    $ bundle
+
+Run the infinity test:
+
+    $ bundle exec infinity_test
+
 ## TODO ##
 
   * Description - I’m surprised at how many times I land on a project page that is obviously popular (because Twitter told me so) but I have no idea why because the project owners don’t tell me plainly what the project is or why I should care.

@@ -122,33 +122,33 @@ describe Souvenirs::Query do
   describe "creating new objects" do
     before(:each) do
       Instrument.attribute :name
-      Instrument.attribute :type
+      Instrument.attribute :instrument_type
       Instrument.attribute :difficulty
     end
 
     it "builds a new object with #build" do
-      query.and(:type => "wind", :name => "flute")
+      query.and(:instrument_type => "wind", :name => "flute")
       obj = query.build
       obj.should be_an(Instrument)
       obj.should_not be_persisted
       obj.name.should == "flute"
-      obj.type.should == "wind"
+      obj.instrument_type.should == "wind"
     end
 
     it "can pass new attributes to #build" do
-      query.and(:type => "wind", :name => "flute")
+      query.and(:instrument_type => "wind", :name => "flute")
       obj = query.build(:name => "tuba", :difficulty => "hard")
-      obj.type.should == "wind"
+      obj.instrument_type.should == "wind"
       obj.name.should == "tuba"
       obj.difficulty.should == "hard"
     end
 
     it "creates a new object with #create" do
-      query.and(:type => "wind", :name => "flute")
+      query.and(:instrument_type => "wind", :name => "flute")
       obj = query.create(:name => "tuba", :difficulty => "hard")
       obj.should be_an(Instrument)
       obj.should be_persisted
-      obj.type.should == "wind"
+      obj.instrument_type.should == "wind"
       obj.name.should == "tuba"
       obj.difficulty.should == "hard"
     end

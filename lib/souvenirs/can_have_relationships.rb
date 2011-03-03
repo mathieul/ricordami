@@ -129,8 +129,18 @@ module Souvenirs
         end
       end
 
-      def respond_to_missing?(meth, include_private)
-        self.class.relationships.has_key?(meth)
+      if Object.respond_to?(:respond_to_missing?)
+        def respond_to_missing?(meth, include_private)
+          self.class.relationships.has_key?(meth)
+        end
+      else
+        def respond_to?(meth)
+          match = RE_METHOD.match(meth.to_s)
+          meth_root = match.nil?? meth : match[2].to_sym
+          return true if self.class.relationships.has_key?(meth_root)
+          super
+        end
+        public :respond_to?
       end
     end
   end

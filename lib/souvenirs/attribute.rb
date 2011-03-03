@@ -5,10 +5,11 @@ module Souvenirs
     attr_reader :name
 
     def initialize(name, options = {})
-      options.assert_valid_keys(:default, :read_only, :initial, :indexed)
+      options.assert_valid_keys(:default, :read_only, :initial, :indexed, :type)
       if options[:indexed] && ![:value, :unique].include?(options[:indexed])
         raise InvalidIndexDefinition.new(options[:indexed].to_s)
       end
+      options[:type] ||= :string
       @options = options
       @name = name.to_sym
     end
@@ -34,6 +35,18 @@ module Souvenirs
 
     def indexed?
       !!@options[:indexed]
+    end
+
+    def type
+      @options[:type]
+    end
+
+    def converter
+      case @options[:type]
+      when :string  then :to_s
+      when :integer then :to_i
+      when :float   then :to_f
+      end
     end
   end
 end

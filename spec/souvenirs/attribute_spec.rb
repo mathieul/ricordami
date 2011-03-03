@@ -94,5 +94,20 @@ describe Souvenirs::Attribute do
       subject.new(:id, :initial => "1").initial_value?.should be_true
       without = subject.new(:foo).initial_value?.should be_false
     end
+
+    it "can spefify the attribute type with :type option" do
+      attribute = subject.new(:id, :type => :integer)
+      attribute.type.should == :integer
+    end
+
+    it "has a default type :string if not specified" do
+      subject.new(:name).type.should == :string
+    end
+
+    it "returns the converter method with #converter" do
+      subject.new(:name, :type => :string).converter.should == :to_s
+      subject.new(:name, :type => :integer).converter.should == :to_i
+      subject.new(:name, :type => :float).converter.should == :to_f
+    end
   end
 end

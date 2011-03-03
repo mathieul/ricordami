@@ -34,9 +34,9 @@ describe Souvenirs::HasAttributes do
     it "replaces :initial value with a generator if it's a symbol" do
       Boat.attribute :id, :initial => :sequence
       attribute = Boat.attributes[:id]
-      attribute.initial_value.should == 1
-      attribute.initial_value.should == 2
-      attribute.initial_value.should == 3
+      attribute.initial_value.should == "1"
+      attribute.initial_value.should == "2"
+      attribute.initial_value.should == "3"
     end
   end
 
@@ -100,7 +100,7 @@ describe Souvenirs::HasAttributes do
     it "has an 'id' attribute set by default to a sequence if not overriden when saved" do
       user = User.create
       user.id.should be_present
-      user.id.should == 1
+      user.id.should == "1"
     end
 
     it "overides the value of its 'id' attribute when a value is passed" do
@@ -237,6 +237,29 @@ describe Souvenirs::HasAttributes do
         plane.update_attributes(:brand => "Airbus", :model => "380")
         plane.should_not be_changed
         plane.previous_changes.should == {"model" => ["320", "380"]}
+      end
+    end
+
+    describe "attribute value typing" do
+      uses_constants("Person")
+      before(:each) do
+        Person.attribute :name
+        Person.attribute :age, :type => :integer
+        Person.attribute :parts, :type => :float
+      end
+
+      it "converts value types when initializing an object" do
+        person = Person.new(:name => 123, :age => "21", :parts => "5.2")
+        person.name.should == "123"
+        person.age.should == 21
+        person.parts.should == 5.2
+      end
+
+      it "doesn't convert the value type if value is nil" do
+        person = Person.new(:name => nil, :age => nil, :parts => nil)
+        person.name.should be_nil
+        person.age.should be_nil
+        person.parts.should be_nil
       end
     end
   end

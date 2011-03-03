@@ -10,7 +10,8 @@ module Souvenirs
     included do
       attribute_method_suffix('', '=')
       attribute :id, :read_only => true,
-                     :initial   => :sequence
+                     :initial => :sequence,
+                     :type => :string
     end
 
     module ClassMethods
@@ -76,13 +77,14 @@ module Souvenirs
       private
 
       def write_attribute(name, value)
-        return value if @attributes[name] == value
-        if @persisted_attributes && @persisted_attributes[name] == value
+        converted = value.send(self.class.attributes[name].converter) unless value.nil?
+        return converted if @attributes[name] == converted
+        if @persisted_attributes && @persisted_attributes[name] == converted
           @changed_attributes.delete(name.to_s)
         else
           attribute_will_change!(name.to_s)
         end
-        @attributes[name] = value
+        @attributes[name] = converted
       end
 
       def attribute(name)
@@ -92,7 +94,7 @@ module Souvenirs
       def attribute=(name, value)
         raise ModelHasBeenDeleted.new("can't update attribute #{name}") if deleted?
         assert_can_update!(name) unless @reloading
-        write_attribute(name, value)
+        write_attribute(name.to_sym, value)
       end
 
       def assert_can_update!(name)
@@ -150,7 +152,7 @@ module Souvenirs
 
       def sequence(model)
         key = KeyNamer.sequence(model, :type => "id")
-        Proc.new { model.redis.incr(key) }
+        Proc.new { model.redis.incr(key).to_s }
       end
     end
   end

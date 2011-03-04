@@ -7,6 +7,14 @@ describe Souvenirs::Model do
     Souvenirs::Model.should be_a_kind_of(ActiveSupport::Concern)
   end
 
+  it "includes the modules listed with #model_can" do
+    User.model_can :be_queried, :be_validated, :have_relationships
+    user = User.new
+    user.should be_a_kind_of(Souvenirs::CanBeQueried)
+    user.should be_a_kind_of(Souvenirs::CanBeValidated)
+    user.should be_a_kind_of(Souvenirs::CanHaveRelationships)
+  end
+
   describe "when being included" do
     it "adds model naming" do
       model_name = User.model_name

@@ -12,6 +12,16 @@ module Souvenirs
       include IsPersisted
       include IsRetrievable
     end
+
+    module ClassMethods
+      def model_can(*features)
+        features.each do |feature|
+          require File.expand_path("../can_#{feature}", __FILE__)
+          feature_module = Souvenirs.const_get(:"Can#{feature.to_s.camelize}")
+          include feature_module
+        end
+      end
+    end
   end
 
   include Configuration

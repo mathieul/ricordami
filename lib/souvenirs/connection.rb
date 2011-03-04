@@ -14,7 +14,8 @@ module Souvenirs
         Redis.new(:host         => c.redis_host,
                   :port         => c.redis_port,
                   :db           => c.redis_db,
-                  :thread_safe  => c.thread_safe)
+                  :thread_safe  => c.thread_safe,
+                  :timeout      => 10)
       end
     end
   end

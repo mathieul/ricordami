@@ -54,25 +54,6 @@ queried in a Redis data structure server.
     Song.where(:year => "1971").map(&:title)  # => "Melody Nelson"
 
 
-## Why Ricordami? ##
-
-Ricordami's design goal is to find the best trade off between speed and
-features. Its syntax goal is to be close enough to ORMs such as Active
-Record or Mongoid, so the learning curve stays pretty small.
-
-Ricordami is NOT an attempt at competing with full featured ORMs such as
-Active Record or Data Mapper for relational databases, or Mongoid or
-Mongo Mapper for MongoDB.
-
-I started Ricordami because I needed to scale and distribute an
-event based application accross many servers. I decided to use
-the REST-like API micro framework Grape to structure the API, and chose
- Redis to externalize and hold the application state. I needed a library
-to structure the data layer and didn't find any library that would work
-for me. If I would have searched a bit more I would have found Ohm
-(http://ohm.keyvalue.org/) and the story would have stopped here.
-
-
 ## How To Install? ##
 
 
@@ -424,3 +405,47 @@ Run the infinity test:
 
     $ bundle exec infinity_test
 
+
+## Why Ricordami? ##
+
+Ricordami's design goal is to find the best trade off between speed and
+features. Its syntax goal is to be close enough to ORMs such as Active
+Record or Mongoid, so the learning curve stays pretty small.
+
+Ricordami is NOT an attempt at competing with full featured ORMs such as
+Active Record or Data Mapper for relational databases, or Mongoid or
+Mongo Mapper for MongoDB.
+
+I started Ricordami because I needed to scale and distribute an
+event based application accross many servers. I decided to use
+the REST-like API micro framework Grape to structure the API, and chose
+ Redis to externalize and hold the application state. I needed a library
+to structure the data layer and didn't find any library that would work
+for me. If I would have searched a bit more I would have found Ohm
+(http://ohm.keyvalue.org/) and the story would have stopped here.
+
+
+## Thanks ##
+
+First of all thanks to Salvatore Sanfilippo ([@antirez](http://twitter.com/antirez))
+for Redis. Redis is sucn an amazing application, it makes you want to
+write things for it just for the fun of playing with it.
+
+Also I might not have started Ricordami without the amazing work done
+and shared by the Rails team, especially DHH, Yehuda Katz and Carl Huda.
+ActiveSupport and ActiveModel are just amazingly flexible and so easy to
+build on. Also I might never have heard of great resources like
+[Grape](https://github.com/intridea/grape) and
+[Infinity Test](https://github.com/tomas-stefano/infinity_test) without
+the podcasts [Ruby5](http://ruby5.envylabs.com/),
+[ChangeLog](http://thechangelog.com/) and [The Ruby Show](http://rubyshow.com/).
+
+
+## License ##
+
+Released under the MIT License. See the MIT-LICENSE file for further
+details.
+
+## Copyright ##
+
+Copyright (c) 2011 Mathieu Lajugie

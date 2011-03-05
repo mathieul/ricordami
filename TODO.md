@@ -1,6 +1,5 @@
 # TODO list #
 
-
 ## Documentation ##
 
   - add inline documentation to the code and add task to generate RDoc

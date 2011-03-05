@@ -331,10 +331,11 @@ for a number of seconds. And finally each call goes through the network
 of an operator among AT&amp;T, Qwest and Level3.
 
     class Tenant
+      include Ricordami::Model
       model_can :be_queried, :be_validated, :have_relationships
 
       attribute :name, :read_only => true
-      index :name => :unique, :get_by => true
+      index :unique => :name, :get_by => true
 
       references_many :calls, :alias => :owner, :dependent => :delete
 
@@ -343,13 +344,14 @@ of an operator among AT&amp;T, Qwest and Level3.
     end
 
     class Call
+      include Ricordami::Model
       model_can :be_queried, :be_validated, :have_relationships
 
-      attribute :ani
-      attribute :dnis
-      attribute :call_type
-      attribute :network
-      attribute :seconds, :type => :integer
+      attribute :ani,       :indexed => :value
+      attribute :dnis,      :indexed => :value
+      attribute :call_type, :indexed => :value
+      attribute :network,   :indexed => :value
+      attribute :seconds,   :type => :integer
 
       referenced_in :tenant, :as owner
 

@@ -177,6 +177,13 @@ describe Ricordami::CanHaveRelationships do
       iie.delete
       Software.get_by_name("Castle Wolfenstein").host_id.should be_empty
     end
+
+    it "can build a new referrer object through a build referrer method" do
+      software = Software.create(:name => "Karateka")
+      editor = software.build_editor(:corp_name => "Brøderbund")
+      editor.should_not be_persisted
+      editor.id.should == software.editor_id
+    end
   end
 
   describe "instance that references one..." do

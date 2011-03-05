@@ -1,6 +1,6 @@
 # Changelog #
 
-## 0.0.1 (March 4th, 2011)
+## 0.0.1 (March 5th, 2011)
 
 Initial release.
 

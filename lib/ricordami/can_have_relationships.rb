@@ -59,19 +59,23 @@ module Ricordami
         end
       end
 
-      def lazy_setup_references_one(relationship)
-        klass = relationship.object_class
-        referrer_id_sym = relationship.referrer_id.to_sym
+      def define_builders(name, klass, referrer_id_sym)
         # define reference build method
-        build_method = :"build_#{relationship.name}"
+        build_method = :"build_#{name}"
         define_method(build_method) do |*args|
           options = args.first || {}
           klass.new(options.merge(referrer_id_sym => self.id))
         end
         # define reference create method
-        define_method(:"create_#{relationship.name}") do |*args|
+        define_method(:"create_#{name}") do |*args|
           send(build_method, *args).tap { |obj| obj.save }
         end
+      end
+
+      def lazy_setup_references_one(relationship)
+        klass = relationship.object_class
+        referrer_id_sym = relationship.referrer_id.to_sym
+        define_builders(relationship.name, klass, referrer_id_sym)
         # define reference method reader
         define_method(relationship.name) do
           return nil unless persisted?
@@ -91,6 +95,7 @@ module Ricordami
       def lazy_setup_referenced_in(relationship)
         klass = relationship.object_class
         name = relationship.name
+        define_builders(name, klass, relationship.referrer_id.to_sym)
         referrer_var = :"@#{name}"
         define_method(name) do
           referrer = instance_variable_get(referrer_var)

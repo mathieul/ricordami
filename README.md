@@ -5,7 +5,7 @@ interface to build Ruby objects that can be validated, persisted and
 queried in a Redis data structure server.
 
 
-## What does it look like? ##
+## What Does It Look Like? ##
 
     require "ricordami"
 
@@ -73,7 +73,7 @@ for me. If I would have searched a bit more I would have found Ohm
 (http://ohm.keyvalue.org/) and the story would have stopped here.
 
 
-## How to install? ##
+## How To Install? ##
 
 
 Ricordami is tested against the following versions of Ruby:
@@ -119,7 +119,7 @@ Or using a hash:
       config.from_hash(YAML.load("config.yml"))
     end
 
-### Declare a model ###
+### Declare A Model ###
 
 You just need to require **"ricordami"** and include the
 **Ricordami::Model** module into the model class. You can also include
@@ -132,7 +132,7 @@ additional features using the class method **#model_can**.
                 :have_relationships
     end
 
-### Declare attributes ###
+### Declare Attributes ###
 
 The model state is stored in attributes. Those attributes can be indexed
 in order to query the models later on, or enforce the unicity of certain
@@ -180,7 +180,7 @@ Methods:
   - delete: deletes the model from Redis (attributes and indices are
     removed in one atomic operation)
 
-### Declare indices ###
+### Declare Indices ###
 
 It is also possible to declare an index using the class method
 **#index** to add index specific options, or conditionnaly index an
@@ -246,7 +246,7 @@ new attribute *xxx_id* where xxx is the name or the alias of the
 referrer.
 
 Finally you can setup a one to one relationship using
-**#references_one** and **#referenced_in**. **#references_one## gives
+**#references_one** and **#referenced_in**. **#references_one** gives
 the referrer access to the same type of methods than **#referenced_in**.
 
 Better go with an example to make it all clear:
@@ -294,7 +294,7 @@ The class methods **#references_many**, **#references_one** and
     :delete to have them all deleted instead when the referrer is
     deleted
 
-### Basic queries ###
+### Basic Queries ###
 
 It is possible to create basic queries and sort the result list of
 models. Please note that the queries currently available are quite
@@ -317,6 +317,60 @@ chained together:
     :desc_alpha
   - *#first*, *#last*, *#rand* and *#all* can be called on any sort
     query result to fetch the desired result
+
+The methods *#and* (and alias *#when*), *#any* and *#not* create
+intermediate Redis sets 
+
+Example: we have a tenant model that represent user accounts on a
+telephony service application. A tenant has many phone calls that are
+made on the platform. Each phone call that goes through the platform is
+made from a phone number called the ANI (calling number), to another
+phone number called the DNIS (number called). Each call can be using the 
+Plain Old Telephone Service (pots) or Voice Over IP (voip), and lasts
+for a number of seconds. And finally each call goes through the network
+of an operator among AT&amp;T, Qwest and Level3.
+
+    class Tenant
+      model_can :be_queried, :be_validated, :have_relationships
+
+      attribute :name, :read_only => true
+      index :name => :unique, :get_by => true
+
+      references_many :calls, :alias => :owner, :dependent => :delete
+
+      validates_presence_of   :name
+      validates_uniqueness_of :name
+    end
+
+    class Call
+      model_can :be_queried, :be_validated, :have_relationships
+
+      attribute :ani
+      attribute :dnis
+      attribute :call_type
+      attribute :network
+      attribute :seconds, :type => :integer
+
+      referenced_in :tenant, :as owner
+
+      validates_presence_of  :call_type, :seconds, :owner_id
+      validates_inclusion_of :call_type, :in => ["pots", "voip"]
+      validates_inclusion_of :network,   :in => ["att", "qwest", "level3"]
+    end
+
+    # what is the total number of seconds of the phone calls made from
+    # the phone number 650 123 4567?
+    Call.where(:ani => "6501234567").inject(0) { |sum, call| sum + call.seconds }
+
+    # what are the VoIP calls that didn't go through Level3 network?
+    Call.where(:call_type => "voip").not(:network => "level3").all
+
+    # what are the calls for tenant "mycompany" that went through
+    # AT&amp;T's network or originated from ANI 408 123 4567? but were
+    # not VoIP calls?
+    mycompany = Tenant.get_by_name("mycompany")
+    mycompany.calls.any(:ani => "4081234567", :network => "att").not(:call_type => "voip").all
+
 
 ## How To Run Specs ##
 
@@ -367,12 +421,4 @@ MRI 1.9.2:
 Run the infinity test:
 
     $ bundle exec infinity_test
-
-
-## TODO README ##
-
-  * Where to get help - Link to the docs, mailing list, wiki, etc.
-  * Contribution guidelines - Tell me how I can help out including wanted features and code standards
-  * Contributor list - List the humans behind the project
-  * Credits, Inspiration, Alternatives - Tell me if this is a fork of or otherwise inspired by another project. I won’t think you’re a douche when I find out later.
 

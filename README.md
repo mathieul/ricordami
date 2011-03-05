@@ -35,6 +35,8 @@ queried in a Redis data structure server.
 
       attribute :title, :indexed => :unique, :get_by => true
       attribute :year
+
+      referenced_in :singer
     end
 
     serge = Singer.create :name => "Gainsbourg"
@@ -155,7 +157,6 @@ the following options:
   - *:type* - attribute type is a string by default (*:string*) but can
     also be an integer (*:integer*) or a float (*:float*)
 
-
 Example:
 
     class Person
@@ -169,6 +170,15 @@ Example:
     zhanna.id                  # => 42
     Person[42].name            # => "Zhanna"
     Person.get_by_id(42).name  # => "Zhanna"
+
+Methods:
+
+  - save: persists the model to Redis (attributes and indices added
+    in one atomic operation)
+  - update_attributes: update the value of the attributes passed and
+    saves the model to Redis
+  - delete: deletes the model from Redis (attributes and indices are
+    removed in one atomic operation)
 
 ### Declare indices ###
 
@@ -188,6 +198,125 @@ Example:
     end
 
     zhanna = Person.get_by_name("Zhanna")
+
+### Validation Rules ###
+
+Ricordami relies on the validation capabilities offered by Active Model,
+so you can refer to Rails documentation pages for
+[ActiveModel::Validations](http://api.rubyonrails.org/classes/ActiveModel/Validations.html) and
+[ActiveModel::Validations::HelperMethods](http://api.rubyonrails.org/classes/ActiveModel/Validations/HelperMethods.html).
+
+Note: when using the **#validates_uniqueness_of** macro, Ricordami
+automatically adds a value index to the column it it is not done
+already.
+
+Example:
+
+    class Singer
+      include Ricordami::Model
+      model_can :be_validated
+
+      attribute :username
+      attribute :email
+      attribute :first_name
+      attribute :last_name
+      attribute :deceased, :default => "false", :indexed => :value
+
+      validates_presence_of   :username, :email, :deceased
+      validates_uniqueness_of :username
+      validates_format_of     :email, :with => /\A([^@\s]+)@((?:[-a-z0-9]+\.)+[a-z]{2,})\Z/i,
+                                      :allow_blank => true, :message => "is not a valid email"
+      validates_inclusion_of  :deceased, :in => ["true", "false"]
+    end
+
+### Relationships ###
+
+Ricordami handles two kind of relationships: one to one and one to many.
+You declare a referrer model to have many of a referenced model using
+the class method **#references_many**. It gives the referrer instances
+access to an instance method of the plural name of the reference. This
+method can be used to fetch the list of reference objects, build or
+create a new one, or query the list (see next section for querying).
+
+You declare the referenced method using the class method
+**#referenced_in**, which creates one method of the name of the referrer
+to fetch it. It also creates two other methods **#build_xxx** and
+**#create_xxx** where xxx is the referrer name. Finally it declares a
+new attribute *xxx_id* where xxx is the name or the alias of the
+referrer.
+
+Finally you can setup a one to one relationship using
+**#references_one** and **#referenced_in**. **#references_one## gives
+the referrer access to the same type of methods than **#referenced_in**.
+
+Better go with an example to make it all clear:
+
+    class Singer
+      include Ricordami::Model
+      model_can :have_relationships
+      attribute :name
+
+      references_many :songs
+    end
+
+    class Song
+      include Ricordami::Model
+      model_can :have_relationships
+      attribute :title
+
+      referenced_in :singer
+    end
+
+    bashung = Singer.create(:name => "Alain Bashung")
+    bashung.songs  # => []
+    osez = bashung.songs.build(:title => "Osez Josephine")
+    osez.save
+    gaby = bashung.songs.create(:title => "Vertiges de l'Amour")
+    bashung.songs.map(&:title)  # => ["Osez Josephine", "Vertiges de l'Amour"]
+    gaby.singer_id == bashung.id  # => true
+
+    padam = Song.create(:title => "Padam")
+    benjamin = padam.create_singer(:name => "Benjamin Biolay")
+    benjamin.songs.map(&:title)  # => "Padam"
+
+The class methods **#references_many**, **#references_one** and
+**#referenced_by** can take the following options:
+
+  - *:as* - used to give a different name to the other party in the
+    relationship
+  - *:alias* - used to give a differnt name of itself to the other party
+    in the relationship - there must be a mapping: if A references_many
+    B as Ben and B is referenced_in A as Al, references_many must have
+    an alias Al and referenced_in must have an alias Ben.
+  - *:dependent* - only used for :references_one and :references_many
+    relationships - it is possible to set to :nullify so all dependents
+    get their referrer id set to nil when the referrer is deleted, or to
+    :delete to have them all deleted instead when the referrer is
+    deleted
+
+### Basic queries ###
+
+It is possible to create basic queries and sort the result list of
+models. Please note that the queries currently available are quite
+limited but might be enhanced in the future. Currently any kind of
+querying more advanced than what is described here would have to be
+implemented using directly the Redis gem and Redis native commands.
+
+The querying feature adds the following class methods that can be
+chained together:
+
+  - *#when*/*#and*: pass a hash of equalities, the result will be the
+    list of items that matches ALL the parameter equalities at once
+  - *#any*: pass a hash of equalities, the result will be the list of
+    items that matches ANY of the parameter equalities
+  - *#not*: pass a hash of equalities, the result will be the list of
+    items that matches NONE of the parameter equalities
+  - *#sort*: sorts the result based on the attribute passed, using the
+    default ascending alphanumeric order (:inc_alpha) - the other
+    possible orders are: :desc_num, :desc_alpha, :asc_num and :asc
+    :desc_alpha
+  - *#first*, *#last*, *#rand* and *#all* can be called on any sort
+    query result to fetch the desired result
 
 ## How To Run Specs ##
 
@@ -240,7 +369,7 @@ Run the infinity test:
     $ bundle exec infinity_test
 
 
-## TODO ##
+## TODO README ##
 
   * Where to get help - Link to the docs, mailing list, wiki, etc.
   * Contribution guidelines - Tell me how I can help out including wanted features and code standards

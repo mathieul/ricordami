@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    souvenirs (0.0.1)
+    ricordami (0.0.1)
       activemodel
       activesupport
       redis
@@ -48,7 +48,7 @@ DEPENDENCIES
   autotest-growl
   awesome_print
   infinity_test
+  ricordami!
   rspec
-  souvenirs!
   steak
   thor

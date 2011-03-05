@@ -1,5 +1,5 @@
 # copied from toystore gem (https://github.com/newtoy/toystore/raw/master/spec/support/constants.rb)
-# and a bit updated for souvenirs
+# and a bit updated for ricordami
 
 module Support
   module Constants
@@ -36,7 +36,7 @@ module Support
           def self.name; '#{name}' end
           def self.to_s; '#{name}' end
         """ if name
-        model.send(:include, Souvenirs::Model)
+        model.send(:include, Ricordami::Model)
       end
     end
   end

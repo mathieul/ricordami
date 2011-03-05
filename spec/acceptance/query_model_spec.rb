@@ -1,9 +1,9 @@
 require "acceptance_helper"
-require "souvenirs/can_be_queried"
+require "ricordami/can_be_queried"
 
 class Singer
-  include Souvenirs::Model
-  include Souvenirs::CanBeQueried
+  include Ricordami::Model
+  include Ricordami::CanBeQueried
 
   attribute :username
   attribute :email

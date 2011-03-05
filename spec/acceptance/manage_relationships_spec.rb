@@ -1,10 +1,10 @@
 # -*- encoding: utf-8 -*-
 require "acceptance_helper"
-require "souvenirs/can_have_relationships"
+require "ricordami/can_have_relationships"
 
 class Performer
-  include Souvenirs::Model
-  include Souvenirs::CanHaveRelationships
+  include Ricordami::Model
+  include Ricordami::CanHaveRelationships
 
   attribute :first_name
   attribute :last_name
@@ -13,8 +13,8 @@ class Performer
 end
 
 class Album
-  include Souvenirs::Model
-  include Souvenirs::CanHaveRelationships
+  include Ricordami::Model
+  include Ricordami::CanHaveRelationships
 
   attribute :title
   attribute :year, :indexed => :value

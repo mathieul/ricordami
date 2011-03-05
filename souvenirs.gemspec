@@ -1,20 +1,20 @@
 # -*- encoding: utf-8 -*-
 $:.push File.expand_path("../lib", __FILE__)
-require "souvenirs/version"
+require "ricordami/version"
 
 ruby_version = RUBY_VERSION[0..2].to_f
 
 Gem::Specification.new do |s|
-  s.name        = "souvenirs"
-  s.version     = Souvenirs::VERSION
+  s.name        = "ricordami"
+  s.version     = Ricordami::VERSION
   s.platform    = Gem::Platform::RUBY
   s.authors     = ["Mathieu Lajugie"]
   s.email       = ["mathieu.l AT gmail.com"]
-  s.homepage    = "https://github.com/mathieul/souvenirs"
+  s.homepage    = "https://github.com/mathieul/ricordami"
   s.summary     = %q{Simple way to persist Ruby objects into the Redis data structure server.}
   s.description = s.summary
 
-  s.rubyforge_project = "souvenirs"
+  s.rubyforge_project = "ricordami"
 
   s.files         = `git ls-files`.split("\n")
   s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")

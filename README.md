@@ -1,18 +1,18 @@
-# Souvenirs: easily persist ruby models to Redis #
+# Ricordami: easily persist ruby models to Redis #
 
 A simple way to persist Ruby models into the Redis data structure server.
 
 
 ## Example ##
 
-    Souvenirs::Model.configure do |config|
+    Ricordami::Model.configure do |config|
       config.redis_host = "127.0.0.1"
       config.redis_port = 6379
       config.redis_db   = 0
     end
 
     class Account
-      include Souvenirs::Model
+      include Ricordami::Model
 
       attribute :name, :read_only => true
       attribute :comments, :default => "no comments"
@@ -26,7 +26,7 @@ A simple way to persist Ruby models into the Redis data structure server.
     end
 
     class Operation
-      include Souvenirs::Model
+      include Ricordami::Model
 
       attribute :type
       attribute :value
@@ -62,17 +62,17 @@ Ruby Enterprise:
 
     $ rvm install ree-1.8.7-2011.03 # install if necessary
     $ rvm use ree-1.8.7-2011.03
-    $ rvm gemset create souvenirs
+    $ rvm gemset create ricordami
     $ gem install bundler --no-ri --no-rdoc
-    $ rvm gemset use souvenirs
+    $ rvm gemset use ricordami
     $ bundle
 
 Rubinius:
 
     $ rvm install rbx-1.2.2 # install if necessary
     $ rvm use rbx-1.2.2
-    $ rvm gemset create souvenirs
-    $ rvm gemset use souvenirs
+    $ rvm gemset create ricordami
+    $ rvm gemset use ricordami
     $ gem install bundler --no-ri --no-rdoc
     $ bundle
 
@@ -80,8 +80,8 @@ MRI 1.9.2:
 
     $ rvm install 1.9.2-p180 # install if necessary
     $ rvm use 1.9.2-p180
-    $ rvm gemset create souvenirs
-    $ rvm gemset use souvenirs
+    $ rvm gemset create ricordami
+    $ rvm gemset use ricordami
     $ gem install bundler --no-ri --no-rdoc
     $ bundle
 

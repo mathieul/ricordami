@@ -1,5 +1,10 @@
 # Changelog #
 
+## 0.0.2 (March 5th, 2011)
+
+  - added examples and fixed README
+  - created a basic Ricordami::Model#to_s method
+
 ## 0.0.1 (March 5th, 2011)
 
 Initial release.

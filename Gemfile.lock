@@ -1,10 +1,10 @@
 PATH
   remote: .
   specs:
-    ricordami (0.0.1)
-      activemodel
-      activesupport
-      redis
+    ricordami (0.0.2)
+      activemodel (~> 3.0.0)
+      activesupport (~> 3.0.0)
+      redis (~> 2.1.1)
 
 GEM
   remote: http://rubygems.org/

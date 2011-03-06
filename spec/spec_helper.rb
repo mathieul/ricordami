@@ -22,7 +22,7 @@ RSpec.configure do |config|
                        :redis_db    => 7,
                        :thread_safe => true)
     end
-    Ricordami.driver.flushdb
+    Ricordami.redis.flushdb
   end
 end
 

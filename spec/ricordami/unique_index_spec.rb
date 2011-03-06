@@ -25,27 +25,27 @@ describe Ricordami::UniqueIndex do
 
   it "adds a string to the index with #add" do
     @index.add("ze-id", "allo")
-    Ricordami.driver.smembers("DataSource:udx:id").should == ["allo"]
+    Ricordami.redis.smembers("DataSource:udx:id").should == ["allo"]
   end
 
   it "also indices the hash index with #add if fields is not :id and :get_by is true" do
     DataSource.attribute :domain
     other = subject.new(DataSource, [:name, :domain], :get_by => true)
     other.add("ze-id", ["jobs", "apple.com"])
-    Ricordami.driver.smembers("DataSource:udx:name_domain").should == ["jobs_-::-_apple.com"]
-    Ricordami.driver.hget("DataSource:hsh:name_domain_to_id", "jobs_-::-_apple.com").should == "ze-id"
+    Ricordami.redis.smembers("DataSource:udx:name_domain").should == ["jobs_-::-_apple.com"]
+    Ricordami.redis.hget("DataSource:hsh:name_domain_to_id", "jobs_-::-_apple.com").should == "ze-id"
   end
 
   it "doesn't index the has index with #add if :get_by is false or fields is :id" do
     one = subject.new(DataSource, :name)
     one.add("ze-id", "jobs")
-    Ricordami.driver.hexists("DataSource:hsh:name_to_id", "jobs").should be_false
+    Ricordami.redis.hexists("DataSource:hsh:name_to_id", "jobs").should be_false
     two = subject.new(DataSource, :id, :get_by => true)
     two.add("ze-id", "ze-id")
-    Ricordami.driver.hexists("DataSource:hsh:id_to_id", "ze-id").should be_false
+    Ricordami.redis.hexists("DataSource:hsh:id_to_id", "ze-id").should be_false
     three = subject.new(DataSource, :name, :get_by => true)
     three.add("ze-id", "jobs")
-    Ricordami.driver.hexists("DataSource:hsh:name_to_id", "jobs").should be_true
+    Ricordami.redis.hexists("DataSource:hsh:name_to_id", "jobs").should be_true
   end
 
   it "returns the id from values with #id_for_values if :get_by is true" do
@@ -61,7 +61,7 @@ describe Ricordami::UniqueIndex do
   it "removes a string from the index with #rem" do
     @index.add("ze-id", "allo")
     @index.rem("ze-id", "allo")
-    Ricordami.driver.smembers("DataSource:udx:id").should == []
+    Ricordami.redis.smembers("DataSource:udx:id").should == []
   end
 
   it "returns the redis command(s) to remove the value from the index when return_command is true" do

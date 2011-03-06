@@ -23,14 +23,14 @@ describe Ricordami::ValueIndex do
 
   it "adds the id to the index value with #add" do
     index.add("3", "VALUE")
-    Ricordami.driver.smembers("Friend:idx:first_name:VkFMVUU=").should == ["3"]
+    Ricordami.redis.smembers("Friend:idx:first_name:VkFMVUU=").should == ["3"]
   end
 
   it "removes the id from the index value with #rem" do
     index.add("1", "VALUE")
     index.add("2", "VALUE")
     index.rem("1", "VALUE")
-    Ricordami.driver.smembers("Friend:idx:first_name:VkFMVUU=").should == ["2"]
+    Ricordami.redis.smembers("Friend:idx:first_name:VkFMVUU=").should == ["2"]
   end
 
   it "returns the redis command to remove the value from the index when return_command is true" do

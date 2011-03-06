@@ -17,9 +17,9 @@ describe Ricordami::Connection do
     end
 
     it "has a connection to Redis" do
-      Mixer.driver.should be_a(Redis)
-      Mixer.driver.get("not_exist")
-      Mixer.driver.client.connection.should be_connected
+      Mixer.redis.should be_a(Redis)
+      Mixer.redis.get("not_exist")
+      Mixer.redis.client.connection.should be_connected
     end
   end
 end

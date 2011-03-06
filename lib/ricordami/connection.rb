@@ -3,13 +3,13 @@ module Ricordami
     extend ActiveSupport::Concern
 
     module ClassMethods
-      def driver
-        @driver ||= create_driver
+      def redis
+        @redis ||= create_redis
       end
 
       private
 
-      def create_driver
+      def create_redis
         c = self.configuration
         Redis.new(:host         => c.redis_host,
                   :port         => c.redis_port,

@@ -29,7 +29,7 @@ module Ricordami
       end
 
       def redis
-        @redis ||= Ricordami.driver
+        @redis ||= Ricordami.redis
       end
     end
 
@@ -55,12 +55,12 @@ module Ricordami
       def save(opts = {})
         raise ModelHasBeenDeleted.new("can't save a deleted model") if deleted?
         set_initial_attribute_values if new_record?
-        redis.tap do |driver|
+        redis.tap do |redis|
           session = {}
-          driver.multi
-          driver.hmset(attributes_key_name, *attributes.to_a.flatten)
+          redis.multi
+          redis.hmset(attributes_key_name, *attributes.to_a.flatten)
           self.class.save_queue.each { |block| block.call(self, session) } if self.class.save_queue
-          driver.exec
+          redis.exec
         end
         @persisted = true
         attributes_synced_with_db!
@@ -99,12 +99,12 @@ module Ricordami
       end
 
       def execute_delete(db_commands)
-        redis.tap do |driver|
-          driver.multi
+        redis.tap do |redis|
+          redis.multi
           db_commands.each do |message, args|
-            driver.send(message, *args)
+            redis.send(message, *args)
           end
-          driver.exec
+          redis.exec
         end
       end
 
@@ -117,6 +117,16 @@ module Ricordami
 
       def redis
         self.class.redis
+      end
+
+      def to_s
+        [
+          "#<#{self.class}:0x#{object_id.to_s(16)}",
+          "persisted?(#{persisted?.inspect})",
+          "new_record?(#{new_record?.inspect})",
+          "deleted?(#{deleted?.inspect})",
+          "attributes=#{attributes.inspect}>"
+        ].join(" ")
       end
     end
   end

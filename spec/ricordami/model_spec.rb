@@ -28,6 +28,9 @@ describe Ricordami::Model do
       user.to_model.should == user
     end
 
+    it "has a simple to_s method" do
+    end
+
     describe "#to_key" do
       before(:each) do
         @user = User.new

@@ -12,11 +12,12 @@ not ready for use yet.</div>
 
     require "ricordami"
 
-    Ricordami::Model.configure do |config|
+    Ricordami::configure do |config|
       config.redis_host = "127.0.0.1"
       config.redis_port = 6379
-      config.redis_db   = 0
+      config.redis_db   = 15
     end
+    Ricordami.redis.flushdb
 
     class Singer
       include Ricordami::Model
@@ -36,8 +37,10 @@ not ready for use yet.</div>
 
       model_can :be_queried, :have_relationships
 
-      attribute :title, :indexed => :unique, :get_by => true
-      attribute :year
+      attribute :title
+      attribute :year, :indexed => :value
+
+      index :unique => :title, :get_by => true
 
       referenced_in :singer
     end
@@ -45,7 +48,7 @@ not ready for use yet.</div>
     serge = Singer.create :name => "Gainsbourg"
     jetaime = serge.songs.create :title => "Je T'Aime Moi Non Plus", :year => "1967"
     jetaime.year = "1968"
-    jetaime.changes  # => {:year => ["1967", "1968"]}
+    p :changes, jetaime.changes  # => {:year => ["1967", "1968"]}
     jetaime.save
     ["La Javanaise", "Melody Nelson", "Love On The Beat"].each do |name|
       serge.songs.create :title => name, :year => "1962"
@@ -53,8 +56,9 @@ not ready for use yet.</div>
     Song.get_by_title("Melody Nelson").update_attributes(:year => "1971")
     Song.get_by_title("Love On The Beat").update_attributes(:year => "1984")
 
-    Song.count  # => 3
-    Song.where(:year => "1971").map(&:title)  # => "Melody Nelson"
+    p :count, Song.count  # => 4
+    p :all, Song.all.map(&:title)
+    p :where, Song.where(:year => "1971").map(&:title)  # => "Melody Nelson"
 
 
 ## How To Install? ##
@@ -94,13 +98,15 @@ source code:
     Ricordami::Model.configure do |config|
       config.redis_host  = "redis.lab"
       config.redis_port  = 6379
+      config.redis_db    = 0
       config.thread_safe = true
     end
 
 Or using a hash:
 
     Ricordami.configure do |config|
-      config.from_hash(YAML.load("config.yml"))
+      values = YAML.load(File.expand_path("../../config.yml"))
+      config.from_hash(values)
     end
 
 ### Declare A Model ###
@@ -115,6 +121,24 @@ additional features using the class method **#model_can**.
                 :be_queried,
                 :have_relationships
     end
+
+A model class has the following methods:
+
+  - *#get* - lookup an instance by id (i.e.: Singer.get(2))
+  - *#[]* - alias for *#get* (i.e.: Singer[2])
+  - *#all* - return all existing instances
+  - *#count* - return the number of existing instances
+
+and a model instance the following expected instance methods:
+
+  - *#save*
+  - *#delete*
+  - *#update_attributes*
+  - *#reload*
+
+Both class and instances have a shortcut access to the redis object
+(that uses the *redis* gem).
+
 
 ### Declare Attributes ###
 
@@ -150,10 +174,10 @@ Example:
       attribute :age,  :type => :integer
     end
 
-    zhanna = Person.create(:name => "Zhanna", :sex => "Female", :age => 29
-    zhanna.id                  # => 42
-    Person[42].name            # => "Zhanna"
-    Person.get_by_id(42).name  # => "Zhanna"
+    zhanna = Person.create(:name => "Zhanna", :sex => "Female", :age => 29)
+    p :id, zhanna.id              # => "1"
+    p :[], Person["1"].name       # => "Zhanna"
+    p :get, Person.get("1").name  # => "Zhanna"
 
 Methods:
 
@@ -256,12 +280,14 @@ Better go with an example to make it all clear:
     osez = bashung.songs.build(:title => "Osez Josephine")
     osez.save
     gaby = bashung.songs.create(:title => "Vertiges de l'Amour")
-    bashung.songs.map(&:title)  # => ["Osez Josephine", "Vertiges de l'Amour"]
-    gaby.singer_id == bashung.id  # => true
+    p :songs, bashung.songs.map(&:title)  # => ["Osez Josephine", "Vertiges de l'Amour"]
+    p :singer_id, gaby.singer_id == bashung.id  # => true
 
     padam = Song.create(:title => "Padam")
-    benjamin = padam.create_singer(:name => "Benjamin Biolay")
-    benjamin.songs.map(&:title)  # => "Padam"
+    p :padam, padam
+    benjamin = padam.build_singer(:name => "Benjamin Biolay")
+    p :benjamin, benjamin
+    p :songs, benjamin.songs.map(&:title)  # => "Padam"
 
 The class methods **#references_many**, **#references_one** and
 **#referenced_by** can take the following options:
@@ -335,27 +361,30 @@ of an operator among AT&amp;T, Qwest and Level3.
       attribute :dnis,      :indexed => :value
       attribute :call_type, :indexed => :value
       attribute :network,   :indexed => :value
-      attribute :seconds,   :type => :integer
+      attribute :seconds, :type => :integer
 
-      referenced_in :tenant, :as owner
+      referenced_in :tenant, :as => :owner
 
       validates_presence_of  :call_type, :seconds, :owner_id
       validates_inclusion_of :call_type, :in => ["pots", "voip"]
       validates_inclusion_of :network,   :in => ["att", "qwest", "level3"]
     end
 
-    # what is the total number of seconds of the phone calls made from
-    # the phone number 650 123 4567?
-    Call.where(:ani => "6501234567").inject(0) { |sum, call| sum + call.seconds }
+    # ...create tenant and calls...
 
-    # what are the VoIP calls that didn't go through Level3 network?
-    Call.where(:call_type => "voip").not(:network => "level3").all
+    # What is the total number of seconds of the phone calls made from the phone number 650 123 4567?
+    seconds = Call.where(:ani => "6501234567").inject(0) { |sum, call| sum + call.seconds }
+    puts "  => seconds = #{seconds}"
 
-    # what are the calls for tenant "mycompany" that went through
-    # AT&amp;T's network or originated from ANI 408 123 4567? but were
-    # not VoIP calls?
+    # What are the VoIP calls that didn't go through Level3 network?
+    calls = Call.where(:call_type => "voip").not(:network => "level3")
+    puts "  => #{calls.inspect}"
+
+    # What are the calls for tenant "mycompany" that went through AT&amp;T's network or originated from ANI 408 123 4567? but were not VoIP calls?
     mycompany = Tenant.get_by_name("mycompany")
-    mycompany.calls.any(:ani => "4081234567", :network => "att").not(:call_type => "voip").all
+    calls = mycompany.calls.any(:ani => "4081234567", :network => "att").not(:call_type => "voip")
+    puts "  => #{calls.count} calls"
+    puts "  => first page of 10: #{calls.paginate(:page => 1, :per_page => 10).inspect}"
 
 
 ## How To Run Specs ##

@@ -4,7 +4,7 @@ infinity_test do
     show_images :mode => :faces
   end
 
-  use :rubies => %w(1.9.2-p180 rbx-1.2.2 ree-1.8.7-2011.03), :gemset => 'souvenirs', :test_framework => :rspec
+  use :rubies => %w(1.9.2-p180 rbx-1.2.2 ree-1.8.7-2011.03), :gemset => 'ricordami', :test_framework => :rspec
 
   before_run do
     clear :terminal

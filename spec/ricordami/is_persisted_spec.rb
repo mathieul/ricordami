@@ -17,8 +17,8 @@ describe Ricordami::IsPersisted do
   end
 
   it "returns the redis driver instance with #redis" do
-    Tenant.redis.should == Ricordami.driver
-    Tenant.new.redis.should == Ricordami.driver
+    Tenant.redis.should == Ricordami.redis
+    Tenant.new.redis.should == Ricordami.redis
   end
 
   describe "#save & #create" do
@@ -26,7 +26,7 @@ describe Ricordami::IsPersisted do
       it "persists a new model" do
         Tenant.attribute :balance
         persister_action.call
-        attributes = Ricordami.driver.hgetall("Tenant:att:jojo")
+        attributes = Ricordami.redis.hgetall("Tenant:att:jojo")
         attributes["id"].should == "jojo"
         attributes["balance"].should == "-$99.98"
       end
@@ -153,7 +153,7 @@ describe Ricordami::IsPersisted do
 
     it "deletes the attributes from the DB" do
       tenant.delete.should be_true
-      from_db = Ricordami.driver.hgetall("Tenant:att:myid")
+      from_db = Ricordami.redis.hgetall("Tenant:att:myid")
       from_db.should be_empty
     end
 

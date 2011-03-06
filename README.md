@@ -382,8 +382,8 @@ Ruby Enterprise:
     $ rvm install ree-1.8.7-2011.03 # install if necessary
     $ rvm use ree-1.8.7-2011.03
     $ rvm gemset create ricordami
-    $ gem install bundler --no-ri --no-rdoc
     $ rvm gemset use ricordami
+    $ gem install bundler --no-ri --no-rdoc
     $ bundle
 
 Rubinius:

@@ -4,6 +4,9 @@ Ricordami ("Remember me" in Italian) is an attempt at providing a simple
 interface to build Ruby objects that can be validated, persisted and
 queried in a Redis data structure server.
 
+<div style="color: red">NOTE: This gem is in active development and is
+not ready for use yet.</div>
+
 
 ## What Does It Look Like? ##
 

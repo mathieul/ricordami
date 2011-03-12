@@ -28,7 +28,7 @@ EOD
   s.add_dependency "redis", "~> 2.1.1"
   s.add_dependency "activesupport", "~> 3.0.0"
   s.add_dependency "activemodel", "~> 3.0.0"
-  s.add_dependency "SystemTimer" "~> 1.2.2" if ruby_version < 1.9
+  s.add_dependency "SystemTimer", "~> 1.2.2" if ruby_version < 1.9
   s.add_development_dependency "autotest"
   s.add_development_dependency "infinity_test"
   s.add_development_dependency "autotest-growl" if RUBY_PLATFORM =~ /darwin/

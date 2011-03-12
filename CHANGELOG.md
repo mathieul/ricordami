@@ -1,5 +1,10 @@
 # Changelog #
 
+## 0.0.3 (March 12th, 2011)
+
+  - added serialization (use: "model\_can :be_serialized") to have
+    access to Model#to_json and Model#to_xml
+
 ## 0.0.2 (March 5th, 2011)
 
   - added examples and fixed README

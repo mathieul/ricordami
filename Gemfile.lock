@@ -2,7 +2,6 @@ PATH
   remote: .
   specs:
     ricordami (0.0.3)
-      SystemTimer (~> 1.2.2)
       activemodel (~> 3.0.0)
       activesupport (~> 3.0.0)
       redis (~> 2.1.1)
@@ -10,7 +9,6 @@ PATH
 GEM
   remote: http://rubygems.org/
   specs:
-    SystemTimer (1.2.2)
     ZenTest (4.5.0)
     activemodel (3.0.5)
       activesupport (= 3.0.5)
@@ -28,7 +26,6 @@ GEM
       notifiers (>= 1.1.0)
       watchr (>= 0.7)
     notifiers (1.1.0)
-    rcov (0.9.9)
     redis (2.1.1)
     rspec (2.5.0)
       rspec-core (~> 2.5.0)
@@ -51,7 +48,6 @@ DEPENDENCIES
   autotest-growl
   awesome_print
   infinity_test
-  rcov
   ricordami!
   rspec
   steak

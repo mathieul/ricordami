@@ -50,7 +50,7 @@ describe Ricordami::CanBeValidated do
     end
   end
 
-  describe "#save" do
+  describe "#save and #update_attributes" do
     uses_constants("Post")
 
     before(:each) do
@@ -68,6 +68,11 @@ describe Ricordami::CanBeValidated do
 
     it "can save if it is not valid but passed :validate => false" do
       Post.new.save(:validate => false).should be_true
+    end
+
+    it "can't #update_attributes if it is not valid" do
+      post = Post.create(:title => "blah")
+      post.update_attributes(:title => "").should be_false
     end
   end
 

@@ -38,6 +38,12 @@ describe Ricordami::HasAttributes do
       attribute.initial_value.should == "2"
       attribute.initial_value.should == "3"
     end
+
+    it "can create a new instance without parameters, with nil or an empty hash" do
+      Boat.new.attributes.should == {"id" => nil}
+      Boat.new(nil).attributes.should == {"id" => nil}
+      Boat.new({}).attributes.should == {"id" => nil}
+    end
   end
 
   describe "an instance" do

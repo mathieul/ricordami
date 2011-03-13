@@ -36,6 +36,7 @@ module Ricordami
       attr_reader :attributes
 
       def initialize(attrs = {})
+        attrs = {} if attrs.nil?
         @attributes = {}.with_indifferent_access
         @reloading = false
         update_mem_attributes(attrs) unless attrs.empty?

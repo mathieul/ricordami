@@ -4,13 +4,17 @@ module Ricordami
   class UniqueIndex
     SEPARATOR = "_-::-_"
 
-    attr_reader :model, :fields, :name, :need_get_by
+    attr_reader :model, :fields, :name, :need_get_by, :scope
 
     def initialize(model, fields, options = {})
       @model = model
-      @fields = [fields].flatten.map(&:to_sym)
-      @need_get_by = options[:get_by] && @fields != [:id]
+      @fields = normalize_array(fields)
       @name = @fields.join("_").to_sym
+      @need_get_by = options[:get_by] && @fields != [:id]
+      if options.has_key?(:scope)
+        @scope = normalize_array(options[:scope])
+        @fields.push(*@scope)
+      end
     end
 
     def uidx_key_name
@@ -22,7 +26,7 @@ module Ricordami
     end
 
     def add(id, value)
-      value = value.join(SEPARATOR) if value.is_a?(Array)
+      value = normalize_value(value)
       @model.redis.sadd(uidx_key_name, value)
       @model.redis.hset(ref_key_name, value, id) if @need_get_by
     end
@@ -35,7 +39,7 @@ module Ricordami
         return commands
       end
       @model.redis.hdel(ref_key_name, id) if @need_get_by
-      value = value.join(SEPARATOR) if value.is_a?(Array)
+      value = normalize_value(value)
       @model.redis.srem(uidx_key_name, value)
     end
 
@@ -54,6 +58,17 @@ module Ricordami
 
     def include?(value)
       @model.redis.sismember(uidx_key_name, value)
+    end
+
+    def normalize_value(value)
+      value.is_a?(Array) ? value.join(SEPARATOR) : value
+    end
+
+    private
+
+    def normalize_array(array)
+      return [] if array.nil?
+      [array].flatten.map(&:to_sym)
     end
   end
 end

@@ -116,5 +116,13 @@ describe Ricordami::CanBeValidated do
       fred.should have(1).error
       fred.errors[:wife].should == ["is already used"]
     end
+
+    it "allows to validate the uniqueness using a scope" do
+      User.validates_uniqueness_of(:wife, :scope => :username)
+      serge = User.create(:id => "serge", :username => "Gainsbourg", :wife => "Rita")
+      fred = User.new(:username => "Chichin", :wife => "Rita")
+      fred.should be_valid
+      fred.should have(0).errors
+    end
   end
 end

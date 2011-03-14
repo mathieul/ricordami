@@ -38,4 +38,18 @@ describe Ricordami::UniqueValidator do
     validator.validate_each(sophie, :name, record.name)
     sophie.errors[:name].should == ["come on, man!"]
   end
+
+  it "accepts a scope option to limit the unicity constraint" do
+    Call.attribute :family
+    validator = Ricordami::UniqueValidator.new(:attributes => [:name], :scope => :family)
+    validator.setup(Call)
+    Call.create(:name => "john", :family => "jones")
+    john = Call.new(:name => "john", :family => "jones")
+    validator.validate_each(john, :name, john.name)
+    john.should have(1).error
+    john.family = "doe"
+    john.errors.clear
+    validator.validate_each(john, :name, john.name)
+    john.should have(0).errors
+  end
 end

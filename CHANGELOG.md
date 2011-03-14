@@ -1,7 +1,8 @@
 # Changelog #
 
-## 0.0.4 (???) ##
+## 0.0.4 (March 13th, 2011) ##
 
+  - add a scope option to validates_uniqueness_of validation macro
   - allow to pass nil when creating a new instance
   - added a spec for update_attributes with an invalid model
 

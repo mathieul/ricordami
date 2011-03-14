@@ -12,8 +12,7 @@ module Ricordami
       end
 
       def index(options = {})
-        # for now we can only create unique indices
-        options.assert_valid_keys(:unique, :get_by, :value)
+        options.assert_valid_keys(:unique, :get_by, :value, :scope)
         fields = options.delete(:unique)
         return unique_index(fields, options) if fields.present?
         field = options.delete(:value)

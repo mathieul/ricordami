@@ -27,6 +27,13 @@ describe Ricordami::HasIndices do
         Car.indices[:model].should == index
       end
 
+      it "can give a scope to a unique index with :scope option" do
+        Car.attribute :brand
+        index = Car.index :unique => :model, :scope => :brand
+        Car.indices[:model].scope.should == [:brand]
+        Car.indices[:model].fields.should == [:model, :brand]
+      end
+
       it "discards the subsequent declarations if the same index is created more than once" do
         Car.index :unique => :model, :get_by => true
         Car.indices[:model].need_get_by.should be_true

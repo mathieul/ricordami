@@ -6,6 +6,7 @@ describe Ricordami::UniqueIndex do
   before(:each) do
     create_constant("DataSource")
     DataSource.attribute :name
+    DataSource.attribute :owner
     @index = subject.new(DataSource, :id)
   end
 
@@ -13,6 +14,12 @@ describe Ricordami::UniqueIndex do
     @index.model.should == DataSource
     @index.fields.should == [:id]
     @index.name.should == :id
+  end
+
+  it "can have a scope" do
+    index = subject.new(DataSource, :id, :scope => :owner)
+    index.scope.should == [:owner]
+    index.fields.should == [:id, :owner]
   end
 
   it "returns its internal index name with #uidx_key_name" do

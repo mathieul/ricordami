@@ -10,7 +10,9 @@ describe Ricordami::CanBeQueried do
     Customer.attribute :sex,     :indexed => :value
     Customer.attribute :name,    :indexed => :value
     Customer.attribute :kind,    :indexed => :value
+    Customer.attribute :age,     :indexed => :value
     Customer.attribute :no_index
+    Customer.index :unique => :age, :scope => :kind
   end
 
   describe "building queries" do
@@ -71,10 +73,10 @@ describe Ricordami::CanBeQueried do
 
   describe "running queries" do
     before(:each) do
-      Customer.create(:name => "Zhanna", :sex => "F", :country => "Latvia", :kind => "human")
-      Customer.create(:name => "Mathieu", :sex => "M", :country => "France", :kind => "human")
-      Customer.create(:name => "Sophie", :sex => "F", :country => "USA", :kind => "human")
-      Customer.create(:name => "Brioche", :sex => "F", :country => "USA", :kind => "dog")
+      Customer.create(:name => "Zhanna", :sex => "F", :country => "Latvia", :kind => "human", :age => "29")
+      Customer.create(:name => "Mathieu", :sex => "M", :country => "France", :kind => "human", :age => "40")
+      Customer.create(:name => "Sophie", :sex => "F", :country => "USA", :kind => "human", :age => "1")
+      Customer.create(:name => "Brioche", :sex => "F", :country => "USA", :kind => "dog", :age => "3")
     end
 
     describe ":and" do
@@ -111,6 +113,10 @@ describe Ricordami::CanBeQueried do
 
       it "doesn't require #all if another method call is chained" do
         Customer.where(:country => "USA").and(:sex => "F").map(&:name).should =~ ["Sophie", "Brioche"]
+      end
+
+      it "can run a query on attributes with unique indices (if they also have a value index of course)" do
+        Customer.where(:country => "USA", :age => "1").map(&:name).should == ["Sophie"]
       end
     end
 

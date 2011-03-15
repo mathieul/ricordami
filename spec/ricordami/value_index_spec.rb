@@ -14,7 +14,7 @@ describe Ricordami::ValueIndex do
   it "is initialized with a model, a name and a field" do
     index.model.should == Friend
     index.field.should == :first_name
-    index.name.should == :first_name
+    index.name.should == :v_first_name
   end
 
   it "has a key name for each distinct value with #key_name_for_value" do

@@ -10,6 +10,8 @@
 
   - add support for booleans and datetimes
   - add support for native types (list, hash, set, sorted set)
+  - add better exception descriptions (i.e.: missing value index when
+    querying, etc...)
 
 ## Maybe ##
 

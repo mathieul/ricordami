@@ -7,7 +7,7 @@ module Ricordami
     def initialize(model, field)
       @model = model
       @field = field.to_sym
-      @name = @field
+      @name = "v_#{@field}".to_sym
     end
 
     def key_name_for_value(value)

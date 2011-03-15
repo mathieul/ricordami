@@ -1,5 +1,10 @@
 # Changelog #
 
+## 0.0.5 (March 14th, 2011) ##
+
+  - allow to have unique and value indices on the same column so we can
+    query fields that have a unique scoped index
+
 ## 0.0.4 (March 13th, 2011) ##
 
   - add a scope option to validates_uniqueness_of validation macro

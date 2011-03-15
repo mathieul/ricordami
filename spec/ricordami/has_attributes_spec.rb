@@ -18,17 +18,17 @@ describe Ricordami::HasAttributes do
 
     it "creates an index if :indexed is set" do
       Boat.attribute :size, :indexed => :value
-      Boat.indices.should have_key(:size)
+      Boat.indices.should have_key(:v_size)
     end
 
     it "creates a unique index if :indexed is :unique" do
       Boat.attribute :size, :indexed => :unique
-      Boat.indices[:size].should be_a(Ricordami::UniqueIndex)
+      Boat.indices[:u_size].should be_a(Ricordami::UniqueIndex)
     end
 
     it "creates a value index if :indexed is :value" do
       Boat.attribute :size, :indexed => :value
-      Boat.indices[:size].should be_a(Ricordami::ValueIndex)
+      Boat.indices[:v_size].should be_a(Ricordami::ValueIndex)
     end
 
     it "replaces :initial value with a generator if it's a symbol" do

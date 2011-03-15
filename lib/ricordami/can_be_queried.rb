@@ -61,7 +61,7 @@ module Ricordami
       private
 
       def run_expressions(expressions)
-        key_all_ids = indices[:id].uidx_key_name
+        key_all_ids = indices[:u_id].uidx_key_name
         result_key = expressions.reduce(key_all_ids) do |key, expression|
           type, conditions = expression
           condition_keys = get_keys_for_each_condition(conditions)
@@ -74,8 +74,9 @@ module Ricordami
 
       def get_keys_for_each_condition(conditions)
         conditions.map do |field, value|
-          index = indices[field]
-          raise MissingIndex.new("class: #{self}, attribute: #{field.inspect}") if index.nil?
+          index_name = "v_#{field}".to_sym
+          index = indices[index_name]
+          raise MissingIndex.new("class: #{self}, attribute: #{index_name.inspect}") if index.nil?
           index.key_name_for_value(value)
         end
       end

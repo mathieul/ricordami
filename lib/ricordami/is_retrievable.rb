@@ -23,12 +23,12 @@ module Ricordami
       alias :[] :get
 
       def all(expressions = nil)
-        ids = indices[:id].all
+        ids = indices[:u_id].all
         ids.map { |id| get(id) }
       end
 
       def count
-        indices[:id].count
+        indices[:u_id].count
       end
     end
   end

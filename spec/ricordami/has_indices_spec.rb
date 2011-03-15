@@ -15,54 +15,54 @@ describe Ricordami::HasIndices do
     describe "declaring a value index" do
       it "can declare a value index with #index" do
         index = Car.index :value => :model
-        Car.indices[:model].should be_a(Ricordami::ValueIndex)
-        Car.indices[:model].should == index
+        Car.indices[:v_model].should be_a(Ricordami::ValueIndex)
+        Car.indices[:v_model].should == index
       end
     end
 
     describe "declaring a unique index" do
       it "can declare a unique index with #index" do
         index = Car.index :unique => :model
-        Car.indices[:model].should be_a(Ricordami::UniqueIndex)
-        Car.indices[:model].should == index
+        Car.indices[:u_model].should be_a(Ricordami::UniqueIndex)
+        Car.indices[:u_model].should == index
       end
 
       it "can give a scope to a unique index with :scope option" do
         Car.attribute :brand
         index = Car.index :unique => :model, :scope => :brand
-        Car.indices[:model].scope.should == [:brand]
-        Car.indices[:model].fields.should == [:model, :brand]
+        Car.indices[:u_model].scope.should == [:brand]
+        Car.indices[:u_model].fields.should == [:model, :brand]
       end
 
       it "discards the subsequent declarations if the same index is created more than once" do
         Car.index :unique => :model, :get_by => true
-        Car.indices[:model].need_get_by.should be_true
+        Car.indices[:u_model].need_get_by.should be_true
         Car.index :unique => :model, :get_by => false
-        Car.indices[:model].need_get_by.should be_true
+        Car.indices[:u_model].need_get_by.should be_true
       end
 
       it "saves the values of the unique attributes into the indices" do
         Car.index :unique => :name
         car = Car.new(:name => "Prius")
         car.save
-        Car.indices[:name].all.should == ["Prius"]
+        Car.indices[:u_name].all.should == ["Prius"]
       end
 
       it "replaces old values with new ones into the indices" do
         Car.index :unique => :name
         car = Car.new(:name => "Prius")
         car.save
-        Car.indices[:name].all.should == ["Prius"]
+        Car.indices[:u_name].all.should == ["Prius"]
         car.name = "Rav4"
         car.save
-        Car.indices[:name].all.should == ["Rav4"]
+        Car.indices[:u_name].all.should == ["Rav4"]
       end
 
       it "deletes the values of the unique attributes from the indices" do
         Car.index :unique => :name
         car = Car.create(:name => "Prius")
         car.delete.should be_true
-        Car.indices[:name].all.should be_empty
+        Car.indices[:u_name].all.should be_empty
       end
 
       it "adds a get_by_xxx method for each unique index xxx declared if :get_by is true" do

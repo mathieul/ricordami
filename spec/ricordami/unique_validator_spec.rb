@@ -17,7 +17,7 @@ describe Ricordami::UniqueValidator do
 
   it "#setup adds a unique index" do
     validator.setup(Call)
-    Call.indices[:name].should be_a(Ricordami::UniqueIndex)
+    Call.indices[:u_name].should be_a(Ricordami::UniqueIndex)
   end
 
   it "#validate_each adds an error if the value is already used" do

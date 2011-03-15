@@ -9,7 +9,7 @@ module Ricordami
     def initialize(model, fields, options = {})
       @model = model
       @fields = normalize_array(fields)
-      @name = @fields.join("_").to_sym
+      @name = ("u_" + @fields.join("_")).to_sym
       @need_get_by = options[:get_by] && @fields != [:id]
       if options.has_key?(:scope)
         @scope = normalize_array(options[:scope])

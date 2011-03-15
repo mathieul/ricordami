@@ -4,7 +4,7 @@ module Ricordami
   class UniqueValidator < ActiveModel::EachValidator
     def validate_each(record, attribute, value)
       return true unless record.new_record? || record.send(:attribute_changed?, attribute)
-      index_name = attribute.to_sym
+      index_name = "u_#{attribute}".to_sym
       index = record.class.indices[index_name]
       if index.scope
         scope_values = index.scope.map { |field| record.send(field) }

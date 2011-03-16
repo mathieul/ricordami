@@ -3,6 +3,7 @@ $:.push File.expand_path("../lib", __FILE__)
 require "ricordami/version"
 
 ruby_version = RUBY_VERSION[0..2].to_f
+RUBY_ENGINE = "ruby" unless Object.const_defined?(:RUBY_ENGINE)
 
 Gem::Specification.new do |s|
   s.name        = "ricordami"
@@ -28,10 +29,10 @@ EOD
   s.add_dependency "redis", "~> 2.1.1"
   s.add_dependency "activesupport", "~> 3.0.0"
   s.add_dependency "activemodel", "~> 3.0.0"
-  s.add_dependency "SystemTimer", "~> 1.2.2" if ruby_version < 1.9
+  s.add_dependency "SystemTimer", "~> 1.2.2" if ruby_version < 1.9 && RUBY_PLATFORM != "java"
   s.add_development_dependency "autotest"
   s.add_development_dependency "infinity_test"
-  s.add_development_dependency "autotest-growl" if RUBY_PLATFORM =~ /darwin/
+  s.add_development_dependency "autotest-growl" if RUBY_PLATFORM =~ /(darwin|java)/
   s.add_development_dependency "rspec"
   s.add_development_dependency "steak"
   s.add_development_dependency "rcov" if RUBY_ENGINE == "ruby" && ruby_version < 1.9

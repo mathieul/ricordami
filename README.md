@@ -406,32 +406,16 @@ missing of course). For each version we create a new gemset which
 basically acts as a gem sandbox that won't affect the other work you do
 on the same machine.
 
-Ruby Enterprise:
-
-    $ rvm install ree-1.8.7-2011.03 # install if necessary
-    $ rvm use ree-1.8.7-2011.03
-    $ rvm gemset create ricordami
-    $ rvm gemset use ricordami
-    $ gem install bundler --no-ri --no-rdoc
-    $ bundle
-
-Rubinius:
-
-    $ rvm install rbx-1.2.2 # install if necessary
-    $ rvm use rbx-1.2.2
-    $ rvm gemset create ricordami
-    $ rvm gemset use ricordami
-    $ gem install bundler --no-ri --no-rdoc
-    $ bundle
-
-MRI 1.9.2:
-
-    $ rvm install 1.9.2-p180 # install if necessary
-    $ rvm use 1.9.2-p180
-    $ rvm gemset create ricordami
-    $ rvm gemset use ricordami
-    $ gem install bundler --no-ri --no-rdoc
-    $ bundle
+    $ for ruby in 1.8.7-p334 rbx-1.2.3 ree-1.8.7-2011.03 jruby-1.6.0 1.9.2-p180
+      do
+        echo "-*- $ruby -*-"
+        rvm use $ruby || rvm install $ruby
+        rvm use $ruby
+        rvm gemset use ricordami || rvm gemset create ricordami
+        rvm gemset use ricordami
+        gem install bundler --no-ri --no-rdoc
+        bundle
+      done
 
 Run the infinity test:
 

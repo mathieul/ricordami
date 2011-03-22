@@ -11,4 +11,5 @@ module Ricordami
   EventNotSupported       = Class.new(Error)
   OptionValueInvalid      = Class.new(Error)
   MissingMandatoryArgs    = Class.new(Error)
+  OptionNotAllowed        = Class.new(Error)
 end

@@ -40,4 +40,8 @@ describe Ricordami::Error do
   it "has an error to notify when mandatory arguments are missing" do
     Ricordami::MissingMandatoryArgs.new.should be_a_kind_of(Ricordami::Error)
   end
+
+  it "has an error to notify when an option is invalid in the current context" do
+    Ricordami::OptionNotAllowed.new.should be_a_kind_of(Ricordami::Error)
+  end
 end

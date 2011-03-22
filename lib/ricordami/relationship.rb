@@ -3,15 +3,18 @@ module Ricordami
     SUPPORTED_TYPES = [:references_many, :references_one, :referenced_in]
     MANDATORY_ARGS = [:other, :self]
 
-    attr_reader :type, :name, :object_kind, :dependent, :self_kind, :alias
+    attr_reader :type, :name, :object_kind, :dependent, :self_kind, :alias, :through
 
     def initialize(type, options = {})
-      options.assert_valid_keys(:other, :as, :self, :alias, :dependent)
+      options.assert_valid_keys(:other, :as, :self, :alias, :dependent, :through)
       raise TypeNotSupported.new(type.to_s) unless SUPPORTED_TYPES.include?(type)
       missing = find_missing_args(options)
       raise MissingMandatoryArgs.new(missing.map(&:to_s).join(", ")) unless missing.empty?
       if options[:dependent] && ![:delete, :nullify].include?(options[:dependent])
         raise OptionValueInvalid.new(options[:dependent].to_s)
+      end
+      if options[:through] && type != :references_many
+        raise OptionNotAllowed.new("option :through is not allowed for relationship #{type}")
       end
       @name = options[:as] || options[:other]
       @type = type
@@ -19,6 +22,7 @@ module Ricordami
       @self_kind = options[:self].to_s.singularize.to_sym
       @alias = options[:alias] || options[:self]
       @dependent = options[:dependent]
+      @through = options[:through]
     end
 
     def object_class

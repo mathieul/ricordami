@@ -184,6 +184,38 @@ describe Ricordami::CanHaveRelationships do
       editor.should_not be_persisted
       editor.id.should == software.editor_id
     end
+
+    describe "references many things through other stuff..." do
+      uses_constants("Agent", "Skill", "Capability")
+      before(:each) do
+        Agent.model_can :have_relationships
+        Agent.attribute :name
+        Agent.references_many :capabilities
+        Skill.model_can :have_relationships
+        Skill.attribute :name
+        Skill.references_many :capabilities
+        Capability.model_can :have_relationships
+        Capability.attribute :level
+        Capability.referenced_in :agent
+        Capability.referenced_in :skill
+
+        @serge = Agent.create(:name => 'Serge Gainsbourg')
+        @lalane = Agent.create(:name => 'Francis Lalane')
+        @poet = Skill.create(:name => 'Poet')
+        @song_writer = Skill.create(:name => 'Song writer')
+        @serge.capabilities.create(:skill_id => @poet.id, :level => 'high')
+        @serge.capabilities.create(:skill_id => @song_writer.id, :level => 'high')
+        @lalane.capabilities.create(:skill_id => @song_writer.id, :level => 'low')
+      end
+
+      it "can reference many things through an existing relationship" do
+        @serge.capabilities.map(&:skill).map(&:name).should =~ ['Poet', 'Song writer']
+        Agent.references_many :skills, :through => :capabilities
+        @serge.skills.map(&:name).should =~ ['Poet', 'Song writer']
+      end
+
+      it "can filter using the reference through method"
+    end
   end
 
   describe "instance that references one..." do

@@ -14,3 +14,8 @@ RSpec::Core::RakeTask.new(:rcov) do |t|
   t.rcov_opts = %w{--exclude osx\/objc,gems\/,spec\/}
 end
 
+desc "Clean-up temporary files (Rubinius compiled files, etc...)"
+task :cleanup do
+  `find . -name "*.rbc" | xargs rm -f`
+  puts "temporary files deleted"
+end

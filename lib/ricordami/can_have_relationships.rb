@@ -49,13 +49,22 @@ module Ricordami
       def lazy_setup_references_many(relationship)
         klass = relationship.object_class
         referrer_id_sym = relationship.referrer_id.to_sym
-        define_method(relationship.name) do
-          return Query.new([], klass) unless persisted?
-          klass.where(referrer_id_sym => self.id)
-        end
-        case relationship.dependent
-        when :delete  then set_block_to_delete_dependents(relationship)
-        when :nullify then set_block_to_nullify_dependents(relationship)
+        if relationship.through
+          define_method(relationship.name) do |*args|
+            options = args.empty?? {} : args.first
+            return Query.new([], klass) unless persisted?
+            # TODO: get klass instances where refererrer_id_sym == self.id and "#{relationship.through}_id" in ids of through instances
+            klass.where(referrer_id_sym => self.id)
+          end
+        else
+          define_method(relationship.name) do
+            return Query.new([], klass) unless persisted?
+            klass.where(referrer_id_sym => self.id)
+          end
+          case relationship.dependent
+          when :delete  then set_block_to_delete_dependents(relationship)
+          when :nullify then set_block_to_nullify_dependents(relationship)
+          end
         end
       end
 

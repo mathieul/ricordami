@@ -76,6 +76,11 @@ describe Ricordami::Relationship do
       relationship.alias.should == :owners
       relationship.self_kind.should == :person
     end
+
+    it "can request a references_many relationship to be through another one" do
+      relationship = subject.new(:references_many, valid_options.merge(:through => :things))
+      relationship.through.should == :things
+    end
   end
 
   describe "error cases" do
@@ -112,6 +117,18 @@ describe Ricordami::Relationship do
       lambda {
         subject.new(:references_many, valid_options.merge(:dependent => :what))
       }.should raise_error(Ricordami::OptionValueInvalid)
+    end
+
+    it "raises an error if through is set for a non 'references_many' relationship" do
+      lambda {
+        subject.new(:references_one, valid_options.merge(:through => :things))
+      }.should raise_error(Ricordami::OptionNotAllowed)
+      lambda {
+        subject.new(:referenced_in, valid_options.merge(:through => :things))
+      }.should raise_error(Ricordami::OptionNotAllowed)
+      lambda {
+        subject.new(:references_many, valid_options.merge(:through => :things))
+      }.should_not raise_error
     end
 
     it "raises an error if an option is not supported" do

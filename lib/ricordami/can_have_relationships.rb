@@ -53,8 +53,9 @@ module Ricordami
           define_method(relationship.name) do |*args|
             options = args.empty?? {} : args.first
             return Query.new([], klass) unless persisted?
-            # TODO: get klass instances where refererrer_id_sym == self.id and "#{relationship.through}_id" in ids of through instances
-            klass.where(referrer_id_sym => self.id)
+            # TODO: optimize by avoiding instantiating through instances
+            through_ids = self.send(relationship.through).map(&:"#{relationship.object_kind}_id")
+            klass.get(*through_ids)
           end
         else
           define_method(relationship.name) do

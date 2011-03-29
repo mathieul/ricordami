@@ -15,6 +15,13 @@ describe Ricordami::IsRetrievable do
       tenant.should be_persisted
     end
 
+    it "loads a list of models with #get when they exist" do
+      Tenant.attribute :name
+      Tenant.create(:id => "1", :name => "itsy")
+      Tenant.create(:id => "2", :name => "bitsy")
+      Tenant.get("1", "2").map(&:name).should == ["itsy", "bitsy"]
+    end
+
     it "#get raises an error if the model is not found" do
       lambda {
         Tenant.get("doesn't exist")

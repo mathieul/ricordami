@@ -2,7 +2,11 @@
 
 ## 0.0.6 (???) ##
 
-  - 
+  - allow to retrieve more than one instance with #get (by passing more
+    than one id)
+  - basic "references_many :through" implementation that is not optimum
+    (instanciates un-necessary through instances) and that doesn't allow
+    to chain queries onto the referred method.
 
 ## 0.0.5 (March 14th, 2011) ##
 

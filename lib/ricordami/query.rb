@@ -27,6 +27,8 @@ module Ricordami
         return runner unless runner.respond_to?(cmd)
         options               = args.first || {}
         options[:expressions] = expressions
+        options[:return]      = @to_return
+        options[:store]       = @store_result
         options[:sort_by]     = @sort_by unless @sort_by.nil?
         options[:order]       = order_for(@sort_dir) unless @sort_dir.nil?
         runner.send(cmd, options)

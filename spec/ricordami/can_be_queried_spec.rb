@@ -93,10 +93,10 @@ describe Ricordami::CanBeQueried do
 
   describe "running queries" do
     before(:each) do
-      Customer.create(:name => "Zhanna", :sex => "F", :country => "Latvia", :kind => "human", :age => "29")
-      Customer.create(:name => "Mathieu", :sex => "M", :country => "France", :kind => "human", :age => "40")
-      Customer.create(:name => "Sophie", :sex => "F", :country => "USA", :kind => "human", :age => "1")
-      Customer.create(:name => "Brioche", :sex => "F", :country => "USA", :kind => "dog", :age => "3")
+      Customer.create(:id => "1", :name => "Zhanna", :sex => "F", :country => "Latvia", :kind => "human", :age => "29")
+      Customer.create(:id => "2", :name => "Mathieu", :sex => "M", :country => "France", :kind => "human", :age => "40")
+      Customer.create(:id => "3", :name => "Sophie", :sex => "F", :country => "USA", :kind => "human", :age => "1")
+      Customer.create(:id => "4", :name => "Brioche", :sex => "F", :country => "USA", :kind => "dog", :age => "3")
     end
 
     describe ":and" do
@@ -137,6 +137,24 @@ describe Ricordami::CanBeQueried do
 
       it "can run a query on attributes with unique indices (if they also have a value index of course)" do
         Customer.where(:country => "USA", :age => "1").map(&:name).should == ["Sophie"]
+      end
+
+      it "returns ids when using #pluck with :id" do
+        Customer.where(:country => "USA").and(:sex => "F").pluck(:id).all.should =~ ["3", "4"]
+      end
+
+      it "returns the field values when using #pluck with a field name" do
+        Customer.where(:country => "USA").and(:sex => "F").pluck(:name).all.should =~ ["Sophie", "Brioche"]
+      end
+
+      it "returns a key with the ids when using #pluck! with :id" do
+        key = Customer.where(:country => "USA").and(:sex => "F").pluck!(:id).all
+        Customer.redis.lrange(key, 0, -1).should =~ ["3", "4"]
+      end
+
+      it "returns a key with the field values when using #pluck! with a field name" do
+        key = Customer.where(:country => "USA").and(:sex => "F").pluck!(:name).all
+        Customer.redis.lrange(key, 0, -1).should =~ ["Sophie", "Brioche"]
       end
     end
 

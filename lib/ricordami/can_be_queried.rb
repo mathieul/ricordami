@@ -21,9 +21,8 @@ module Ricordami
 
       def all(opts = {})
         result_key = run_expressions(opts.delete(:expressions) || [])
-        get_result_ids(result_key, opts).map do |id|
-          self[id]
-        end
+        ids = get_result_ids(result_key, opts)
+        build_result(ids, opts)
       end
 
       def paginate(opts = {})
@@ -32,16 +31,15 @@ module Ricordami
         per_page = opts[:per_page] || 20
         start = (page - 1) * per_page
         opts[:limit] = [start, per_page]
-        get_result_ids(result_key, opts).map do |id|
-          self[id]
-        end
+        ids = get_result_ids(result_key, opts)
+        build_result(ids, opts)
       end
 
       def first(opts = {})
         result_key = run_expressions(opts.delete(:expressions) || [])
         opts[:limit] = [0, 1]
         ids = get_result_ids(result_key, opts)
-        self[ids.first]
+        build_result(ids, opts).first
       end
 
       def last(opts = {})
@@ -49,7 +47,7 @@ module Ricordami
         size = redis.scard(result_key)
         opts[:limit] = [size - 1, 1]
         ids = get_result_ids(result_key, opts)
-        self[ids.first]
+        build_result(ids, opts).first
       end
 
       def rand(opts = {})
@@ -57,7 +55,7 @@ module Ricordami
         size = redis.scard(result_key)
         opts[:limit] = [Kernel.rand(size), 1]
         ids = get_result_ids(result_key, opts)
-        self[ids.first]
+        build_result(ids, opts).first
       end
 
       private
@@ -89,10 +87,38 @@ module Ricordami
       end
 
       def get_result_ids(key, opts)
-        return redis.smembers(key) unless opts[:sort_by] || opts[:limit]
-        sort_key = KeyNamer.sort(self, :sort_by => opts[:sort_by])
+        store_ids = opts[:store] || (opts[:return] != :id && opts[:return].is_a?(Symbol))
+        return redis.smembers(key) unless opts[:sort_by] || opts[:limit] || store_ids
         sort_options = opts.slice(:order, :limit)
-        redis.sort(key, sort_options.merge(:by => sort_key))
+        if opts[:sort_by]
+          sort_key = KeyNamer.sort(self, :sort_by => opts[:sort_by])
+          sort_options.merge!(:by => sort_key)
+        end
+        if store_ids
+          store_key = KeyNamer.temporary(self)
+          redis.sort(key, sort_options.merge(:store => store_key))
+          redis.expire(store_key, 60)
+          store_key
+        else
+          redis.sort(key, sort_options)
+        end
+      end
+
+      def build_result(ids, opts)
+        result_key = KeyNamer.temporary(self) if opts[:store]
+        case opts[:return]
+        when :id then
+          ids
+        when Symbol
+          key = KeyNamer.attributes(self.to_s, :id => "*")
+          field_name = opts[:return]
+          sort_options = {:by => "nosort", :get => "#{key}->#{field_name}"}
+          sort_options.merge!(:store => result_key) if result_key
+          result = redis.sort(ids, sort_options)
+          result_key || result
+        else
+          ids.map { |id| self[id] }
+        end
       end
 
       def run_and(key_name, start_key, keys)

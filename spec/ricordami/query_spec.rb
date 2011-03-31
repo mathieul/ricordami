@@ -49,26 +49,34 @@ describe Ricordami::Query do
 
   describe "running the query" do
     it "delegates #all to the runner" do
-      Instrument.should_receive(:all).with(:expressions => [[:and, {:key => "val"}]])
+      Instrument.should_receive(:all).with(:expressions => [[:and, {:key => "val"}]],
+                                           :return => Instrument, :store => false)
       query.and(:key => "val").all
     end
 
     it "delegates #paginate to the runner" do
-      Instrument.should_receive(:paginate).with(:expressions => [[:and, {:key => "val"}]], :page => 3, :per_page => 18)
+      Instrument.should_receive(:paginate).with(:expressions => [[:and, {:key => "val"}]],
+                                                :page => 3,
+                                                :per_page => 18,
+                                                :return => Instrument, :store => false)
       query.and(:key => "val").paginate(:page => 3, :per_page => 18)
     end
 
     it "delegates #first to the runner" do
       Instrument.should_receive(:first).with(:expressions => [[:and, {:key => "val"}]],
                                              :sort_by => :key,
-                                             :order => "ALPHA ASC")
+                                             :order => "ALPHA ASC",
+                                             :return => Instrument,
+                                             :store => false)
       query.and(:key => "val").sort(:key => :asc).first
     end
 
     it "delegates #last to the runner" do
       Instrument.should_receive(:last).with(:expressions => [[:and, {:key => "val"}]],
                                             :sort_by => :key,
-                                            :order => "ALPHA DESC")
+                                            :order => "ALPHA DESC",
+                                            :return => Instrument,
+                                            :store => false)
       query.and(:key => "val").sort(:key => :desc).last
     end
 
@@ -76,7 +84,9 @@ describe Ricordami::Query do
       Instrument.should_receive(:respond_to?).with(:rand).and_return(true)
       Instrument.should_receive(:rand).with(:expressions => [[:and, {:key => "val"}]],
                                             :sort_by => :key,
-                                            :order => "ALPHA ASC")
+                                            :order => "ALPHA ASC",
+                                            :return => Instrument,
+                                            :store => false)
       query.and(:key => "val").sort(:key => :asc).rand
     end
 
@@ -88,7 +98,9 @@ describe Ricordami::Query do
     it "accepts any unknown method and delegate it to the result of #all" do
       instruments = %w(guitar bass drums).map { |value| Struct.new(:name).new(value) }
       Instrument.should_receive(:all).
-        with(:expressions => [[:and, {:key => "val"}]]).
+        with(:expressions => [[:and, {:key => "val"}]],
+             :return => Instrument,
+             :store => false).
         and_return(instruments)
       query.and(:key => "val").map(&:name).should =~ ["guitar", "bass", "drums"]
     end

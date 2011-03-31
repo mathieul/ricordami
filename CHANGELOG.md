@@ -9,6 +9,9 @@
     to chain queries onto the referred method.
   - changed syntax for #sort: Model.sort(:field => <dir>) where <dir> is
     :asc, :desc, :asc_num or :desc_num.
+  - added Model#pluck and Model#pluck! to request a list of field values
+    instead of a list of instances - the bang version returns a list key
+    that contains the result
 
 ## 0.0.5 (March 14th, 2011) ##
 

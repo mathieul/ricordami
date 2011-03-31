@@ -69,6 +69,26 @@ describe Ricordami::CanBeQueried do
         query.sort_dir.should == :desc
       end
     end
+
+    describe "#pluck & #pluck!" do
+      it "returns a new query" do
+        query = Customer.pluck(:id)
+        query.should be_a(Ricordami::Query)
+
+        query = Customer.pluck!(:id)
+        query.should be_a(Ricordami::Query)
+      end
+
+      it "delegates #pluck to the new query" do
+        query = Customer.pluck(:id)
+        query.to_return.should == :id
+        query.store_result.should be_false
+
+        query = Customer.pluck!(:id)
+        query.to_return.should == :id
+        query.store_result.should be_true
+      end
+    end
   end
 
   describe "running queries" do

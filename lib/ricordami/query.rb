@@ -2,12 +2,15 @@ module Ricordami
   class Query
     VALID_DIRECTIONS = [:asc, :desc, :asc_num, :desc_num]
 
-    attr_reader :expressions, :runner, :builder, :sort_by, :sort_dir
+    attr_reader :expressions, :runner, :builder, :sort_by, :sort_dir,
+                :to_return, :store_result
 
     def initialize(runner, builder = nil)
       @expressions = []
       @runner = runner
       @builder = builder || runner
+      @to_return = runner
+      @store_result = false
     end
 
     [:and, :not, :any].each do |op|
@@ -22,10 +25,10 @@ module Ricordami
     [:all, :paginate, :first, :last, :rand].each do |cmd|
       define_method(cmd) do |*args|
         return runner unless runner.respond_to?(cmd)
-        options = args.first || {}
+        options               = args.first || {}
         options[:expressions] = expressions
-        options[:sort_by] = @sort_by unless @sort_by.nil?
-        options[:order] = order_for(@sort_dir) unless @sort_dir.nil?
+        options[:sort_by]     = @sort_by unless @sort_by.nil?
+        options[:order]       = order_for(@sort_dir) unless @sort_dir.nil?
         runner.send(cmd, options)
       end
     end
@@ -37,6 +40,16 @@ module Ricordami
       self
     rescue
       raise ArgumentError.new("sorting parameter is invalid: #{opts.inspect}")
+    end
+
+    def pluck(field)
+      @to_return = field
+      self
+    end
+
+    def pluck!(field)
+      @store_result = true
+      pluck(field)
     end
 
     def build(attributes = {})

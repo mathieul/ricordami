@@ -119,6 +119,25 @@ describe Ricordami::Query do
     end
   end
 
+  describe "plucking field values" do
+    it "remembers to return instances by default" do
+      query = Ricordami::Query.new(Instrument)
+      query.to_return.should == Instrument
+    end
+
+    it "remembers to pluck field values with #pluck" do
+      query.pluck(:id)
+      query.to_return.should == :id
+      query.store_result.should be_false
+    end
+
+    it "remembers to pluck field values but store in redis with #pluck!" do
+      query.pluck!(:id)
+      query.to_return.should == :id
+      query.store_result.should be_true
+    end
+  end
+
   describe "creating new objects" do
     before(:each) do
       Instrument.attribute :name

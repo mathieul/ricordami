@@ -13,8 +13,10 @@ module Ricordami
         end
       end
 
-      def sort(*args)
-        Query.new(self).send(:sort, *args)
+      [:sort, :pluck, :pluck!].each do |op|
+        define_method(op) do |*args|
+          Query.new(self).send(op, *args)
+        end
       end
 
       def all(opts = {})

@@ -62,14 +62,14 @@ describe Ricordami::Query do
       Instrument.should_receive(:first).with(:expressions => [[:and, {:key => "val"}]],
                                              :sort_by => :key,
                                              :order => "ALPHA ASC")
-      query.and(:key => "val").sort(:key).first
+      query.and(:key => "val").sort(:key => :asc).first
     end
 
     it "delegates #last to the runner" do
       Instrument.should_receive(:last).with(:expressions => [[:and, {:key => "val"}]],
                                             :sort_by => :key,
                                             :order => "ALPHA DESC")
-      query.and(:key => "val").sort(:key, :desc_alpha).last
+      query.and(:key => "val").sort(:key => :desc).last
     end
 
     it "delegates #rand to the runner" do
@@ -77,7 +77,7 @@ describe Ricordami::Query do
       Instrument.should_receive(:rand).with(:expressions => [[:and, {:key => "val"}]],
                                             :sort_by => :key,
                                             :order => "ALPHA ASC")
-      query.and(:key => "val").sort(:key).rand
+      query.and(:key => "val").sort(:key => :asc).rand
     end
 
     it "returns the runner if it can't delegate to the runner" do
@@ -96,25 +96,25 @@ describe Ricordami::Query do
 
   describe "sorting the query" do
     it "remembers the sorting attribute with #sort" do
-      query.sort(:username)
+      query.sort(:username => :asc)
       query.sort_by.should == :username
     end
 
     it "remembers the sorting direction with #sort" do
-      query.sort(:username)
-      query.sort_dir.should == :asc_alpha
-      query.sort(:username, :desc_alpha)
-      query.sort_dir.should == :desc_alpha
+      [:asc, :desc, :asc_num, :desc_num].each do |dir|
+        query.sort(:username => dir)
+        query.sort_dir.should == dir
+      end
     end
 
-    it "raises an error if the sorting order is not :asc_alpha, :asc_num, desc_alpha or :desc_num" do
+    it "raises an error if the sorting order is not :asc, :asc_num, descor :desc_num" do
       lambda {
-        [:asc_alpha, :asc_num, :desc_alpha, :desc_num].each do |dir|
-          query.sort(:username, dir)
+        [:asc, :asc_num, :desc, :desc_num].each do |dir|
+          query.sort(:username => dir)
         end
-      }.should_not raise_error(ArgumentError)
+      }.should_not raise_error
       lambda {
-        query.sort(:username, :blah)
+        query.sort(:username => :blah)
       }.should raise_error(ArgumentError)
     end
   end

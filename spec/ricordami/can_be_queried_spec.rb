@@ -59,14 +59,14 @@ describe Ricordami::CanBeQueried do
 
     describe "#sort" do
       it "returns a new query" do
-        query = Customer.sort(:sex)
+        query = Customer.sort(:sex => :asc)
         query.should be_a(Ricordami::Query)
       end
 
       it "delegates #sort to the new query" do
-        query = Customer.sort(:sex, :desc_alpha)
+        query = Customer.sort(:sex => :desc)
         query.sort_by.should == :sex
-        query.sort_dir.should == :desc_alpha
+        query.sort_dir.should == :desc
       end
     end
   end
@@ -204,18 +204,13 @@ describe Ricordami::CanBeQueried do
     end
 
     it "can sort the result alphanumerically with #sort" do
-      result = Student.where(:school => "Lajoo").sort(:name, :asc_alpha)
+      result = Student.where(:school => "Lajoo").sort(:name => :asc)
       result.map(&:name).should == %w(Brioche Mathieu Sophie Zhanna)
     end
 
     it "can sort the result numerically with #sort" do
-      result = Student.where(:school => "Lajoo").sort(:grade, :asc_num)
+      result = Student.where(:school => "Lajoo").sort(:grade => :asc_num)
       result.map(&:name).should == %w(Brioche Zhanna Mathieu Sophie)
-    end
-
-    it "defaults to sorting ascending / alphanumerically" do
-      result = Student.where(:school => "Lajoo").sort(:name)
-      result.map(&:name).should == %w(Brioche Mathieu Sophie Zhanna)
     end
   end
 
@@ -229,7 +224,7 @@ describe Ricordami::CanBeQueried do
        ["Brioche", 4], ["Mathieu", 15]].each do |name, grade|
          Student.create(:name => name, :grade => grade, :school => "Lajoo")
        end
-      @query = Student.where(:school => "Lajoo").sort(:name)
+      @query = Student.where(:school => "Lajoo").sort(:name => :asc)
     end
     let(:query) { @query }
 

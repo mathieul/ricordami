@@ -33,7 +33,7 @@ feature "Manage relationships" do
     performer = Performer.first
     performer.albums.map(&:title).should =~ ["Melody Nelson", "Aux Armes et cætera"]
     performer.albums.where(:year => "1979").map(&:title).should =~ ["Aux Armes et cætera"]
-    performer.albums.sort(:year, :desc_num).map(&:title).should == ["Aux Armes et cætera", "Melody Nelson"]
+    performer.albums.sort(:year => :desc_num).map(&:title).should == ["Aux Armes et cætera", "Melody Nelson"]
 
     Album.all.map(&:title).should =~ ["Melody Nelson", "Aux Armes et cætera"]
     performer.delete

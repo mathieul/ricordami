@@ -58,8 +58,8 @@ feature "Query model" do
     deceased = Singer.and(:deceased => "true").all
     deceased.map(&:username).should =~ %w(lucien bashung)
     q = Singer.where(:deceased => "true")
-    q.sort(:first_name, :asc_alpha).first.email.should == "alain@bashung.com"
-    q.sort(:first_name, :desc_alpha).last.email.should == "alain@bashung.com"
+    q.sort(:first_name => :asc).first.email.should == "alain@bashung.com"
+    q.sort(:first_name => :desc).last.email.should == "alain@bashung.com"
     Singer.not(:deceased => true).map(&:username).should == ["ben"]
     first = Singer.first.username
     last = Singer.last.username
@@ -78,9 +78,9 @@ feature "Query model" do
     Singer.paginate(:page => 3, :per_page => 5).should have(2).singers
     Singer.paginate(:page => 4, :per_page => 5).should have(0).singers
 
-    page1 = Singer.sort(:last_name, :asc_alpha).paginate(:page => 1, :per_page => 5)
+    page1 = Singer.sort(:last_name => :asc).paginate(:page => 1, :per_page => 5)
     page1.map(&:last_name).should == ["Aznavour", "Bashung", "Benabar", "Biolay", "Brasens"]
-    page3 = Singer.sort(:last_name, :asc_alpha).paginate(:page => 3, :per_page => 5)
+    page3 = Singer.sort(:last_name => :asc).paginate(:page => 3, :per_page => 5)
     page3.map(&:last_name).should == ["Montand", "Souchon"]
   end
 

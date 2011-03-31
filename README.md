@@ -409,10 +409,7 @@ on the same machine.
     $ for ruby in 1.8.7-p334 rbx-1.2.3 ree-1.8.7-2011.03 jruby-1.6.0 1.9.2-p180
       do
         echo "-*- $ruby -*-"
-        rvm use $ruby || rvm install $ruby
-        rvm use $ruby
-        rvm gemset use ricordami || rvm gemset create ricordami
-        rvm gemset use ricordami
+        rvm use $ruby@ricordami --create
         gem install bundler --no-ri --no-rdoc
         bundle
       done

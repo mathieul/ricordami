@@ -7,6 +7,8 @@
   - basic "references_many :through" implementation that is not optimum
     (instanciates un-necessary through instances) and that doesn't allow
     to chain queries onto the referred method.
+  - changed syntax for #sort: Model.sort(:field => <dir>) where <dir> is
+    :asc, :desc, :asc_num or :desc_num.
 
 ## 0.0.5 (March 14th, 2011) ##
 

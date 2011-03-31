@@ -1,5 +1,7 @@
 module Ricordami
   class Query
+    VALID_DIRECTIONS = [:asc, :desc, :asc_num, :desc_num]
+
     attr_reader :expressions, :runner, :builder, :sort_by, :sort_dir
 
     def initialize(runner, builder = nil)
@@ -28,12 +30,13 @@ module Ricordami
       end
     end
 
-    def sort(attribute, dir = :asc_alpha)
-      unless [:asc_alpha, :asc_num, :desc_alpha, :desc_num].include?(dir)
-        raise ArgumentError.new("sorting direction #{dir.inspect} is invalid")
-      end
-      @sort_by, @sort_dir = attribute, dir
+    def sort(opts)
+      @sort_by = opts.keys.first
+      @sort_dir = opts[@sort_by]
+      raise ArgumentError unless VALID_DIRECTIONS.include?(@sort_dir)
       self
+    rescue
+      raise ArgumentError.new("sorting parameter is invalid: #{opts.inspect}")
     end
 
     def build(attributes = {})
@@ -54,9 +57,9 @@ module Ricordami
     def order_for(dir)
       case dir
       when nil         then nil
-      when :asc_alpha  then "ALPHA ASC"
+      when :asc        then "ALPHA ASC"
       when :asc_num    then "ASC"
-      when :desc_alpha then "ALPHA DESC"
+      when :desc       then "ALPHA DESC"
       else                  "DESC"
       end
     end

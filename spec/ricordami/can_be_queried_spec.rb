@@ -116,6 +116,20 @@ describe Ricordami::CanBeQueried do
         found.map(&:name).should == ["Zhanna"]
       end
 
+      it "allows to specify a list of values instead of just one value" do
+        Customer.index :value => :name
+        Customer.index :value => :sex
+        found = Customer.and(:name => ["Zhanna", "Brioche", "Mathieu"], :sex => "F").all
+        found.map(&:name).should =~ ["Zhanna", "Brioche"]
+        found = Customer.and(:name => ["Zhanna", "Brioche", "Mathieu"], :sex => "M").all
+        found.map(&:name).should =~ ["Mathieu"]
+      end
+
+      it "allows to specify a list of ids as a nested OR condition" do
+        found = Customer.where(:id => ["1", "4"]).all
+        found.map(&:name).should =~ ["Zhanna", "Brioche"]
+      end
+
       it "returns the models found with #all (2 conditions, 2 results)" do
         found = Customer.and(:country => "USA", :sex => "F").all
         found.map(&:name).should =~ ["Sophie", "Brioche"]

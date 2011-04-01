@@ -77,7 +77,11 @@ module Ricordami
           index_name = "v_#{field}".to_sym
           index = indices[index_name]
           raise MissingIndex.new("class: #{self}, attribute: #{index_name.inspect}") if index.nil?
-          index.key_name_for_value(value)
+          if value.is_a?(Array)
+            value.map { |v| index.key_name_for_value(v) }
+          else
+            index.key_name_for_value(value)
+          end
         end
       end
 
@@ -122,8 +126,15 @@ module Ricordami
       end
 
       def run_and(key_name, start_key, keys)
-        # we get the intersection of the start key and the condition keys
-        redis.sinterstore(key_name, start_key, *keys)
+        # we partition the keys: anys with all OR conditions, alls with all AND conditions
+        anys, alls = keys.partition { |key| key.is_a?(Array) }
+        unless anys.empty?
+          # there are OR conditions, let's add all their content and store it in key_name
+          redis.sunionstore(key_name, *anys.flatten)
+          alls.unshift(key_name)
+        end
+        # we get the intersection of the start key and the AND condition keys
+        redis.sinterstore(key_name, start_key, *alls)
         key_name
       end
 

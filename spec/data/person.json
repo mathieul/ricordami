@@ -1,0 +1,9 @@
+[
+  {
+    "id": "p1",
+    "name": "John Doe",
+    "age": 35,
+    "sex": "male",
+    "town": "San Francisco"
+  }
+]

@@ -74,13 +74,20 @@ module Ricordami
 
       def get_keys_for_each_condition(conditions)
         conditions.map do |field, value|
-          index_name = "v_#{field}".to_sym
-          index = indices[index_name]
-          raise MissingIndex.new("class: #{self}, attribute: #{index_name.inspect}") if index.nil?
-          if value.is_a?(Array)
-            value.map { |v| index.key_name_for_value(v) }
+          if field == :id
+            ids_key = KeyNamer.temporary(self)
+            [value].flatten.each { |v| redis.sadd(ids_key, v) }
+            redis.expire(ids_key, 60)
+            ids_key
           else
-            index.key_name_for_value(value)
+            index_name = "v_#{field}".to_sym
+            index = indices[index_name]
+            raise MissingIndex.new("class: #{self}, attribute: #{index_name.inspect}") if index.nil?
+            if value.is_a?(Array)
+              value.map { |v| index.key_name_for_value(v) }
+            else
+              index.key_name_for_value(value)
+            end
           end
         end
       end

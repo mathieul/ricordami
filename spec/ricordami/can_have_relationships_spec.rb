@@ -214,7 +214,11 @@ describe Ricordami::CanHaveRelationships do
         @serge.skills.map(&:name).should =~ ['Poet', 'Song writer']
       end
 
-      it "can filter using the reference through method"
+      it "can query using the reference through method" do
+        @serge.capabilities.map(&:skill).map(&:name).should =~ ['Poet', 'Song writer']
+        Agent.references_many :skills, :through => :capabilities
+        @serge.skills.paginate(:page => 1, :per_page => 1).map(&:name).should == ['Poet']
+      end
     end
   end
 

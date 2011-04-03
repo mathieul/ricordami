@@ -8,7 +8,7 @@ class Movie
 
   attribute :title
   attribute :director
-  attribute :year
+  attribute :year, :type => :integer
 
   references_many :reviews
   references_many :people, :through => :reviews, :as => :reviewers
@@ -19,7 +19,7 @@ class Person
   model_can :have_relationships, :be_queried
   
   attribute :name
-  attribute :age
+  attribute :age, :type => :integer
   attribute :sex
   attribute :town
 
@@ -45,7 +45,6 @@ module RelationshipsAndQueriesHelper
       items = ActiveSupport::JSON.decode(json)
       items.each do |attributes|
         res = klass.create(attributes.symbolize_keys)
-        ap [klass, res]
       end
     end
   end
@@ -54,18 +53,13 @@ end
 feature "Relationships and queries" do
   include RelationshipsAndQueriesHelper
 
-  before(:all) do
-    Ricordami.redis.select 8
-    Ricordami.redis.flushdb
+  before(:each) do
     load_data
   end
 
   scenario "test" do
-    Ricordami.redis.select 8
-    ap Movie.all
-
-    Movie.count.should == 1
-    Person.count.should == 1
-    Review.count.should == 1
+    ap [Person, Person.count]
+    ap [Movie, Movie.count]
+    ap [Review, Review.count]
   end
 end

@@ -1,6 +1,7 @@
 require "acceptance_helper"
 require "ricordami/can_be_queried"
 require "ricordami/can_have_relationships"
+require "benchmark"
 
 class Movie
   include Ricordami::Model
@@ -40,13 +41,21 @@ end
 module RelationshipsAndQueriesHelper
   def load_data
     [Movie, Person, Review].each do |klass|
-      file = File.expand_path("../../data/#{klass.to_s.downcase}.json", __FILE__)
-      json = File.read(file)
-      items = ActiveSupport::JSON.decode(json)
-      items.each do |attributes|
-        res = klass.create(attributes.symbolize_keys)
+      seconds = measure do
+        file = File.expand_path("../../data/#{klass.to_s.downcase}.json", __FILE__)
+        json = File.read(file)
+        items = ActiveSupport::JSON.decode(json)
+        items.each do |attributes|
+          res = klass.create(attributes.symbolize_keys)
+        end
       end
+      puts "#{klass.count} #{klass.to_s.pluralize} loaded in #{seconds} secs."
     end
+  end
+
+  def measure(&block)
+    seconds = Benchmark.measure(&block).format("%r")[1..-2].to_f
+    seconds.round(3)
   end
 end
 

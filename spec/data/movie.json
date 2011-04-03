@@ -1,4 +1,5 @@
-[{
+[
+  {
     "id": "m1",
     "title": "Inception",
     "director": "Chris Nolan",
@@ -9,133 +10,134 @@
     "id": "m2",
     "title": "The Matrix",
     "director": "Wachowski brothers",
-    "year": 1999
+    "year": 1999,
     "budget": 63000000,
     "gross": 203600000
   }, {
     "id": "m3",
     "title": "Avatar",
     "director": "James Cameron",
-    "year": 2010
+    "year": 2010,
     "budget": 237000000,
     "gross": 2039472387
   }, {
     "id": "m4",
     "title": "The Dark Knight",
     "director": "Chris Nolan",
-    "year": 2008
+    "year": 2008,
     "budget": 185000000,
     "gross": 1001921825
   }, {
     "id": "m5",
     "title": "Star Wars: Episode V - The Empire Strikes Back",
     "director": "Irvin Kershner",
-    "year": 1980
+    "year": 1980,
     "budget": 18000000,
     "gross": 538375067
   }, {
     "id": "m6",
     "title": "Spider-Man",
     "director": "Sam Raimi",
-    "year": 2002
+    "year": 2002,
     "budget": 139000000,
     "gross": 821708551
   }, {
     "id": "m7",
     "title": "The Lord of the Rings: The Return of the King",
     "director": "Peter Jackson",
-    "year": 2003
+    "year": 2003,
     "budget": 94000000,
     "gross": 1118888979
   }, {
     "id": "m8",
     "title": "Forrest Gump",
     "director": "Robert Zemeckis",
-    "year": 1994
+    "year": 1994,
     "budget": 55000000,
     "gross": 673800000
   }, {
     "id": "m9",
     "title": "Iron Man",
     "director": "Jon Favreau",
-    "year": 2008
+    "year": 2008,
     "budget": 140000000,
     "gross": 318298180
   }, {
     "id": "m10",
     "title": "The Hangover",
     "director": "Todd Phillips",
-    "year": 2009
+    "year": 2009,
     "budget": 35000000,
     "gross": 277313371
   }, {
     "id": "m11",
     "title": "Jaws",
     "director": "Steven Spielberg",
-    "year": 1975
+    "year": 1975,
     "budget": 8000000,
     "gross": 470653000
   }, {
     "id": "m12",
     "title": "Men in Black",
     "director": "Barry Sonnenfeld",
-    "year": 1997
+    "year": 1997,
     "budget": 90000000,
     "gross": 326600000
   }, {
     "id": "m13",
     "title": "WALL-E",
     "director": "Andrew Stanton",
-    "year": 2008
+    "year": 2008,
     "budget": 180000000,
     "gross": 534767889
   }, {
     "id": "m14",
     "title": "Ratatouille",
     "director": "Brad Bird",
-    "year": 2007
+    "year": 2007,
     "budget": 150000000,
     "gross": 206445654
   }, {
     "id": "m15",
     "title": "Terminator 2: Judgment Day ",
     "director": "James Cameron",
-    "year": 1991
+    "year": 1991,
     "budget": 102000000,
     "gross": 519843345
   }, {
     "id": "m16",
     "title": "X-Men",
     "director": "Bryan Singer",
-    "year": 2000
+    "year": 2000,
     "budget": 75000000,
     "gross": 157299717
   }, {
     "id": "m17",
     "title": "Sex, Lies, and Videotape",
     "director": "Steven Soderbergh",
-    "year": 1989
+    "year": 1989,
     "budget": 1200000,
     "gross": 24741700
   }, {
     "id": "m18",
     "title": "Angel Heart",
     "director": "Alan Parker",
-    "year": 1987
+    "year": 1987,
     "budget": 17000000,
     "gross": 17185632
   }, {
     "id": "m19",
     "title": "Pulp Fiction",
     "director": "Quentin Tarantino",
-    "year": 1994
+    "year": 1994,
     "budget": 8000000,
     "gross": 213928762
   }, {
     "id": "m20",
     "title": "Kill Bill",
     "director": "Quentin Tarantino",
-    "year": 2003
+    "year": 2003,
     "budget": 55000000,
     "gross": 178398138
-}]
+  }
+]

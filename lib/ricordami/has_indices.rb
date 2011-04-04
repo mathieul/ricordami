@@ -1,6 +1,7 @@
 require "ricordami/has_attributes"
 require "ricordami/unique_index"
 require "ricordami/value_index"
+require "ricordami/order_index"
 
 module Ricordami
   module HasIndices

@@ -3,41 +3,6 @@ require "ricordami/can_be_queried"
 require "ricordami/can_have_relationships"
 require "benchmark"
 
-class Movie
-  include Ricordami::Model
-  model_can :have_relationships, :be_queried
-
-  attribute :title
-  attribute :director
-  attribute :year, :type => :integer
-
-  references_many :reviews
-  references_many :people, :through => :reviews, :as => :reviewers
-end
-
-class Person
-  include Ricordami::Model
-  model_can :have_relationships, :be_queried
-  
-  attribute :name
-  attribute :age, :type => :integer
-  attribute :sex
-  attribute :town
-
-  references_many :reviews
-  references_many :movies, :through => :reviews
-end
-
-class Review
-  include Ricordami::Model
-  model_can :have_relationships, :be_queried
-  
-  attribute :note
-
-  referenced_in :movie
-  referenced_in :person
-end
-
 module RelationshipsAndQueriesHelper
   def load_data
     [Movie, Person, Review].each do |klass|
@@ -59,6 +24,42 @@ module RelationshipsAndQueriesHelper
   end
 end
 
+class Movie
+  include Ricordami::Model
+  model_can :have_relationships, :be_queried
+
+  attribute :title
+  attribute :director, :indexed => :value
+  attribute :year, :type => :integer, :indexed => :value
+
+  references_many :reviews
+  references_many :people, :through => :reviews, :as => :reviewers
+end
+
+class Person
+  include Ricordami::Model
+  model_can :have_relationships, :be_queried
+  
+  attribute :name
+  attribute :age, :type => :integer, :indexed => :value
+  attribute :sex, :indexed => :value
+  attribute :town, :indexed => :value
+
+  references_many :reviews
+  references_many :movies, :through => :reviews
+end
+
+class Review
+  include Ricordami::Model
+  model_can :have_relationships, :be_queried
+  
+  attribute :note, :type => :integer, :indexed => :value
+  attribute :when, :indexed => :value
+
+  referenced_in :movie
+  referenced_in :person
+end
+
 feature "Relationships and queries" do
   include RelationshipsAndQueriesHelper
 
@@ -66,9 +67,6 @@ feature "Relationships and queries" do
     load_data
   end
 
-  scenario "test" do
-    ap [Person, Person.count]
-    ap [Movie, Movie.count]
-    ap [Review, Review.count]
+  scenario "querying movies and reviews" do
   end
 end

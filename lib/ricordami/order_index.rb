@@ -1,0 +1,22 @@
+require "ricordami/key_namer"
+
+module Ricordami
+  class OrderIndex
+    attr_reader :model, :field, :name
+
+    def initialize(model, field)
+      @model = model
+      @field = field.to_sym
+      @name = "v_#{@field}".to_sym
+    end
+
+    def add(id, value)
+      @model.redis.sadd(key_name_for_value(value), id)
+    end
+
+    def rem(id, value, return_command = false)
+      return [[:srem, [key_name_for_value(value), id]]] if return_command
+      @model.redis.srem(key_name_for_value(value), id)
+    end
+  end
+end

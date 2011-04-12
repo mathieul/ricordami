@@ -24,8 +24,8 @@ describe Ricordami::KeyNamer do
     name.should == "Call:hsh:ani_dnis_to_id"
   end
 
-  it "returns a key name for the value of a field of a model with #index" do
-    name = subject.index(Leg, :field => :direction, :value => "inout")
+  it "returns a key name for the value of a field of a model with #value_index" do
+    name = subject.value_index(Leg, :field => :direction, :value => "inout")
     name.should == "Leg:idx:direction:aW5vdXQ="
   end
 
@@ -52,5 +52,10 @@ describe Ricordami::KeyNamer do
   it "returns a key name for sort an attribute with #sort" do
     name = subject.sort("Student", :sort_by => :name)
     name.should == "Student:att:*->name"
+  end
+
+  it "returns a key name for an order index with #order_index" do
+    name = subject.order_index(Call, :field => "priority")
+    name.should == "Call:odx:priority"
   end
 end

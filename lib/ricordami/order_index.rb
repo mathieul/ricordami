@@ -7,16 +7,29 @@ module Ricordami
     def initialize(model, field)
       @model = model
       @field = field.to_sym
-      @name = "v_#{@field}".to_sym
+      assert_numeric_field
+      @name = "o_#{@field}".to_sym
+      @key_name = KeyNamer.order_index(@model, :field => @field)
     end
 
     def add(id, value)
-      @model.redis.sadd(key_name_for_value(value), id)
+      @model.redis.zadd(@key_name, value, id)
     end
 
     def rem(id, value, return_command = false)
-      return [[:srem, [key_name_for_value(value), id]]] if return_command
-      @model.redis.srem(key_name_for_value(value), id)
+      return [[:zrem, [@key_name, id]]] if return_command
+      @model.redis.zrem(@key_name, id)
+    end
+
+    private
+
+    def assert_numeric_field
+      attribute = @model.attributes[@field]
+      if attribute.type != :integer && attribute.type != :float
+        raise TypeNotSupported.new(
+          "Model #{@model}: attribute #{@field} should be an integer or a float"
+        )
+      end
     end
   end
 end

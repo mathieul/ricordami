@@ -6,6 +6,7 @@ describe Ricordami::HasIndices do
     before(:each) do
       Car.attribute :model
       Car.attribute :name
+      Car.attribute :year, :type => :integer
     end
 
     it "raises an error when declaring an index that's neither unique or a value index" do
@@ -17,6 +18,14 @@ describe Ricordami::HasIndices do
         index = Car.index :value => :model
         Car.indices[:v_model].should be_a(Ricordami::ValueIndex)
         Car.indices[:v_model].should == index
+      end
+    end
+
+    describe "declaring an order index" do
+      it "can declare an order index with #index" do
+        index = Car.index :order => :year
+        Car.indices[:o_year].should be_a(Ricordami::OrderIndex)
+        Car.indices[:o_year].should == index
       end
     end
 

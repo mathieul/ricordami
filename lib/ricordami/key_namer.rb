@@ -21,9 +21,13 @@ module Ricordami
       "#{model}:hsh:#{fields}"
     end
 
-    def index(model, opts = {})
+    def value_index(model, opts = {})
       value = encode(opts[:value])
       "#{model}:idx:#{opts[:field]}:#{value}"
+    end
+
+    def order_index(model, opts = {})
+      "#{model}:odx:#{opts[:field]}"
     end
 
     def volatile_set(model, opts = {})

@@ -11,7 +11,7 @@ module Ricordami
     end
 
     def key_name_for_value(value)
-      KeyNamer.index(@model, :field => @field, :value => value)
+      KeyNamer.value_index(@model, :field => @field, :value => value)
     end
 
     def add(id, value)

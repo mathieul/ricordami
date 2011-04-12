@@ -10,9 +10,10 @@ describe Ricordami::CanBeQueried do
     Customer.attribute :sex,     :indexed => :value
     Customer.attribute :name,    :indexed => :value
     Customer.attribute :kind,    :indexed => :value
-    Customer.attribute :age,     :indexed => :value
+    Customer.attribute :age,     :indexed => :value, :type => :integer
     Customer.attribute :no_index
     Customer.index :unique => :age, :scope => :kind
+    Customer.index :order =>  :age
   end
 
   describe "building queries" do

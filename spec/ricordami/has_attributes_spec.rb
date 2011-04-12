@@ -31,6 +31,11 @@ describe Ricordami::HasAttributes do
       Boat.indices[:v_size].should be_a(Ricordami::ValueIndex)
     end
 
+    it "creates an order index if :indexed is :order" do
+      Boat.attribute :size, :indexed => :order, :type => :float
+      Boat.indices[:o_size].should be_a(Ricordami::OrderIndex)
+    end
+
     it "replaces :initial value with a generator if it's a symbol" do
       Boat.attribute :id, :initial => :sequence
       attribute = Boat.attributes[:id]

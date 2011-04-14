@@ -1,3 +1,6 @@
+require "ricordami/meta_field.rb"
+require "ricordami/condition.rb"
+
 module Ricordami
   class Query
     VALID_DIRECTIONS = [:asc, :desc, :asc_num, :desc_num]

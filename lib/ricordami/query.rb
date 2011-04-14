@@ -2,11 +2,11 @@ module Ricordami
   class Query
     VALID_DIRECTIONS = [:asc, :desc, :asc_num, :desc_num]
 
-    attr_reader :expressions, :runner, :builder, :sort_by, :sort_dir,
+    attr_reader :filters, :runner, :builder, :sort_by, :sort_dir,
                 :to_return, :store_result
 
     def initialize(runner, builder = nil)
-      @expressions = []
+      @filters = []
       @runner = runner
       @builder = builder || runner
       @to_return = runner
@@ -16,7 +16,7 @@ module Ricordami
     [:and, :not, :any].each do |op|
       define_method(op) do |*args|
         options = args.first || {}
-        @expressions << [op, options.dup]
+        @filters << [op, options.dup]
         self
       end
     end
@@ -26,7 +26,7 @@ module Ricordami
       define_method(cmd) do |*args|
         return runner unless runner.respond_to?(cmd)
         options               = args.first || {}
-        options[:expressions] = expressions
+        options[:filters] = filters
         options[:return]      = @to_return
         options[:store]       = @store_result
         options[:sort_by]     = @sort_by unless @sort_by.nil?
@@ -56,7 +56,7 @@ module Ricordami
 
     def build(attributes = {})
       initial_values = {}
-      expressions.each do |operation, filters|
+      filters.each do |operation, filters|
         next unless operation == :and
         initial_values.merge!(filters)
       end

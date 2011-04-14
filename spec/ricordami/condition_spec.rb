@@ -19,5 +19,16 @@ describe Ricordami::Condition do
     it "has a value" do
       subject.value.should == 42
     end
+
+    it "can be instantiated from a meta field and a value" do
+      meta_field = Ricordami::MetaField.new(:size, :lt)
+      c = Ricordami::Condition.new(meta_field, 42)
+      [c.field, c.operator, c.value].should == [:size, :lt, 42]
+    end
+
+    it "can be instantiated from a field, an operator and a value" do
+      c = Ricordami::Condition.new(:age, :gte, 12)
+      [c.field, c.operator, c.value].should == [:age, :gte, 12]
+    end
   end
 end

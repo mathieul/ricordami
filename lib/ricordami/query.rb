@@ -19,7 +19,8 @@ module Ricordami
     [:and, :not, :any].each do |op|
       define_method(op) do |*args|
         options = args.first || {}
-        @filters << [op, options.dup]
+        filter = options.map { |meta_field, value| Condition.new(meta_field, value) }
+        @filters << [op, filter]
         self
       end
     end
@@ -29,7 +30,7 @@ module Ricordami
       define_method(cmd) do |*args|
         return runner unless runner.respond_to?(cmd)
         options               = args.first || {}
-        options[:filters] = filters
+        options[:filters]     = filters
         options[:return]      = @to_return
         options[:store]       = @store_result
         options[:sort_by]     = @sort_by unless @sort_by.nil?

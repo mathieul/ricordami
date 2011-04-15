@@ -30,5 +30,11 @@ describe Ricordami::Condition do
       c = Ricordami::Condition.new(:age, :gte, 12)
       [c.field, c.operator, c.value].should == [:age, :gte, 12]
     end
+
+    it "can be compared to another instance using ==" do
+      c1 = Ricordami::Condition.new(:age, :gte, 42)
+      c2 = Ricordami::Condition.new(:age, :gte, 42)
+      c1.should == c2
+    end
   end
 end

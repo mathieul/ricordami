@@ -60,9 +60,13 @@ module Ricordami
 
     def build(attributes = {})
       initial_values = {}
-      filters.each do |operation, filters|
+      filters.each do |operation, conditions|
         next unless operation == :and
-        initial_values.merge!(filters)
+        conditions.each do |condition|
+          if condition.operator == :eq
+            initial_values[condition.field] = condition.value
+          end
+        end
       end
       obj = builder.new(initial_values.merge(attributes))
     end

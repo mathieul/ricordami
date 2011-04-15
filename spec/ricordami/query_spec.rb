@@ -12,7 +12,7 @@ describe Ricordami::Query do
 
   describe "#and" do
     it "saves :and filters" do
-      query.and(:allo => "la terre")
+      query.and(:allo.eq => "la terre")
       query.filters.pop.should == [:and, [cond.new(:allo, :eq, "la terre")]]
     end
 

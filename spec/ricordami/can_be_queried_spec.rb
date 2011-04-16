@@ -3,7 +3,6 @@ require "ricordami/can_be_queried"
 
 describe Ricordami::CanBeQueried do
   uses_constants("Customer")
-  let(:cond) { Ricordami::Condition }
 
   before(:each) do
     Customer.send(:include, Ricordami::CanBeQueried)
@@ -11,10 +10,9 @@ describe Ricordami::CanBeQueried do
     Customer.attribute :sex,     :indexed => :value
     Customer.attribute :name,    :indexed => :value
     Customer.attribute :kind,    :indexed => :value
-    Customer.attribute :age,     :indexed => :value, :type => :integer
+    Customer.attribute :age,     :indexed => :value
     Customer.attribute :no_index
     Customer.index :unique => :age, :scope => :kind
-    Customer.index :order =>  :age
   end
 
   describe "building queries" do
@@ -31,7 +29,7 @@ describe Ricordami::CanBeQueried do
 
       it "delegates #and to the new query" do
         query = Customer.and(:key => "value")
-        query.filters.should == [[:and, [cond.new(:key, :eq, "value")]]]
+        query.expressions.should == [[:and, {:key => "value"}]]
       end
     end
 
@@ -43,7 +41,7 @@ describe Ricordami::CanBeQueried do
 
       it "delegates #not to the new query" do
         query = Customer.not(:key => "value")
-        query.filters.should == [[:not, [cond.new(:key, :eq, "value")]]]
+        query.expressions.should == [[:not, {:key => "value"}]]
       end
     end
 
@@ -55,7 +53,7 @@ describe Ricordami::CanBeQueried do
 
       it "delegates #any to the new query" do
         query = Customer.any(:key => "value")
-        query.filters.should == [[:any, [cond.new(:key, :eq, "value")]]]
+        query.expressions.should == [[:any, {:key => "value"}]]
       end
     end
 

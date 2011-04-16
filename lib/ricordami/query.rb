@@ -1,15 +1,12 @@
-require "ricordami/meta_field.rb"
-require "ricordami/condition.rb"
-
 module Ricordami
   class Query
     VALID_DIRECTIONS = [:asc, :desc, :asc_num, :desc_num]
 
-    attr_reader :filters, :runner, :builder, :sort_by, :sort_dir,
+    attr_reader :expressions, :runner, :builder, :sort_by, :sort_dir,
                 :to_return, :store_result
 
     def initialize(runner, builder = nil)
-      @filters = []
+      @expressions = []
       @runner = runner
       @builder = builder || runner
       @to_return = runner
@@ -19,8 +16,7 @@ module Ricordami
     [:and, :not, :any].each do |op|
       define_method(op) do |*args|
         options = args.first || {}
-        filter = options.map { |meta_field, value| Condition.new(meta_field, value) }
-        @filters << [op, filter]
+        @expressions << [op, options.dup]
         self
       end
     end
@@ -30,7 +26,7 @@ module Ricordami
       define_method(cmd) do |*args|
         return runner unless runner.respond_to?(cmd)
         options               = args.first || {}
-        options[:filters]     = filters
+        options[:expressions] = expressions
         options[:return]      = @to_return
         options[:store]       = @store_result
         options[:sort_by]     = @sort_by unless @sort_by.nil?
@@ -60,13 +56,9 @@ module Ricordami
 
     def build(attributes = {})
       initial_values = {}
-      filters.each do |operation, conditions|
+      expressions.each do |operation, filters|
         next unless operation == :and
-        conditions.each do |condition|
-          if condition.operator == :eq
-            initial_values[condition.field] = condition.value
-          end
-        end
+        initial_values.merge!(filters)
       end
       obj = builder.new(initial_values.merge(attributes))
     end

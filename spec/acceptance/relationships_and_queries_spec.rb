@@ -64,7 +64,6 @@ feature "Relationships and queries" do
   include RelationshipsAndQueriesHelper
 
   before(:each) do
-    pending
     load_data
   end
 

@@ -1,7 +1,6 @@
 require "ricordami/has_attributes"
 require "ricordami/unique_index"
 require "ricordami/value_index"
-require "ricordami/order_index"
 
 module Ricordami
   module HasIndices
@@ -13,13 +12,11 @@ module Ricordami
       end
 
       def index(options = {})
-        options.assert_valid_keys(:unique, :value, :order, :get_by, :scope)
+        options.assert_valid_keys(:unique, :get_by, :value, :scope)
         fields = options.delete(:unique)
         return unique_index(fields, options) if fields.present?
         field = options.delete(:value)
         return value_index(field) if field.present?
-        field = options.delete(:order)
-        return order_index(field) if field.present?
         raise InvalidIndexDefinition.new(self.class)
       end
 
@@ -30,21 +27,9 @@ module Ricordami
         self.indices[index.name] = index
       end
 
-      def order_index(field)
-        index = OrderIndex.new(self, field)
-        return nil unless add_index(index)
-        set_save_and_delete_for(index, field)
-        index
-      end
-
       def value_index(field)
         index = ValueIndex.new(self, field)
         return nil unless add_index(index)
-        set_save_and_delete_for(index, field)
-        index
-      end
-
-      def set_save_and_delete_for(index, field)
         queue_saving_operations do |obj, session|
           old_v = obj.send("#{field}_was")
           new_v = obj.send(field)
@@ -61,6 +46,7 @@ module Ricordami
             end
           end
         end
+        index
       end
 
       def unique_index(fields, options = {})

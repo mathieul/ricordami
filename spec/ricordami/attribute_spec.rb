@@ -50,6 +50,29 @@ describe Ricordami::Attribute do
       subject.new(:not_read_only).should_not be_read_only
     end
 
+    it "has an option :indexed to index the attribute as unique" do
+      attribute = subject.new(:georges, :indexed => :unique)
+      attribute.indexed.should == :unique
+    end
+
+    it "has an option :indexed to index the attribute by value" do
+      attribute = subject.new(:georges, :indexed => :value)
+      attribute.indexed.should == :value
+    end
+
+    it "raises an error if :indexed is not :unique or :value" do
+      lambda {
+        subject.new(:georges, :indexed => :blah)
+      }.should raise_error(Ricordami::InvalidIndexDefinition)
+      lambda {
+        subject.new(:georges)
+      }.should_not raise_error
+    end
+
+    it "its value can be used for queries when :indexed is not set" do
+      subject.new(:not_indexed).should_not be_indexed
+    end
+
     it "has an option :initial for an initial value set when saved the first time" do
       attribute = subject.new(:id, :initial => "123")
       attribute.initial_value.should == "123"
@@ -85,36 +108,6 @@ describe Ricordami::Attribute do
       subject.new(:name, :type => :string).converter.should == :to_s
       subject.new(:name, :type => :integer).converter.should == :to_i
       subject.new(:name, :type => :float).converter.should == :to_f
-    end
-
-    describe "indexing" do
-      it "has an option :indexed to index the attribute as unique" do
-        attribute = subject.new(:georges, :indexed => :unique)
-        attribute.indexed.should == :unique
-      end
-
-      it "has an option :indexed to index the attribute by value" do
-        attribute = subject.new(:georges, :indexed => :value)
-        attribute.indexed.should == :value
-      end
-
-      it "has an option :indexed to index the attribute by order" do
-        attribute = subject.new(:georges, :indexed => :order)
-        attribute.indexed.should == :order
-      end
-
-      it "raises an error if :indexed is not :unique, :value or :order" do
-        lambda {
-          subject.new(:georges, :indexed => :blah)
-        }.should raise_error(Ricordami::InvalidIndexDefinition)
-        lambda {
-          subject.new(:georges)
-        }.should_not raise_error
-      end
-
-      it "its value can be used for queries when :indexed is not set" do
-        subject.new(:not_indexed).should_not be_indexed
-      end
     end
   end
 end

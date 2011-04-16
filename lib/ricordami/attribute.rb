@@ -6,7 +6,7 @@ module Ricordami
 
     def initialize(name, options = {})
       options.assert_valid_keys(:default, :read_only, :initial, :indexed, :type)
-      if options[:indexed] && ![:order, :value, :unique].include?(options[:indexed])
+      if options[:indexed] && ![:value, :unique].include?(options[:indexed])
         raise InvalidIndexDefinition.new(options[:indexed].to_s)
       end
       options[:type] ||= :string

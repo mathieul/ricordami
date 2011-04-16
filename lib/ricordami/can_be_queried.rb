@@ -20,13 +20,13 @@ module Ricordami
       end
 
       def all(opts = {})
-        result_key = run_filters(opts.delete(:filters) || [])
+        result_key = run_expressions(opts.delete(:expressions) || [])
         ids = get_result_ids(result_key, opts)
         build_result(ids, opts)
       end
 
       def paginate(opts = {})
-        result_key = run_filters(opts.delete(:filters) || [])
+        result_key = run_expressions(opts.delete(:expressions) || [])
         page = opts[:page] || 1
         per_page = opts[:per_page] || 20
         start = (page - 1) * per_page
@@ -36,14 +36,14 @@ module Ricordami
       end
 
       def first(opts = {})
-        result_key = run_filters(opts.delete(:filters) || [])
+        result_key = run_expressions(opts.delete(:expressions) || [])
         opts[:limit] = [0, 1]
         ids = get_result_ids(result_key, opts)
         build_result(ids, opts).first
       end
 
       def last(opts = {})
-        result_key = run_filters(opts.delete(:filters) || [])
+        result_key = run_expressions(opts.delete(:expressions) || [])
         size = redis.scard(result_key)
         opts[:limit] = [size - 1, 1]
         ids = get_result_ids(result_key, opts)
@@ -51,7 +51,7 @@ module Ricordami
       end
 
       def rand(opts = {})
-        result_key = run_filters(opts.delete(:filters) || [])
+        result_key = run_expressions(opts.delete(:expressions) || [])
         size = redis.scard(result_key)
         opts[:limit] = [Kernel.rand(size), 1]
         ids = get_result_ids(result_key, opts)
@@ -60,68 +60,41 @@ module Ricordami
 
       private
 
-      def run_filters(filters)
+      def run_expressions(expressions)
         key_all_ids = indices[:u_id].uidx_key_name
-        result_key = filters.reduce(key_all_ids) do |key, filter|
-          type, conditions = filter
+        result_key = expressions.reduce(key_all_ids) do |key, expression|
+          type, conditions = expression
           condition_keys = get_keys_for_each_condition(conditions)
           next key if condition_keys.empty?
-          target_key = key_name_for_filter(type, conditions, key)
+          target_key = key_name_for_expression(type, conditions, key)
           send("run_#{type}", target_key, key, condition_keys)
         end
         result_key.empty?? [] : result_key
       end
 
       def get_keys_for_each_condition(conditions)
-        conditions.map do |condition|
-          if condition.operator == :eq
-            if condition.field == :id
-              key_for_id_equality(condition)
-            else
-              key_for_value_equality(condition)
-            end
+        conditions.map do |field, value|
+          if field == :id
+            ids_key = KeyNamer.temporary(self)
+            [value].flatten.each { |v| redis.sadd(ids_key, v) }
+            redis.expire(ids_key, 60)
+            ids_key
           else
-            key_for_order_condition(condition)
+            index_name = "v_#{field}".to_sym
+            index = indices[index_name]
+            raise MissingIndex.new("class: #{self}, attribute: #{index_name.inspect}") if index.nil?
+            if value.is_a?(Array)
+              value.map { |v| index.key_name_for_value(v) }
+            else
+              index.key_name_for_value(value)
+            end
           end
         end
       end
 
-      def key_for_id_equality(condition)
-        ids_key = KeyNamer.temporary(self)
-        [condition.value].flatten.each { |v| redis.sadd(ids_key, v) }
-        redis.expire(ids_key, 60)
-        ids_key
-      end
-
-      def key_for_value_equality(condition)
-        index_name = :"v_#{condition.field}"
-        index = indices[index_name]
-        if index.nil?
-          raise MissingIndex.new("missing value index for #{self}, attribute: #{condition.field.inspect}")
-        end
-        if condition.value.is_a?(Array)
-          condition.value.map { |v| index.key_name_for_value(v) }
-        else
-          index.key_name_for_value(condition.value)
-        end
-      end
-
-      def key_for_order_condition(condition)
-        index_name = :"o_#{condition.field}"
-        index = indices[index_name]
-        if index.nil?
-          raise MissingIndex.new("missing order index for #{self}, attribute: #{condition.field.inspect}")
-        end
-        KeyNamer.temporary(self).tap do |result_key|
-          # run condition and store result in a temporary set
-          # currently not possible without a trip back and
-          # return with the data - WAITING FOR ZRANGEBYSCORESTORE :D
-        end
-      end
-
-      def key_name_for_filter(type, conditions, previous_key)
+      def key_name_for_expression(type, conditions, previous_key)
         KeyNamer.volatile_set(self, :key => previous_key,
-                                    :info => [type] + conditions.map(&:field))
+                                    :info => [type] + conditions.keys)
       end
 
       def get_result_ids(key, opts)

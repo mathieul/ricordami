@@ -7,11 +7,11 @@ module Ricordami
     def initialize(model, field)
       @model = model
       @field = field.to_sym
-      @name = :"v_#{@field}"
+      @name = "v_#{@field}".to_sym
     end
 
     def key_name_for_value(value)
-      KeyNamer.value_index(@model, :field => @field, :value => value)
+      KeyNamer.index(@model, :field => @field, :value => value)
     end
 
     def add(id, value)

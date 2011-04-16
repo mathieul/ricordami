@@ -20,13 +20,13 @@ module Ricordami
       end
 
       def all(opts = {})
-        result_key = run_expressions(opts.delete(:expressions) || [])
+        result_key = run_filters(opts.delete(:filters) || [])
         ids = get_result_ids(result_key, opts)
         build_result(ids, opts)
       end
 
       def paginate(opts = {})
-        result_key = run_expressions(opts.delete(:expressions) || [])
+        result_key = run_filters(opts.delete(:filters) || [])
         page = opts[:page] || 1
         per_page = opts[:per_page] || 20
         start = (page - 1) * per_page
@@ -36,14 +36,14 @@ module Ricordami
       end
 
       def first(opts = {})
-        result_key = run_expressions(opts.delete(:expressions) || [])
+        result_key = run_filters(opts.delete(:filters) || [])
         opts[:limit] = [0, 1]
         ids = get_result_ids(result_key, opts)
         build_result(ids, opts).first
       end
 
       def last(opts = {})
-        result_key = run_expressions(opts.delete(:expressions) || [])
+        result_key = run_filters(opts.delete(:filters) || [])
         size = redis.scard(result_key)
         opts[:limit] = [size - 1, 1]
         ids = get_result_ids(result_key, opts)
@@ -51,7 +51,7 @@ module Ricordami
       end
 
       def rand(opts = {})
-        result_key = run_expressions(opts.delete(:expressions) || [])
+        result_key = run_filters(opts.delete(:filters) || [])
         size = redis.scard(result_key)
         opts[:limit] = [Kernel.rand(size), 1]
         ids = get_result_ids(result_key, opts)
@@ -60,13 +60,13 @@ module Ricordami
 
       private
 
-      def run_expressions(expressions)
+      def run_filters(filters)
         key_all_ids = indices[:u_id].uidx_key_name
-        result_key = expressions.reduce(key_all_ids) do |key, expression|
-          type, conditions = expression
+        result_key = filters.reduce(key_all_ids) do |key, filter|
+          type, conditions = filter
           condition_keys = get_keys_for_each_condition(conditions)
           next key if condition_keys.empty?
-          target_key = key_name_for_expression(type, conditions, key)
+          target_key = key_name_for_filter(type, conditions, key)
           send("run_#{type}", target_key, key, condition_keys)
         end
         result_key.empty?? [] : result_key
@@ -92,7 +92,7 @@ module Ricordami
         end
       end
 
-      def key_name_for_expression(type, conditions, previous_key)
+      def key_name_for_filter(type, conditions, previous_key)
         KeyNamer.volatile_set(self, :key => previous_key,
                                     :info => [type] + conditions.keys)
       end

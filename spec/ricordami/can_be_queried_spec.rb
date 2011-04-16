@@ -29,7 +29,7 @@ describe Ricordami::CanBeQueried do
 
       it "delegates #and to the new query" do
         query = Customer.and(:key => "value")
-        query.expressions.should == [[:and, {:key => "value"}]]
+        query.filters.should == [[:and, {:key => "value"}]]
       end
     end
 
@@ -41,7 +41,7 @@ describe Ricordami::CanBeQueried do
 
       it "delegates #not to the new query" do
         query = Customer.not(:key => "value")
-        query.expressions.should == [[:not, {:key => "value"}]]
+        query.filters.should == [[:not, {:key => "value"}]]
       end
     end
 
@@ -53,7 +53,7 @@ describe Ricordami::CanBeQueried do
 
       it "delegates #any to the new query" do
         query = Customer.any(:key => "value")
-        query.expressions.should == [[:any, {:key => "value"}]]
+        query.filters.should == [[:any, {:key => "value"}]]
       end
     end
 

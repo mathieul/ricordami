@@ -5,19 +5,19 @@ describe Ricordami::Query do
   uses_constants("Instrument")
   let(:query) { Ricordami::Query.new(Instrument) }
 
-  it "has expressions" do
-    query.expressions.should == []
+  it "has filters" do
+    query.filters.should == []
   end
 
   describe "#and" do
-    it "saves :and expressions" do
+    it "saves :and filters" do
       query.and(:allo => "la terre")
-      query.expressions.pop.should == [:and, {:allo => "la terre"}]
+      query.filters.pop.should == [:and, {:allo => "la terre"}]
     end
 
     it "uses :where as an alias for :and" do
       query.where(:allo => "la terre")
-      query.expressions.pop.should == [:and, {:allo => "la terre"}]
+      query.filters.pop.should == [:and, {:allo => "la terre"}]
     end
 
     it "returns self" do
@@ -26,9 +26,9 @@ describe Ricordami::Query do
   end
 
   describe "#not" do
-    it "saves :not expressions" do
+    it "saves :not filters" do
       query.not(:allo => "la terre")
-      query.expressions.pop.should == [:not, {:allo => "la terre"}]
+      query.filters.pop.should == [:not, {:allo => "la terre"}]
     end
 
     it "returns self" do
@@ -37,9 +37,9 @@ describe Ricordami::Query do
   end
 
   describe "#any" do
-    it "saves :any expressions" do
+    it "saves :any filters" do
       query.any(:allo => "la terre")
-      query.expressions.pop.should == [:any, {:allo => "la terre"}]
+      query.filters.pop.should == [:any, {:allo => "la terre"}]
     end
 
     it "returns self" do
@@ -49,13 +49,13 @@ describe Ricordami::Query do
 
   describe "running the query" do
     it "delegates #all to the runner" do
-      Instrument.should_receive(:all).with(:expressions => [[:and, {:key => "val"}]],
+      Instrument.should_receive(:all).with(:filters => [[:and, {:key => "val"}]],
                                            :return => Instrument, :store => false)
       query.and(:key => "val").all
     end
 
     it "delegates #paginate to the runner" do
-      Instrument.should_receive(:paginate).with(:expressions => [[:and, {:key => "val"}]],
+      Instrument.should_receive(:paginate).with(:filters => [[:and, {:key => "val"}]],
                                                 :page => 3,
                                                 :per_page => 18,
                                                 :return => Instrument, :store => false)
@@ -63,7 +63,7 @@ describe Ricordami::Query do
     end
 
     it "delegates #first to the runner" do
-      Instrument.should_receive(:first).with(:expressions => [[:and, {:key => "val"}]],
+      Instrument.should_receive(:first).with(:filters => [[:and, {:key => "val"}]],
                                              :sort_by => :key,
                                              :order => "ALPHA ASC",
                                              :return => Instrument,
@@ -72,7 +72,7 @@ describe Ricordami::Query do
     end
 
     it "delegates #last to the runner" do
-      Instrument.should_receive(:last).with(:expressions => [[:and, {:key => "val"}]],
+      Instrument.should_receive(:last).with(:filters => [[:and, {:key => "val"}]],
                                             :sort_by => :key,
                                             :order => "ALPHA DESC",
                                             :return => Instrument,
@@ -82,7 +82,7 @@ describe Ricordami::Query do
 
     it "delegates #rand to the runner" do
       Instrument.should_receive(:respond_to?).with(:rand).and_return(true)
-      Instrument.should_receive(:rand).with(:expressions => [[:and, {:key => "val"}]],
+      Instrument.should_receive(:rand).with(:filters => [[:and, {:key => "val"}]],
                                             :sort_by => :key,
                                             :order => "ALPHA ASC",
                                             :return => Instrument,
@@ -98,7 +98,7 @@ describe Ricordami::Query do
     it "accepts any unknown method and delegate it to the result of #all" do
       instruments = %w(guitar bass drums).map { |value| Struct.new(:name).new(value) }
       Instrument.should_receive(:all).
-        with(:expressions => [[:and, {:key => "val"}]],
+        with(:filters => [[:and, {:key => "val"}]],
              :return => Instrument,
              :store => false).
         and_return(instruments)

@@ -8,7 +8,7 @@ module Ricordami
       @model = model
       @field = field.to_sym
       assert_numeric_field
-      @name = "o_#{@field}".to_sym
+      @name = :"o_#{@field}"
       @key_name = KeyNamer.order_index(@model, :field => @field)
     end
 

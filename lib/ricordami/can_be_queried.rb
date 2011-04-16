@@ -74,21 +74,48 @@ module Ricordami
 
       def get_keys_for_each_condition(conditions)
         conditions.map do |condition|
-          if condition.field == :id
-            ids_key = KeyNamer.temporary(self)
-            [condition.value].flatten.each { |v| redis.sadd(ids_key, v) }
-            redis.expire(ids_key, 60)
-            ids_key
-          else
-            index_name = "v_#{condition.field}".to_sym
-            index = indices[index_name]
-            raise MissingIndex.new("class: #{self}, attribute: #{index_name.inspect}") if index.nil?
-            if condition.value.is_a?(Array)
-              condition.value.map { |v| index.key_name_for_value(v) }
+          if condition.operator == :eq
+            if condition.field == :id
+              key_for_id_equality(condition)
             else
-              index.key_name_for_value(condition.value)
+              key_for_value_equality(condition)
             end
+          else
+            key_for_order_condition(condition)
           end
+        end
+      end
+
+      def key_for_id_equality(condition)
+        ids_key = KeyNamer.temporary(self)
+        [condition.value].flatten.each { |v| redis.sadd(ids_key, v) }
+        redis.expire(ids_key, 60)
+        ids_key
+      end
+
+      def key_for_value_equality(condition)
+        index_name = :"v_#{condition.field}"
+        index = indices[index_name]
+        if index.nil?
+          raise MissingIndex.new("missing value index for #{self}, attribute: #{condition.field.inspect}")
+        end
+        if condition.value.is_a?(Array)
+          condition.value.map { |v| index.key_name_for_value(v) }
+        else
+          index.key_name_for_value(condition.value)
+        end
+      end
+
+      def key_for_order_condition(condition)
+        index_name = :"o_#{condition.field}"
+        index = indices[index_name]
+        if index.nil?
+          raise MissingIndex.new("missing order index for #{self}, attribute: #{condition.field.inspect}")
+        end
+        KeyNamer.temporary(self).tap do |result_key|
+          # run condition and store result in a temporary set
+          # currently not possible without a trip back and
+          # return with the data - WAITING FOR ZRANGEBYSCORESTORE :D
         end
       end
 

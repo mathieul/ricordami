@@ -73,20 +73,20 @@ module Ricordami
       end
 
       def get_keys_for_each_condition(conditions)
-        conditions.map do |field, value|
-          if field == :id
+        conditions.map do |condition|
+          if condition.field == :id
             ids_key = KeyNamer.temporary(self)
-            [value].flatten.each { |v| redis.sadd(ids_key, v) }
+            [condition.value].flatten.each { |v| redis.sadd(ids_key, v) }
             redis.expire(ids_key, 60)
             ids_key
           else
-            index_name = "v_#{field}".to_sym
+            index_name = "v_#{condition.field}".to_sym
             index = indices[index_name]
             raise MissingIndex.new("class: #{self}, attribute: #{index_name.inspect}") if index.nil?
-            if value.is_a?(Array)
-              value.map { |v| index.key_name_for_value(v) }
+            if condition.value.is_a?(Array)
+              condition.value.map { |v| index.key_name_for_value(v) }
             else
-              index.key_name_for_value(value)
+              index.key_name_for_value(condition.value)
             end
           end
         end
@@ -94,7 +94,7 @@ module Ricordami
 
       def key_name_for_filter(type, conditions, previous_key)
         KeyNamer.volatile_set(self, :key => previous_key,
-                                    :info => [type] + conditions.keys)
+                                    :info => [type] + conditions.map(&:field))
       end
 
       def get_result_ids(key, opts)
